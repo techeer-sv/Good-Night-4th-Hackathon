@@ -88,6 +88,17 @@ npm run dev
   - API 호출 결과에 따라 성공 시 성공 메시지를 표시, 홈 화면으로 복귀, 실패 시에는 오류 메시지를 표시하고 폼 데이터를 초기화.
 3. **API 엔드포인트:**
   - `GET /api/booked-seats`: 모든 예약된 좌석의 번호를 JSON 배열로 반환.
+  ``` javascript
+  app.get('/api/booked-seats', (req, res) => {
+  db.all('SELECT seat_number FROM seat_bookings ORDER BY seat_number', (err, rows) => {
+    if (err) {
+      console.error('좌석 조회 오류:', err);
+      return res.status(500).json({
+        success: false,
+        message: '좌석 조회 중 오류가 발생했습니다.'
+      });
+    }
+  ```
   - `POST /api/book-seats`: 예약자 정보(이름, 이메일, 전화번호)와 선택된 좌석 배열을 받아 좌석을 예약 처리, 예매 성공/실패 결과를 JSON으로 반환.
 4. **코드 품질 보장:**
   - 기본 타입 체크 함수 추가(배열, 숫자,, 문자열, 함수, 객체 타입 검증)
