@@ -92,7 +92,7 @@
             "description": "Create the foundational app layout in app/layout.tsx, including html lang, default metadata, Tailwind imports, <Providers>, <SkipToContent> anchor, <Header />, <main id='content' tabIndex={-1}> for children, and <Footer />.",
             "dependencies": [],
             "details": "Ensure semantic structure and accessibility attributes are present. Integrate Tailwind responsive classes and focus-visible styles throughout the layout.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Render layout and verify presence of all major sections. Check for correct html lang, metadata, and accessibility attributes."
           },
           {
@@ -101,7 +101,7 @@
             "description": "Build components/Header.tsx with logo linking to /events, navigation links (Events, My Bookings when authed), and conditional Login/Logout based on session. Integrate session hook from Task 3.",
             "dependencies": ["2.1"],
             "details": "Use Tailwind for responsive design. Ensure header uses role='navigation' and appropriate aria-label. Implement conditional rendering for auth links.",
-            "status": "pending",
+            "status": "in-progress",
             "testStrategy": "Render <Header /> and assert for role='navigation', correct links based on session state, and accessibility labels."
           },
           {
@@ -246,7 +246,7 @@
     ],
     "metadata": {
       "created": "2025-08-16T12:16:34.191Z",
-      "updated": "2025-08-16T14:46:28.194Z",
+      "updated": "2025-08-16T14:55:43.332Z",
       "description": "Tasks for master context"
     }
   }
