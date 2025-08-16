@@ -1,11 +1,5 @@
-use once_cell::sync::Lazy;
 use salvo::prelude::*;
-
-static REDIS_CLIENT: Lazy<redis::Client> = Lazy::new(|| {
-    let url = std::env::var("REDIS_URL")
-        .unwrap_or_else(|_| "redis://:redis_pass@127.0.0.1:6379/0".to_string());
-    redis::Client::open(url).expect("Invalid REDIS_URL")
-});
+use config_redis::CLIENT as REDIS_CLIENT;
 
 #[handler]
 async fn redis_ping() -> String {
@@ -18,15 +12,18 @@ async fn redis_ping() -> String {
     }
 }
 
+// Removed temporary redis_seq_test route; sequence now used only via FCFS reservation endpoint.
+
 #[tokio::main]
 async fn main() {
     let _ = dotenvy::dotenv();
     tracing_subscriber::fmt().init();
 
-    // Skip DB init for now until SQLite driver issues resolved
-    // if let Err(e) = config_database::init_db().await {
-    //     tracing::warn!(error = %e, "DB init failed (continuing)");
-    // }
+    // Initialize PostgreSQL database
+    if let Err(e) = config_database::init_db().await {
+        tracing::error!(error = %e, "DB init failed");
+        panic!("Database initialization failed: {}", e);
+    }
 
     let acceptor = TcpListener::new("0.0.0.0:5800").bind().await;
     let router = config_api::build_router(redis_ping);

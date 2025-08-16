@@ -4,9 +4,17 @@ version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 
+[lib]
+name = "seat_controller"
+path = "src/lib.rs"
+
+[features]
+memory-seats = []
+
 [dependencies]
 seat-service = { path = "../service" }
 seat_model = { path = "../model" }
+config-database = { path = "../../config/database" }
 once_cell.workspace = true
 tokio.workspace = true
 serde.workspace = true
@@ -15,3 +23,6 @@ anyhow.workspace = true
 reqwest.workspace = true
 salvo.workspace = true
 tracing.workspace = true
+sea-orm.workspace = true
+redis.workspace = true
+config_redis = { path = "../../config/redis" }

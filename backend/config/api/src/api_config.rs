@@ -46,6 +46,8 @@ pub fn build_router(redis_ping: impl Handler) -> Router {
             Router::with_path("api/v1/seats")
                 .get(seat::list_seats)
                 .push(Router::with_path("reservation").post(seat::reserve_seat))
+                // Global FCFS reservation endpoint (sequence based)
+                .push(Router::with_path("reservation/fcfs").post(seat::reserve_next_seat))
                 .push(
                     Router::with_path("{id}")
                         .get(seat::get_seat)

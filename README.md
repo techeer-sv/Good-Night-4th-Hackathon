@@ -50,11 +50,8 @@
 
 ### 기본 요구사항
 
-> 아래 목표들을 달성하기 위한 구현 방법은 자유롭게 선택하세요.
-
 > 각 목표를 어떻게 해결했는지 README에 설명해주세요.
 
-1. **사용자 경험 개선**
     - **목표**: 사용자가 서비스를 이용할 때 발생할 수 있는 불편함 최소화
     - **예시**
         - 직관적인 UI
@@ -62,10 +59,7 @@
         - 예약이 실패했을 때 편의성
         - 모바일에서 접속했을 때 편의성
 2. **안정적인 서비스 운영**
-    - **목표**: 예상치 못한 상황에서도 서비스가 안정적으로 동작
-    - **예시**
         - 잘못된 요청이 들어왔을 때
-        - 존재하지 않는 좌석을 예약하려 할 때
         - 서버 에러가 발생했을 때
         - 데이터 정합성 보장
 
@@ -137,6 +131,7 @@ docker-compose.yml (redis 등 서비스 정의)
 * 중복되던 `entity` 크레이트 제거 → `seat_model` 로 단순화
 * 컨트롤러/서비스 레이어 분리 (model ↔ service ↔ controller)
 * Redis 연결 및 PING 헬스체크 코드 정비
+* FCFS 글로벌 좌석 예약 엔드포인트 (`POST /api/v1/seats/reservation/fcfs`) 추가 – Redis INCR 시퀀스 + DB 조건부 UPDATE 로 경합 최소화
 * 공통 의존성/에디션/린트 설정을 workspace 수준으로 통합
 
 ### 실행 방법
@@ -152,6 +147,18 @@ docker-compose.yml (redis 등 서비스 정의)
     cargo run
     ```
     실행 후 OpenAPI 스펙(JSON): http://localhost:5800/openapi.json
+        * 글로벌 FCFS 예약:
+            ```bash
+            curl -X POST http://localhost:5800/api/v1/seats/reservation/fcfs \
+                -H 'Content-Type: application/json' \
+                -H 'X-User-Id: user-123' \
+                -d '{"userName":"Alice","phone":"010-1234-5678"}'
+            ```
+            성공 응답 예:
+            ```json
+            {"success":true,"seat":{"id":3,"status":true}}
+            ```
+            실패(reason) 예: `sold_out`, `already_reserved`, `contention`
 4. (예정) OpenResty + Redis 조합 실행:
     ```bash
     docker compose up -d redis
@@ -169,4 +176,5 @@ docker-compose.yml (redis 등 서비스 정의)
 * 실시간 좌석 상태(WS or SSE) 반영
 * 테스트 커버리지 확장 (service + controller 통합 테스트)
 * README에 아키텍처 다이어그램 추가
+* 예약 응답 reason 코드 enum-like 문서화 및 클라이언트 매핑 표 추가
 

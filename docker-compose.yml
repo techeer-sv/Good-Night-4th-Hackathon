@@ -1,5 +1,18 @@
 version: '3.9'
 services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres
+    environment:
+      - POSTGRES_DB=tickettock
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
   redis:
     build: ./redis
     container_name: redis
@@ -13,5 +26,42 @@ services:
       - redis-data:/data
     restart: unless-stopped
 
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: backend
+    environment:
+      - DATABASE_URL=postgres://postgres:${POSTGRES_PASSWORD:-postgres}@postgres:5432/tickettock
+      - RUST_LOG=info
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-redis_pass}
+    volumes:
+      - backend-data:/app/data
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - "5800:5800"
+    restart: unless-stopped
+
+  gateway:
+    build: ./openresty
+    container_name: gateway
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - DEFAULT_DUP_TTL=5
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-redis_pass}
+    depends_on:
+      - backend
+      - redis
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+
 volumes:
+  postgres-data:
   redis-data:
+  backend-data:

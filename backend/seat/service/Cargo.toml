@@ -4,6 +4,10 @@ version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 
+[lib]
+name = "seat_service"
+path = "src/lib.rs"
+
 [features]
 # mock feature enables SeaORM mock support only for tests using required-features
 mock = ["sea-orm/mock"]

@@ -18,7 +18,22 @@ impl MigrationTrait for Migration {
                             .auto_increment()
                             .primary_key(),
                     )
-                    .col(ColumnDef::new(Seats::Status).boolean().not_null())
+                    .col(
+                        ColumnDef::new(Seats::Status)
+                            .boolean()
+                            .not_null()
+                            .default(false),
+                    )
+                    .col(
+                        ColumnDef::new(Seats::ReservedBy)
+                            .string()
+                            .null(),
+                    )
+                    .col(
+                        ColumnDef::new(Seats::Phone)
+                            .string()
+                            .null(),
+                    )
                     .to_owned(),
             )
             .await
@@ -36,4 +51,6 @@ enum Seats {
     Table,
     Id,
     Status,
+    ReservedBy,
+    Phone,
 }
