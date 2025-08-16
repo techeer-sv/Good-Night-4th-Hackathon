@@ -43,6 +43,9 @@ dependencies {
 
 	testImplementation "org.testcontainers:junit-jupiter:1.19.7"
 	testImplementation "com.h2database:h2"
+
+	//redis
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 }
 
 tasks.named('test') {

@@ -13,14 +13,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Primary
 @RequiredArgsConstructor
-public class NaiveReservationService implements ReservationService {
+public class RedisReservationService implements ReservationService {
 
     private final PerformanceSeatRepository performanceSeatRepository;
     private final ReservationRepository reservationRepository;
     private final UserRepository userRepository;
+    private final _th.hackathon.domain.reservation.repository.RedisRepository redisRepository;
 
-    /** CAS 제거 버전: 읽고-검사하고-저장(중간에 인위적 딜레이) */
     @Override
     @Transactional
     public Long reserve(Long userId,
@@ -35,25 +36,27 @@ public class NaiveReservationService implements ReservationService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
 
-        // 1) 현재 좌석 상태 읽기
+        // 좌석 조회 (회차ID를 얻기 위해 필요)
         PerformanceSeat ps = performanceSeatRepository.findById(performanceSeatId)
                 .orElseThrow(() -> new IllegalArgumentException("좌석이 존재하지 않습니다."));
+        // 첫 시도만 통과
+        Long gate = redisRepository.increment(ps.getPerformance().getId(), ps.getId());
+        if (gate == null) {
+            throw new IllegalStateException("예약 게이트 확인에 실패했습니다."); // 필요시 503 등으로 매핑
+        }
+        if (gate > 1) {
+            // 이미 누군가 선점 → 즉시 충돌 처리(409로 매핑 권장)
+            throw new IllegalStateException("이미 다른 요청이 선점했습니다.");
+        }
+
+        try { Thread.sleep(80); } catch (InterruptedException e) { Thread.currentThread().interrupt(); }
 
         if (!ps.isAvailable()) {
             throw new IllegalStateException("이미 예매된 좌석입니다.");
         }
 
-        // 2) 레이스 윈도우를 키우기 위한 인위적 딜레이 (동시성 실패 유도)
-        try {
-            Thread.sleep(80); // 50~200ms 등으로 늘리면 실패 빈도↑
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
+        ps.markSold();
 
-        // 3) 상태 변경(단순 필드 세팅) — CAS/락/버전 없음
-        ps.markSold(); // 내부에서 status = SOLD 같은 단순 세팅
-
-        // 4) 예약 레코드 저장
         Reservation r = Reservation.builder()
                 .user(user)
                 .performanceSeat(ps)
@@ -69,7 +72,10 @@ public class NaiveReservationService implements ReservationService {
     public void cancel(Long reservationId) {
         Reservation r = reservationRepository.findById(reservationId).orElseThrow();
         performanceSeatRepository.findById(r.getPerformanceSeat().getId())
-                .ifPresent(PerformanceSeat::markAvailable);
+                .ifPresent(ps -> {
+                    ps.markAvailable();
+                    redisRepository.reset(ps.getPerformance().getId(), ps.getId());
+                });
         r.cancel();
     }
 }
