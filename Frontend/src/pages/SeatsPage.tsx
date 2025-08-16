@@ -31,12 +31,17 @@ export default function SeatsPage() {
   return (
     <div className="container">
       <header>
-        <h1>공연 좌석 예매</h1>
+        <h1>공연 좌석 예매 서비스</h1>
         <div className="header-actions">
           <button className="outline" onClick={fetchSeats} disabled={loading}>새로고침</button>
           <button className="outline" onClick={() => navigate("/lookup")}>예약 확인</button>
         </div>
       </header>
+
+      <div className="legend compact" aria-hidden>
+        <span className="badge available" /> 선택 가능 좌석
+        <span className="badge reserved" /> 예약된 좌석
+      </div>
 
       {/* 무대 배너 */}
       <div className="stage" aria-hidden>
@@ -63,8 +68,6 @@ export default function SeatsPage() {
           </div>
         ))}
       </div>
-
-      <p className="hint">예약 가능 좌석(초록)을 눌러 예약을 진행하세요.</p>
     </div>
   );
 }

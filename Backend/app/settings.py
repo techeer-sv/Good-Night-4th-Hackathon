@@ -25,8 +25,7 @@ SECRET_KEY = 'django-insecure-zp^(22%r@2@@^!d_#t-=vpb+)+!_!gq)hymzbrg0rdfc43&c8#
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-# ALLOWED_HOSTS: list[str] = []
-ALLOWED_HOSTS = ["*", "127.0.0.1", "localhost", "172.30.1.3"]
+ALLOWED_HOSTS: list[str] = []
 
 # Application definition
 
@@ -43,7 +42,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',  # CORS 미들웨어, 프론트엔드에서 요청 허용 
+    'corsheaders.middleware.CorsMiddleware',  # CORS 미들웨어, 프론트엔드에서 요청 허용
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',

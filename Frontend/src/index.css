@@ -6,13 +6,14 @@ h1 { font-size: 24px; margin: 8px 0 16px; }
 .grid { display: grid; gap: 12px; }
 .row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
 
-.seat { padding: 18px 0; border: 0; border-radius: 12px; font-weight: 700; }
+.seat { padding: 18px 0; box-sizing: border-box; border: 1px solid transparent; border-radius: 12px; font-weight: 700; margin-bottom: 0; }
 .seat.available { background: #1e8e3e; color: white; cursor: pointer; }
 .seat.available:hover { filter: brightness(1.05); }
 .seat.reserved { background: #dc2626; color: #fff; cursor: not-allowed; }
 .seat.reserved:disabled { opacity: 1; } /* 비활성화여도 색 안 흐리게 */
 
-button { background: #4f46e5; color: white; padding: 10px 14px; border-radius: 10px; border: 0; cursor: pointer; margin-bottom: 5px; }
+button { background: #4f46e5; color: white; padding: 10px 14px; border-radius: 10px; border: 0; cursor: pointer; }
+ .grid .seat { margin-bottom: 0; }
 button:hover { filter: brightness(1.05); }
 button:disabled { opacity: 0.6; cursor: not-allowed; }
 button.outline { background: transparent; border: 1px solid #6b7280; color: #eef1f6; margin: 3px; }
@@ -20,8 +21,6 @@ button.link { background: transparent; color: #aeb6c2; padding: 6px 0; }
 
 .error { background: #7f1d1d; color: #ffe4e6; padding: 10px 14px; border-radius: 8px; }
 .ok { background: #0f5132; color: #d1fae5; padding: 12px 14px; border-radius: 8px; display: grid; gap: 8px; }
-.hint { color: #9aa3b2; margin-top: 10px; }
-.hint.small { font-size: 10px; }
 label { display: grid; gap: 6px; margin: 10px 0; }
 input { padding: 10px 12px; border-radius: 10px; border: 1px solid #3b4252; background: #111827; color: #eef1f6; }
 
@@ -36,3 +35,85 @@ input { padding: 10px 12px; border-radius: 10px; border: 1px solid #3b4252; back
   margin-bottom: 15px;
   font-weight: bold;
 }
+
+/* 예약 페이지: 선택(대기) 좌석 표시 */
+.seat.pending {
+  background: #6b7280; /* 회색 */
+  color: #fff;
+  border-style: dashed;
+  border-color: #d1d5db;
+  cursor: default;
+}
+
+/* 범례 전체 스타일 */
+.legend {
+  display: flex;
+  gap: 12px;
+  font-size: 12px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+/* 범례의 작은 네모박스 */
+.legend .badge {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+}
+
+/* 좌석 상태별 색상 */
+.legend .available {
+  background-color: #4caf50; /* 초록 (예약 가능) */
+}
+
+.legend .reserved {
+  background-color: #f44336; /* 빨강 (예약 불가) */
+}
+
+.legend .pending {
+  background-color: #9e9e9e; /* 회색 (선택됨) */
+}
+
+/* 로딩 스피너 */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 40;
+}
+.spinner-lg {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  border: 3px solid rgba(255,255,255,0.25);
+  border-top-color: #fff;
+  animation: spin 0.9s linear infinite;
+  margin-bottom: 12px;
+}
+.overlay-text { color: #e5e7eb; font-weight: 600; }
+
+/* ===== Modal dialog ===== */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+.modal {
+  width: min(92vw, 440px);
+  background: #0f172a;
+  color: #e2e8f0;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }  

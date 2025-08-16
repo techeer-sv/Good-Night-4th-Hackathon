@@ -39,7 +39,7 @@ export default function LookupPage() {
       <form onSubmit={submit} className="form">
         <label>
           이름
-          <input type="text" value={name} onChange={(e)=>setName(e.target.value)} required />
+          <input type="text" value={name} onChange={(e)=>setName(e.target.value)} required placeholder="홍길동" />
         </label>
         <label>
           전화번호
