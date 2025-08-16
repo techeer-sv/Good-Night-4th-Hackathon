@@ -1,26 +1,60 @@
 {
-  "name": "tmp_scaffold",
+  "name": "tickettock-frontend",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "jest",
+    "prepare": "husky install || echo 'skip husky'"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.85.3",
+    "@tanstack/react-query-devtools": "^5.85.3",
+    "clsx": "^2.1.1",
     "next": "15.4.6",
+    "next-themes": "^0.4.6",
     "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "react-dom": "19.1.0",
+    "zustand": "^5.0.7"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@tanstack/eslint-plugin-query": "^5.83.1",
+    "@testing-library/jest-dom": "^6.7.0",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/jest": "^30.0.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "autoprefixer": "^10.4.21",
     "eslint": "^9",
     "eslint-config-next": "15.4.6",
+    "eslint-plugin-jest-dom": "^5.5.0",
+    "eslint-plugin-testing-library": "^7.6.6",
+    "husky": "^9.1.7",
+    "jest": "^30.0.5",
+    "jest-environment-jsdom": "^30.0.5",
+    "lint-staged": "^16.1.5",
+    "msw": "^2.10.5",
+    "postcss": "^8.5.6",
     "prettier": "^3.6.2",
-    "typescript": "^5"
+    "tailwindcss": "^4.1.12",
+    "ts-jest": "^29.4.1",
+    "typescript": "^5",
+    "whatwg-fetch": "^3.6.20"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx}": [
+      "next lint --fix --file",
+      "jest --bail --findRelatedTests --passWithNoTests"
+    ],
+    "*.{json,md,css}": [
+      "prettier --write"
+    ]
   }
 }
