@@ -1,113 +1,226 @@
-# Good-Night-4th-Hackathon
-공연 좌석 예매 시스템 풀스택 구현
+# 🎬 공연 좌석 예매 시스템 — Good-Night-4th-Hackathon
 
-## 안내사항
-
-- 본 레포지토리를 **fork**하여 과제를 수행하고, 완료시 PR을 보냅니다.
-- 과제의 소스코드는 본인의 GitHub 레포지토리에 **Public**으로 올려주세요.
-- 진행 간 문의사항은 이 레포지토리의 Issue로 등록해주세요.
-- 구현 내용은 README.md 하단에 이어서 작성해 주세요.
-
-## 과제 목표
-
-공연 좌석 예매 시스템 구현
-
-### 기술 스택
-
-- Backend: 자유 선택 (Spring Boot, Node.js, Django, FastAPI 등)
-- Frontend: 자유 선택 (React, Vue, Svelte, Vanilla JS 등)
-- Database: 자유 선택
-- 선택한 기술 스택에 대한 이유를 README에 간단히 설명해주세요
-
-### 평가 항목
-
-- 문제 해결 접근 방식에서 기술적 의사결정
-- 구현 완성도와 문서화 수준
-
-## 요구사항
-
-### 최소 요구사항
-> 아래 목표들을 달성하기 위한 구현 방법은 자유롭게 선택하세요.
-
-1. **좌석 현황 표시**
-    - 3x3 격자 형태로 총 9개의 좌석 표시
-    - 각 좌석의 예약 가능/불가능 상태를 시각적으로 구분
-2. **좌석 예약 기능**
-    - 사용자가 빈 좌석을 클릭하여 선택
-    - 페이지를 이동하여 예약자 정보 입력
-    - 정보 입력 완료 후 예약 확정 시도
-        - 99% 확률로 예약 성공 처리
-        - 1% 확률로 의도적 실패 처리
-    - 예약 성공/실패에 대한 명확한 피드백 제공
-3. **API 엔드포인트**
-    - 좌석 목록 조회 API
-    - 좌석 예약 요청 API
-    - HTTP 통신을 통한 데이터 교환
-4. **코드 품질 보장**
-    - 테스트 코드
-    - 타입 체크
-    - 린팅
-
-### 기본 요구사항
-
-> 아래 목표들을 달성하기 위한 구현 방법은 자유롭게 선택하세요.
-
-> 각 목표를 어떻게 해결했는지 README에 설명해주세요.
-
-1. **사용자 경험 개선**
-    - **목표**: 사용자가 서비스를 이용할 때 발생할 수 있는 불편함 최소화
-    - **예시**
-        - 직관적인 UI
-        - 네트워크 지연이 발생했을 때 편의성
-        - 예약이 실패했을 때 편의성
-        - 모바일에서 접속했을 때 편의성
-2. **안정적인 서비스 운영**
-    - **목표**: 예상치 못한 상황에서도 서비스가 안정적으로 동작
-    - **예시**
-        - 잘못된 요청이 들어왔을 때
-        - 존재하지 않는 좌석을 예약하려 할 때
-        - 서버 에러가 발생했을 때
-        - 데이터 정합성 보장
-
-### 심화 요구사항
-
-> 아래 목표들을 달성하기 윈한 구현 방법은 자유롭게 선택하세요.
-
-> 각 목표를 달성했음을 검증할 방법을 마련하세요.
-
-> 시도한 방법이 어떤 방식으로 문제를 해결했으며 보유한 한계점에 대해 상세히 README에 설명해주세요.
-
-
-1. **동시성 제어**
-    - **상황**: 여러 사용자가 동시에 같은 좌석을 예약하려고 시도하는 경우
-    - **목표**: 한 좌석에 대해 단 한 명만 예약에 성공하도록 보장
-2. **실시간 좌석 상태 동기화**
-    - 상황: UI에서 사용자들이 이미 선택된 좌석을 선택하게 되는 경우
-    - 목표: 실시간 좌석 예약 상태를 확인할 수 있도록 실시간 동기화 제공
-3. **선택한 좌석에 대한 우선순위 제공**
-    - 상황 : 좌석 선택 후 예약자 정보를 입력하는 동안 다른 사용자가 좌석을 예약하게 되는 경우
-    - 목표: 동일 좌석에 대해 먼저 선택을 한 사용자에게 예약 우선순위 제공
-
-## 참고사항
-
-### 진행 방식
-
-- 최소 요구사항을 먼저 완성한 후 기본 기능을 구현해주세요
-- 심화 요구사항은 구현에 실패해도 고민한 해결 방법이 있으면 작성해주세요.
-
-### 필수 제출 항목
-
-- **README.md**: 다음 내용을 반드시 포함
-    - 프로젝트 실행 방법 (상세하게)
-    - 기술 스택 선택 이유
-    - 구현한 요구사항 체크리스트
-    - 각 요구사항별 해결 방법 설명
-
-### 선택 제출 항목
-
-- 아키텍처 다이어그램
-- 시연 영상 또는 GIF
+**풀스택(Backend: Django REST, Frontend: React+Vite+TS, DB: SQLite)** 좌석 예매 데모입니다.  
+3×3 좌석표, 예약/조회, 실패/지연 UX까지 갖춘 구현을 목표로 했습니다.
 
 ---
 
-<!-- 구현 내용 작성 -->
+## 📦 프로젝트 구조
+
+```
+Good-Night-4th-Hackathon/
+├─ Backend/              # Django + DRF
+│  ├─ app/               # settings/urls
+│  └─ seats/             # 좌석/예약 app (models, views, serializers, tests)
+└─ Frontend/             # Vite + React + TypeScript
+    └─ src/
+        ├─ pages/          # SeatsPage, ReservePage, LookupPage
+        ├─ api.ts          # API 유틸
+        ├─ types.ts        # 타입 정의
+        └─ index.css       # 전역 스타일
+```
+
+---
+
+<br>
+
+## 🚀 실행 방법
+
+### 1) 백엔드 (Django + DRF)
+
+```bash
+cd Backend
+python -m venv .venv
+# macOS/Linux
+source .venv/bin/activate
+# Windows (PowerShell)
+# .venv\Scripts\Activate.ps1
+
+pip install -r requirements.txt
+python manage.py migrate
+
+# 좌석 초기 시드(3×3) — 필요 시
+python manage.py seed_seats
+# 전체 초기화(리셋)까지 원한다면
+# python manage.py seed_seats --reset true
+
+# 서버 실행
+python manage.py runserver
+# => http://localhost:8000
+```
+
+### 2) 프론트엔드 (Vite + React + TS)
+```bash
+cd Frontend
+npm install
+
+# 환경변수
+echo "VITE_API_BASE_URL=http://localhost:8000" > .env
+
+npm run dev
+# => http://localhost:5173
+```
+
+<br>
+
+## 🛠 기술 스택 & 선택 이유
+- Django + Django REST Framework
+    - 빠르게 API 작성(시리얼라이저/뷰/라우팅) 가능
+	- ORM으로 간결한 모델/마이그레이션
+- React + Vite + TypeScript
+    - Vite로 쉬운 개발 서버/번들링
+	- TS로 컴파일 단계에서 타입 오류 사전 방지
+- SQLite
+    - 준님의 추천으로 사용해봤습니다
+    - 개발/데모에 최적(설치 불필요, 파일 기반)
+	- 마이그레이션만으로 즉시 사용
+
+<br>
+
+## 📚 API 명세
+1) 좌석 목록 조회
+- GET /seats/
+```json
+[
+  { "id": 1, "row": 1, "col": 1, "status": "available", "seat_code": "A1" },
+  { "id": 2, "row": 1, "col": 2, "status": "reserved",  "seat_code": "A2" }
+]
+```
+<br>
+
+2) 좌석 예약 요청
+- POST /reserve/
+  
+**Request**
+```json
+{ "row": 1, "col": 2, "name": "홍길동", "phone": "010-1234-5678" }
+```
+
+**Response 200**
+```json
+{
+  "message": "예약이 완료되었습니다.",
+  "seat": { "id": 2, "row": 1, "col": 2, "status": "reserved", "seat_code": "A2" }
+}
+```
+
+**Response 400**
+```json
+{ "message": "올바른 휴대폰 번호 형식이 아닙니다." }
+```
+
+**Response 409**
+```json
+{ "message": "이미 예약된 좌석입니다." }
+```
+<br>
+
+3) 예약 내역 조회 (이름+전화번호)
+- POST /reservations/lookup/
+  
+**Request**
+```json
+{ "name": "홍길동", "phone": "010-1234-5678" }
+```
+
+**Response 200**
+```json
+{
+  "message": "홍길동님의 예약 내역입니다.",
+  "seats": [
+    { "id": 2, "row": 1, "col": 2, "status": "reserved", "seat_code": "A2" }
+  ]
+}
+```
+
+**Response 404**
+```json
+{ "message": "예약 내역이 없습니다." }
+```
+
+<br>
+
+## 🧩 요구사항별 해결 방법
+### 1) 직관적인 UI
+- 초록(available), 빨강(reserved), 회색(pending) 색상 적용
+  
+### 2) 예약 실패 UX
+- 에러 메시지를 { message }로 받아 모달에 표시 → 메인으로 이동 버튼 제공
+- 요구사항에 따라 예약 시 **1% 확률로 의도적으로 실패**하도록 구현했습니다.
+- 실패 시 백엔드는 `{ "message": "일시적으로 실패했습니다. 다시 시도해주세요." }` 형태로 응답하고,
+  프론트는 사용자에게 메시지로 명확히 안내합니다.
+
+### 3) 안정성/정합성
+- 입력 검증(이름/전화번호 정규식)
+- 좌석 존재 여부 및 상태 확인
+  
+<br>
+
+## 🧪 테스트 & 품질 보장
+### Django 테스트
+
+```bash
+cd Backend
+pytest
+```
+
+<img width="1147" height="170" alt="Image" src="https://github.com/user-attachments/assets/bfb47f8d-dd3a-42a3-aee2-0925ac91088d" />
+
+### 타입 체크
+
+```bash
+# Backend
+mypy .
+```
+<img width="349" height="34" alt="Image" src="https://github.com/user-attachments/assets/be49253e-0a81-4c73-8c8a-8cfa875bb0ac" />
+
+
+```bash
+# Frontend
+npm run type-check
+```
+
+<img width="362" height="72" alt="Image" src="https://github.com/user-attachments/assets/266a0957-b9ae-436f-954f-c66542c383e8" />
+
+### 린트
+
+```bash
+# Backend
+ruff check .
+```
+
+<img width="376" height="35" alt="Image" src="https://github.com/user-attachments/assets/cc53cc83-60b9-405f-8248-67077263c195" />
+
+<br>
+
+## 📸 스크린샷
+
+### 1) 좌석 현황 페이지
+- 공연장 스테이지와 좌석이 **3×3 격자**로 표시
+- **초록색 = 예약 가능**, **빨강색 = 예약 불가**
+
+<img src="https://github.com/user-attachments/assets/2543f59a-2c83-4896-812b-75b410a1ea63" width="300" />
+
+---
+
+### 2) 예약 페이지
+- 사용자가 좌석 선택 → 이름/전화번호 입력
+- **예약 중 안내 문구** 표시
+
+<img src="https://github.com/user-attachments/assets/86ee5cb3-0903-4c08-969a-a32563062c94" width="300" />
+
+---
+
+### 3) 예약 실패 모달
+- 이미 예약된 좌석을 선택하면 **모달 알림** 표시
+- 확인 시 **메인 좌석 현황 페이지로 이동**
+
+<img src="https://github.com/user-attachments/assets/84e5bb27-4cc3-4058-92c1-c59e21e889d7" width="300" />
+
+---
+
+### 4) 예약 확인 페이지
+- 이름+전화번호 입력 → 내 예약 내역 조회
+- **여러 좌석이 예약된 경우 목록으로 표시**
+
+<img src="https://github.com/user-attachments/assets/91737b57-c10f-46e8-89cb-20fd624e6ba0" width="300" />
