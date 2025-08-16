@@ -10,7 +10,7 @@
 1. **레포지토리 클론:**  
 git clone https://github.com/doyun9288/Good-Night-4th-Hackathon.git  
 cd ood-Night-4th-Hackathon
-2. **환경 설치**
+2. **환경 설치**  
 Node.js 설치: [https://nodejs.org/](https://nodejs.org/)
 3. **프론트엔드 설치 밎 실행**
 - 프론트엔드 디렉토리로 이동  
