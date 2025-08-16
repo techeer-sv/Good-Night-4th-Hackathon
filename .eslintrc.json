@@ -1,0 +1,7 @@
+{
+  "extends": ["next/core-web-vitals"],
+  "plugins": ["testing-library", "jest-dom", "@tanstack/query"],
+  "rules": {
+    "@tanstack/query/no-unstable-deps": "error"
+  }
+}
