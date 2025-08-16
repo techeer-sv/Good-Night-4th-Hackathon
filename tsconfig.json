@@ -19,17 +19,14 @@
     "incremental": true,
     "baseUrl": ".",
     "plugins": [
-      { "name": "next" }
+      {
+        "name": "next"
+      }
     ],
     "paths": {
-      "@/*": [
-        "app/*",
-        "src/*",
-        "components/*",
-        "hooks/*",
-        "types/*"
-      ]
-    }
+      "@/*": ["app/*", "src/*", "components/*", "hooks/*", "types/*"]
+    },
+    "allowJs": true
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
   "exclude": ["node_modules"]
