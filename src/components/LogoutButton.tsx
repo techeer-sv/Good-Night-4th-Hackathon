@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useLogoutMutation } from '@/hooks/useLogoutMutation';
+import { useToast } from '@/hooks/useToast';
 
 interface LogoutButtonProps {
   className?: string;
@@ -15,16 +16,18 @@ export function LogoutButton({
   variant = 'button'
 }: LogoutButtonProps) {
   const router = useRouter();
+  const { success, error } = useToast();
   const logoutMutation = useLogoutMutation();
 
   const handleLogout = async () => {
     try {
       await logoutMutation.mutateAsync();
+      success('Successfully signed out', 'See you next time!');
       // On success, redirect to events page
       router.push('/events');
-    } catch (error) {
-      console.error('Logout failed:', error);
-      // Could add toast notification here in the future
+    } catch (logoutError) {
+      error('Failed to sign out', 'Please try again');
+      console.error('Logout failed:', logoutError);
     }
   };
 

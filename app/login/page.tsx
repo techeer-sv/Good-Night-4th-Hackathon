@@ -1,12 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { useLoginMutation } from '@/hooks/useLoginMutation';
 import { LoginCredentials } from '@/types/auth';
+import { useToast } from '@/hooks/useToast';
 
 export default function LoginPage() {
   const router = useRouter();
+  const { success, error } = useToast();
+  const emailInputRef = useRef<HTMLInputElement>(null);
   const [credentials, setCredentials] = useState<LoginCredentials>({
     email: '',
     password: '',
@@ -14,24 +17,34 @@ export default function LoginPage() {
 
   const loginMutation = useLoginMutation();
 
+  // Focus email input on page load
+  useEffect(() => {
+    if (emailInputRef.current) {
+      emailInputRef.current.focus();
+    }
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
     // Client-side validation
     if (!credentials.email.trim()) {
-      return; // Let HTML5 validation handle this
+      error('Please enter your email address');
+      return;
     }
     if (!credentials.password.trim()) {
-      return; // Let HTML5 validation handle this
+      error('Please enter your password');
+      return;
     }
     
     try {
       await loginMutation.mutateAsync(credentials);
+      success('Successfully signed in!', 'Welcome back to TicketTock');
       // On success, redirect to events page
       router.push('/events');
-    } catch (error) {
-      // Error will be displayed below the form via mutation.error
-      console.error('Login failed:', error);
+    } catch (loginError) {
+      // Toast notification will show the error automatically
+      console.error('Login failed:', loginError);
     }
   };
 
@@ -73,6 +86,7 @@ export default function LoginPage() {
                 Email address
               </label>
               <input
+                ref={emailInputRef}
                 id="email"
                 name="email"
                 type="email"

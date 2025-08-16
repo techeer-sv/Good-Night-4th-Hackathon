@@ -167,7 +167,7 @@
             "description": "Create a LogoutButton component that triggers a POST to /api/auth/logout using useMutation, invalidates the session, and redirects to /events.",
             "dependencies": ["3.1"],
             "details": "Develop components/LogoutButton.tsx to POST /api/auth/logout. Disable button while pending. On success, invalidate ['session'] and redirect.",
-            "status": "in-progress",
+            "status": "done",
             "testStrategy": "Mock /api/auth/logout with MSW; verify session invalidation and redirect on logout, and button disabled state during mutation."
           },
           {
@@ -176,7 +176,7 @@
             "description": "Update the Header component to consume useSessionQuery, conditionally rendering Login/Logout and My Bookings links based on session state.",
             "dependencies": ["3.1", "3.2", "3.3"],
             "details": "Modify components/Header.tsx to show Login when unauthenticated, Logout and My Bookings when authenticated, using session data from useSessionQuery.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Render Header in various auth states; assert correct links are shown and navigation works as expected."
           },
           {
@@ -185,7 +185,7 @@
             "description": "Add accessible labels to form inputs and buttons, provide clear error messages via toasts, and ensure all interactive elements are keyboard navigable.",
             "dependencies": ["3.2", "3.3"],
             "details": "Audit login and logout flows for accessibility, including ARIA attributes and focus management. Implement toast notifications for errors and success.",
-            "status": "pending",
+            "status": "in-progress",
             "testStrategy": "Run accessibility tests (e.g., axe); verify labels, keyboard navigation, and toast visibility for error/success scenarios."
           }
         ]
@@ -292,7 +292,7 @@
     ],
     "metadata": {
       "created": "2025-08-16T12:16:34.191Z",
-      "updated": "2025-08-16T15:33:07.800Z",
+      "updated": "2025-08-16T15:36:17.313Z",
       "description": "Tasks for master context"
     }
   }
