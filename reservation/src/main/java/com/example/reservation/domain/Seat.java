@@ -21,4 +21,11 @@ public class Seat {
 
     @Column(name = "is_reserved", nullable = false)
     private boolean isReserved;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @Column(name = "locked_by")
+    private String lockedBy;
 }

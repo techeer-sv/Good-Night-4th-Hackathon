@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>좌석 예약 시스템</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            padding: 30px;
+        }
+
+        .session-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .session-id {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 1.1rem;
+            margin: 15px 0;
+            word-break: break-all;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%);
+            color: #212529;
+        }
+
+        .reservation-section {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .reservation-section h3 {
+            color: #856404;
+            margin-bottom: 15px;
+        }
+
+        .selected-seat-info {
+            background: #e9ecef;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+
+        .seats-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .seats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .seat {
+            aspect-ratio: 1;
+            border: 3px solid #dee2e6;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            background: white;
+            position: relative;
+            min-height: 100px;
+        }
+
+        .seat:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .seat.locked {
+            background: #dc3545 !important;
+            color: white !important;
+            border-color: #dc3545 !important;
+        }
+
+        .seat.available {
+            background: #e9ecef !important;
+            color: #495057 !important;
+        }
+
+        .seat.reserved {
+            background: #6c757d !important;
+            color: white !important;
+            border-color: #6c757d !important;
+            cursor: not-allowed !important;
+        }
+
+        .seat.selected {
+            background: #ffc107 !important;
+            color: #212529 !important;
+            border-color: #ffc107 !important;
+        }
+
+        .seat-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .seat-id {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            position: absolute;
+            top: 8px;
+            left: 8px;
+        }
+
+        .column-labels {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            max-width: 400px;
+            margin: 0 auto 10px auto;
+            text-align: center;
+        }
+
+        .column-label {
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #495057;
+            padding: 10px;
+        }
+
+        .row-labels {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            position: absolute;
+            left: -40px;
+            top: 0;
+            height: 100%;
+            justify-content: space-around;
+        }
+
+        .row-label {
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #495057;
+            width: 30px;
+            text-align: center;
+        }
+
+        .seats-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .status-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .status-item:last-child {
+            border-bottom: none;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .message.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #6c757d;
+        }
+
+        .error-message {
+            text-align: center;
+            padding: 20px;
+            color: #dc3545;
+            background: #f8d7da;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎫 좌석 예약 시스템</h1>
+            <p>좌석을 선택하고 예약하세요</p>
+        </div>
+
+        <div class="main-content">
+            <!-- 세션 관리 섹션 -->
+            <div class="session-section">
+                <h2>🔐 세션 관리</h2>
+                <p>좌석 예약을 위해 세션을 생성하세요</p>
+                
+                <div id="sessionInfo" style="display: none;">
+                    <p><strong>현재 세션 ID:</strong></p>
+                    <div id="currentSessionId" class="session-id"></div>
+                    <button class="btn btn-danger" onclick="clearSession()">세션 삭제</button>
+                </div>
+
+                <div id="noSession">
+                    <button class="btn" onclick="createSession()">새 세션 생성</button>
+                </div>
+            </div>
+
+            <!-- 예약 섹션 -->
+            <div id="reservationSection" class="reservation-section hidden">
+                <h3>📝 예약 진행</h3>
+                <p>선택한 좌석을 예약하거나 잠금을 해제하세요</p>
+                
+                <div id="selectedSeatInfo" class="selected-seat-info">
+                    선택된 좌석: <span id="selectedSeatNumber">없음</span>
+                </div>
+                
+                <div class="btn-group">
+                    <button id="reserveBtn" class="btn btn-success" onclick="reserveSeat()" disabled>
+                        🎯 예약하기
+                    </button>
+                    <button id="unlockBtn" class="btn btn-warning" onclick="unlockSelectedSeat()" disabled>
+                        🔓 잠금 해제
+                    </button>
+                </div>
+            </div>
+
+            <!-- 좌석 선택 섹션 -->
+            <div class="seats-section">
+                <h2>💺 좌석 선택</h2>
+                <p>원하는 좌석을 클릭하여 잠금 처리하세요</p>
+                
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #e9ecef;"></div>
+                        <span>사용 가능</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #ffc107;"></div>
+                        <span>선택됨 (잠금)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #dc3545;"></div>
+                        <span>다른 사용자 잠금</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #6c757d;"></div>
+                        <span>예약됨</span>
+                    </div>
+                </div>
+
+                <div class="seats-container">
+                    <div class="seats-wrapper">
+                        <!-- 행 라벨 (1, 2, 3) -->
+                        <div class="row-labels">
+                            <div class="row-label">1</div>
+                            <div class="row-label">2</div>
+                            <div class="row-label">3</div>
+                        </div>
+                        
+                        <!-- 열 라벨 (A, B, C) -->
+                        <div class="column-labels">
+                            <div class="column-label">A</div>
+                            <div class="column-label">B</div>
+                            <div class="column-label">C</div>
+                        </div>
+                        
+                        <!-- 좌석 그리드 -->
+                        <div id="seatsGrid" class="seats-grid">
+                            <div class="loading">좌석 데이터를 불러오는 중...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 상태 표시 섹션 -->
+            <div class="status-section">
+                <h2>📊 현재 상태</h2>
+                <div id="statusList">
+                    <!-- 상태 정보가 JavaScript로 동적 생성됨 -->
+                </div>
+            </div>
+
+            <!-- 메시지 표시 영역 -->
+            <div id="messageArea"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentSessionId = null;
+        let selectedSeatId = null;
+        let selectedSeatNumber = null;
+        let lockedSeats = new Set();
+        let allSeats = [];
+
+        // 페이지 로드 시 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            loadSeats();
+            updateStatus();
+        });
+
+        // DB에서 좌석 데이터 로드
+        async function loadSeats() {
+            try {
+                const response = await fetch('/api/seats');
+                if (response.ok) {
+                    allSeats = await response.json();
+                    renderSeats();
+                } else {
+                    showError('좌석 데이터를 불러오는데 실패했습니다.');
+                }
+            } catch (error) {
+                showError('서버 연결 오류: ' + error.message);
+            }
+        }
+
+        // 좌석 렌더링 (3x3 그리드)
+        function renderSeats() {
+            const seatsGrid = document.getElementById('seatsGrid');
+            if (!seatsGrid) return;
+
+            seatsGrid.innerHTML = '';
+
+            if (allSeats.length === 0) {
+                seatsGrid.innerHTML = '<div class="error-message">등록된 좌석이 없습니다.</div>';
+                return;
+            }
+
+            console.log('=== 좌석 렌더링 시작 ===');
+            console.log('전체 좌석 데이터:', allSeats);
+
+            // 3x3 그리드 생성
+            for (let row = 1; row <= 3; row++) {
+                for (let col = 1; col <= 3; col++) {
+                    const seatElement = document.createElement('div');
+                    seatElement.className = 'seat';
+                    
+                    // A1, A2, A3, B1, B2, B3, C1, C2, C3 형태로 좌석 번호 생성
+                    const columnLetter = String.fromCharCode(64 + col); // A, B, C
+                    const seatNumber = columnLetter + row;
+                    
+                    // DB에서 해당 좌석 찾기
+                    const seatData = allSeats.find(s => s.seatNumber === seatNumber);
+                    
+                    if (seatData) {
+                        seatElement.dataset.seatId = seatData.id;
+                        seatElement.dataset.seatNumber = seatData.seatNumber;
+                        
+                        console.log(`\n--- 좌석 ${seatNumber} 처리 ---`);
+                        console.log('좌석 데이터:', seatData);
+                        console.log('reserved 값:', seatData.reserved, '타입:', typeof seatData.reserved);
+                        console.log('lockedBy 값:', seatData.lockedBy);
+                        
+                        // 좌석 상태에 따른 클래스 설정 (더 명확하게)
+                        let seatStatus = '';
+                        
+                        if (seatData.reserved === true) {
+                            seatElement.classList.add('reserved');
+                            seatStatus = '예약됨 (회색)';
+                            console.log(`✅ 좌석 ${seatNumber} - 예약됨 (회색)`);
+                        } else if (seatData.lockedBy && seatData.lockedBy !== currentSessionId) {
+                            seatElement.classList.add('locked');
+                            lockedSeats.add(seatData.id);
+                            seatStatus = '다른 사용자 잠금 (빨간색)';
+                            console.log(`🔒 좌석 ${seatNumber} - 다른 사용자 잠금 (빨간색)`);
+                        } else if (seatData.lockedBy === currentSessionId) {
+                            seatElement.classList.add('selected');
+                            seatStatus = '내가 선택함 (노란색)';
+                            console.log(`⭐ 좌석 ${seatNumber} - 내가 선택함 (노란색)`);
+                        } else {
+                            seatElement.classList.add('available');
+                            seatStatus = '사용 가능 (밝은 회색)';
+                            console.log(`🟢 좌석 ${seatNumber} - 사용 가능 (밝은 회색)`);
+                        }
+
+                        // 좌석 정보 표시
+                        seatElement.innerHTML = `
+                            <div class="seat-id">ID: ${seatData.id}</div>
+                            <div class="seat-number">${seatData.seatNumber}</div>
+                            <div style="font-size: 0.7rem; margin-top: 5px; opacity: 0.8; font-weight: bold;">
+                                ${seatStatus}
+                            </div>
+                        `;
+
+                        // 클릭 이벤트 추가 (예약된 좌석은 제외)
+                        if (!seatData.reserved) {
+                            seatElement.addEventListener('click', () => handleSeatClick(seatData.id, seatData.seatNumber));
+                        } else {
+                            seatElement.style.cursor = 'not-allowed';
+                        }
+                        
+                        // 현재 적용된 클래스 확인
+                        console.log(`좌석 ${seatNumber} 최종 클래스:`, seatElement.className);
+                        
+                    } else {
+                        // DB에 없는 좌석은 비활성화
+                        seatElement.classList.add('reserved');
+                        seatElement.innerHTML = `
+                            <div class="seat-number">${seatNumber}</div>
+                        `;
+                        console.log(`❌ 좌석 ${seatNumber} - DB에 없음`);
+                    }
+
+                    seatsGrid.appendChild(seatElement);
+                }
+            }
+            
+            console.log('=== 좌석 렌더링 완료 ===');
+        }
+
+        // 세션 생성
+        async function createSession() {
+            try {
+                const response = await fetch('/api/sessions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    currentSessionId = data.sessionId;
+                    showSessionInfo();
+                    showMessage('새로운 세션이 생성되었습니다!', 'success');
+                } else {
+                    showMessage('세션 생성에 실패했습니다.', 'error');
+                }
+            } catch (error) {
+                showMessage('서버 연결 오류: ' + error.message, 'error');
+            }
+        }
+
+        // 세션 정보 표시
+        function showSessionInfo() {
+            document.getElementById('noSession').style.display = 'none';
+            document.getElementById('sessionInfo').style.display = 'block';
+            document.getElementById('currentSessionId').textContent = currentSessionId;
+        }
+
+        // 세션 삭제
+        async function clearSession() {
+            if (selectedSeatId) {
+                await unlockSeat(selectedSeatId);
+            }
+            
+            currentSessionId = null;
+            selectedSeatId = null;
+            selectedSeatNumber = null;
+            document.getElementById('noSession').style.display = 'block';
+            document.getElementById('sessionInfo').style.display = 'none';
+            document.getElementById('reservationSection').classList.add('hidden');
+            showMessage('세션이 삭제되었습니다.', 'info');
+            updateSeatsDisplay();
+        }
+
+        // 좌석 클릭 처리
+        async function handleSeatClick(seatId, seatNumber) {
+            if (!currentSessionId) {
+                showMessage('먼저 세션을 생성해주세요.', 'error');
+                return;
+            }
+
+            const seat = document.querySelector(`[data-seat-id="${seatId}"]`);
+            if (!seat) return;
+            
+            if (seat.classList.contains('locked')) {
+                showMessage('다른 사용자가 잠금한 좌석입니다.', 'error');
+                return;
+            }
+
+            if (seat.classList.contains('selected')) {
+                // 이미 선택된 좌석이면 선택 해제
+                await unlockSeat(seatId);
+            } else {
+                // 사용 가능한 좌석이면 선택
+                await selectSeat(seatId, seatNumber);
+            }
+        }
+
+        // 좌석 선택 (잠금)
+        async function selectSeat(seatId, seatNumber) {
+            try {
+                const response = await fetch(`/api/seats/${seatId}/lock`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        seatId: seatId,
+                        sessionId: currentSessionId
+                    })
+                });
+
+                if (response.ok) {
+                    selectedSeatId = seatId;
+                    selectedSeatNumber = seatNumber;
+                    lockedSeats.add(seatId);
+                    
+                    // 예약 섹션 표시
+                    document.getElementById('reservationSection').classList.remove('hidden');
+                    document.getElementById('selectedSeatNumber').textContent = seatNumber;
+                    document.getElementById('reserveBtn').disabled = false;
+                    document.getElementById('unlockBtn').disabled = false;
+                    
+                    showMessage(`좌석 ${seatNumber}이(가) 선택되었습니다!`, 'success');
+                    updateSeatsDisplay();
+                    updateStatus();
+                } else {
+                    const errorData = await response.json();
+                    showMessage(errorData.error || '좌석 선택에 실패했습니다.', 'error');
+                }
+            } catch (error) {
+                showMessage('서버 연결 오류: ' + error.message, 'error');
+            }
+        }
+
+        // 좌석 예약
+        async function reserveSeat() {
+            if (!selectedSeatId) {
+                showMessage('선택된 좌석이 없습니다.', 'error');
+                return;
+            }
+
+            try {
+                // 여기서는 간단하게 예약 완료 처리
+                // 실제로는 예약 API를 호출해야 함
+                showMessage(`좌석 ${selectedSeatNumber}이(가) 예약되었습니다!`, 'success');
+                
+                // 예약 완료 후 상태 초기화
+                selectedSeatId = null;
+                selectedSeatNumber = null;
+                document.getElementById('reservationSection').classList.add('hidden');
+                document.getElementById('reserveBtn').disabled = true;
+                document.getElementById('unlockBtn').disabled = true;
+                
+                // 좌석 상태를 예약됨으로 변경
+                updateSeatsDisplay();
+                updateStatus();
+                
+            } catch (error) {
+                showMessage('예약 처리 중 오류가 발생했습니다.', 'error');
+            }
+        }
+
+        // 선택된 좌석 잠금 해제
+        async function unlockSelectedSeat() {
+            if (selectedSeatId) {
+                await unlockSeat(selectedSeatId);
+            }
+        }
+
+        // 좌석 잠금 해제
+        async function unlockSeat(seatId) {
+            try {
+                const response = await fetch(`/api/seats/${seatId}/lock?sessionId=${currentSessionId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    if (selectedSeatId === seatId) {
+                        selectedSeatId = null;
+                        selectedSeatNumber = null;
+                        document.getElementById('reservationSection').classList.add('hidden');
+                        document.getElementById('reserveBtn').disabled = true;
+                        document.getElementById('unlockBtn').disabled = true;
+                    }
+                    lockedSeats.delete(seatId);
+                    showMessage(`좌석 잠금이 해제되었습니다.`, 'info');
+                    updateSeatsDisplay();
+                    updateStatus();
+                } else {
+                    const errorData = await response.json();
+                    showMessage(errorData.error || '좌석 잠금 해제에 실패했습니다.', 'error');
+                }
+            } catch (error) {
+                showMessage('서버 연결 오류: ' + error.message, 'error');
+            }
+        }
+
+        // 좌석 표시 업데이트
+        function updateSeatsDisplay() {
+            const seats = document.querySelectorAll('.seat');
+            seats.forEach(seat => {
+                const seatId = parseInt(seat.dataset.seatId);
+                if (!seatId) return;
+                
+                seat.className = 'seat';
+                
+                // DB 데이터에서 해당 좌석 찾기
+                const seatData = allSeats.find(s => s.id === seatId);
+                if (seatData) {
+                    if (seatData.reserved) {
+                        seat.classList.add('reserved');
+                    } else if (seatData.lockedBy && seatData.lockedBy !== currentSessionId) {
+                        seat.classList.add('locked');
+                    } else if (seatData.lockedBy === currentSessionId) {
+                        seat.classList.add('selected');
+                    } else {
+                        seat.classList.add('available');
+                    }
+                }
+            });
+        }
+
+        // 상태 업데이트
+        async function updateStatus() {
+            const statusList = document.getElementById('statusList');
+            statusList.innerHTML = '';
+
+            // 현재 세션 정보
+            if (currentSessionId) {
+                addStatusItem('현재 세션', currentSessionId);
+                addStatusItem('선택된 좌석', selectedSeatNumber ? selectedSeatNumber : '없음');
+            } else {
+                addStatusItem('현재 세션', '없음');
+                addStatusItem('선택된 좌석', '없음');
+            }
+
+            // 좌석 통계
+            addStatusItem('전체 좌석 수', allSeats.length);
+            addStatusItem('예약된 좌석 수', allSeats.filter(s => s.reserved).length);
+            addStatusItem('잠긴 좌석 수', lockedSeats.size);
+        }
+
+        // 상태 항목 추가
+        function addStatusItem(label, value) {
+            const statusList = document.getElementById('statusList');
+            const item = document.createElement('div');
+            item.className = 'status-item';
+            item.innerHTML = `
+                <span><strong>${label}:</strong></span>
+                <span>${value}</span>
+            `;
+            statusList.appendChild(item);
+        }
+
+        // 메시지 표시
+        function showMessage(text, type) {
+            const messageArea = document.getElementById('messageArea');
+            const message = document.createElement('div');
+            message.className = `message ${type}`;
+            message.textContent = text;
+            
+            messageArea.appendChild(message);
+            
+            // 5초 후 자동 제거
+            setTimeout(() => {
+                message.remove();
+            }, 5000);
+        }
+
+        // 에러 메시지 표시
+        function showError(text) {
+            const seatsGrid = document.getElementById('seatsGrid');
+            if (seatsGrid) {
+                seatsGrid.innerHTML = `<div class="error-message">${text}</div>`;
+            }
+        }
+
+        // 주기적으로 상태 업데이트
+        setInterval(updateStatus, 5000);
+    </script>
+</body>
+</html>
