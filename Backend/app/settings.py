@@ -101,7 +101,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-CORS_ALLOW_ALL_ORIGINS = True   # 모든 출처의 요청 허용 (해커톤용)
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:5173',
+]
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
