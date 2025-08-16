@@ -111,3 +111,126 @@
 ---
 
 <!-- 구현 내용 작성 -->
+
+repo: [결과물 REPO](https://github.com/lazyjsh03/ticket-full)
+
+## 1. 기술 스택 및 선택 이유
+
+### Backend
+| 기술 | 선택 이유 |
+|---|---|
+| **Django** | 'Batteries-included' 철학을 바탕으로 인증, ORM 등 웹 개발에 필요한 대부분의 기능을 내장하여 생산성이 높습니다. |
+| **DRF** | Django 기반 REST API 개발의 표준으로, Serializer, ViewSet, 권한 관리 등 강력한 기능을 제공합니다. |
+| **MySQL** | 대용량 데이터를 안정적으로 처리할 수 있는 RDBMS이며, 데이터 정합성이 중요한 예매 시스템에 적합합니다. |
+| **Simple JWT** | 상태 비저장(Stateless) 인증 방식인 JWT를 DRF 환경에서 간편하게 구현할 수 있도록 지원합니다. |
+
+### Frontend
+| 기술 | 선택 이유 |
+|---|---|
+| **React** | 컴포넌트 기반 아키텍처를 통해 재사용성과 유지보수성이 높은 UI를 구축할 수 있습니다. |
+| **TypeScript** | 정적 타입 검사를 통해 코드 실행 전에 오류를 발견하여 애플리케이션의 안정성을 크게 향상시킵니다. |
+| **Vite** | 빠른 빌드 속도와 HMR(Hot Module Replacement)을 제공하여 최상의 프론트엔드 개발 경험을 제공합니다. |
+| **Tailwind CSS** | Utility-First CSS 프레임워크로, 빠르고 일관된 반응형 UI 디자인을 가능하게 합니다. |
+
+### Code Quality & DevOps
+| 기술 | 종류 | 선택 이유 |
+|---|---|---|
+| **Docker** | - | 모든 개발 환경(DB, Backend, Frontend)을 컨테이너화하여 일관된 개발/배포 환경을 보장합니다. |
+| **Testing** | Pytest, Vitest | 백엔드 API와 프론트엔드 컴포넌트의 동작을 검증하여 코드 변경 시 발생할 수 있는 회귀(regression) 문제를 방지하고 기능의 안정성을 보장합니다. |
+| **Linting/Typing** | Ruff, Mypy, ESLint | 코드 스타일을 통일하고, 잠재적인 오류를 사전에 발견하여 코드의 가독성과 유지보수성을 극대화합니다. |
+| **API Docs** | drf-spectacular | OpenAPI 3.0 명세를 따르는 Swagger UI를 자동으로 생성하여 API 명세를 효율적으로 관리하고 테스트할 수 있도록 합니다. |
+
+## 2. 프로젝트 실행 방법
+
+본 프로젝트는 Docker Compose를 사용하여 모든 서비스를 한 번에 실행하는 것을 권장합니다.
+
+### 사전 요구사항
+- Docker
+- Docker Compose
+
+### 실행 순서
+
+1.  **Git 저장소 클론**
+    ```bash
+    git clone <repository-url>
+    cd <repository-folder>
+    ```
+
+2.  **환경 변수 파일 생성**
+    프로젝트 루트 폴더에 `.env` 파일을 생성하고 아래 내용을 각자의 환경에 맞게 채웁니다.
+    ```env
+    # .env
+    MYSQL_ROOT_PASSWORD=your_root_password
+    MYSQL_DATABASE=ticket_db
+    MYSQL_USER=your_user
+    MYSQL_PASSWORD=your_password
+    ```
+
+3.  **Docker 컨테이너 빌드 및 실행**
+    아래 명령어 하나만 실행하면, 데이터베이스 생성, 백엔드 마이그레이션, 프론트/백엔드 서버 실행이 모두 자동으로 완료됩니다.
+    ```bash
+    docker-compose up --build -d
+    ```
+
+4.  **(선택) 관리자 계정 생성**
+    ```bash
+    docker-compose exec web python manage.py createsuperuser
+    ```
+
+5.  **서비스 접속**
+    - **Frontend (React)**: `http://localhost:5173`
+    - **Backend (Django)**: `http://localhost:8000`
+    - **API Docs (Swagger UI)**: `http://localhost:8000/api/schema/swagger-ui/`
+
+### 테스트 코드
+#### 백엔드 테스트 실행
+```bash
+# 가상환경 활성화
+source .venv/bin/activate
+
+# 모든 테스트 실행 (자동으로 SQLite 사용)
+python manage.py test
+```
+
+#### 프론트엔드 테스트 실행
+```bash
+# 모든 테스트 실행
+yarn test
+```
+
+## 3. 구현한 요구사항 체크리스트
+
+- [x] **최소 요구사항**
+    - [x] 좌석 현황 표시 (3x3 격자, 상태 구분)
+    - [x] 좌석 예약 기능 (선택, 확정, 99%/1% 성공/실패 시뮬레이션)
+    - [x] API 엔드포인트 (좌석 목록, 좌석 예약)
+    - [x] 코드 품질 보장 (테스트, 타입 체크, 린팅)
+- [x] **기본 요구사항**
+    - [x] 사용자 경험 개선 (UI, 네트워크 지연, 예약 실패, 모바일 반응형)
+    - [x] 안정적인 서비스 운영 (잘못된 요청, 서버 에러)
+- [ ] **심화 요구사항**
+    - [ ] 동시성 제어
+    - [ ] 실시간 좌석 상태 동기화
+    - [ ] 선택한 좌석에 대한 우선순위 제공
+
+## 4. 각 요구사항별 해결 방법 설명
+
+### 4.1. 최소 요구사항
+
+- **좌석 표시**: `GET /api/seats/`로 좌석 정보를 받아와 React에서 상태별로 다른 CSS 클래스를 적용하여 렌더링했습니다. 프론트에서 좌석의 예약 현황을 useState를 통해서 관리하여, 상태에 따라 색을 달리하였습니다.
+- **좌석 예약**: 예약은 `POST /api/seats/reserve/`를 호출하며, 백엔드의 `random.random()`을 이용해 1%의 의도적 실패를 시뮬레이션했습니다.
+- **API 엔드포인트**: DRF와 `drf-spectacular`를 사용하여 요구사항에 명시된 기본 API 외 예약 취소, 내역 조회, 관리자용 초기화 등 확장된 기능을 포함한 RESTful API를 설계하고 Swagger UI로 문서화했습니다.
+- **코드 품질 보장**: `Ruff`, `Mypy`, `ESLint`, `Prettier`, `Vitest` 등 각 생태계의 표준 도구를 도입하고, `pre-commit`과 `husky`를 통해 Git 커밋 시점에 이 모든 검사를 자동화하여 높은 수준의 코드 품질을 프로젝트 전반에 걸쳐 일관되게 유지하도록 시스템을 구축했습니다.
+
+### 4.2. 기본 요구사항
+
+#### **사용자 경험 개선**
+- **네트워크 지연 및 예약 실패**: 프론트엔드에서 API 호출 시 로딩 상태를 관리하여 사용자에게 스피너 등을 통해 시스템이 동작 중임을 명확히 알렸습니다. 또한, 백엔드가 반환하는 구체적인 에러 코드(409, 404 등)를 바탕으로 사용자에게 "이미 예약된 좌석입니다"와 같이 친절하고 상황에 맞는 토스트 알림을 제공하고, 필요시 데이터를 자동으로 새로고침하여 향상된 UX를 제공하도록 구현했습니다.
+- **사용자 겅험 개선**: 프로필 페이지를 만들어 `GET /api/users/me/reservations/`로 예약한 좌석을 받아와서 본인이 예약한 좌석 목록을 표시하고, `DELETE /api/seats/{seat_number}/cancel/`로 예약 취소하는 로직을 구현하였습니다.
+- **모바일 편의성**: Tailwind CSS의 반응형 디자인 기능을 활용하여 모바일 화면에서도 UI가 깨지지 않고 최적화된 레이아웃을 제공하도록 설계했습니다.
+
+#### **안정적인 서비스 운영**
+- **잘못된 요청 및 서버 에러 처리**: DRF Serializer를 통해 API로 들어오는 모든 요청의 유효성을 검사하여 비정상적인 요청을 사전에 차단(`400 Bad Request`)합니다.
+
+## 5. API 문서
+<img width="1458" height="503" alt="image" src="https://github.com/user-attachments/assets/fe7a80c7-45c4-41fa-be0d-c5daecae2455" />
