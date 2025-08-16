@@ -70,3 +70,5 @@ reqwest.workspace = true
 config-api = { path = "config/api" }
 config-database = { path = "config/database" }
 config_redis = { path = "config/redis" }
+migration = { path = "config/migration" }
+seat_model = { path = "seat/model" }

@@ -1,0 +1,14 @@
+{
+  "name": "tickettock",
+  "version": "1.0.0",
+  "description": "FCFS 예약 시스템",
+  "type": "module",
+  "scripts": {
+    "gemini:chat": "node scripts/gemini-chat.mjs",
+    "gemini:comment": "GEMINI_SAVE=1 node scripts/gemini-chat.mjs"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "dotenv": "^17.2.1"
+  }
+}

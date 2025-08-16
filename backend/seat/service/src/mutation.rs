@@ -54,7 +54,7 @@ impl Mutation {
 
         let stmt = sea_orm::Statement::from_sql_and_values(
             sea_orm::DatabaseBackend::Postgres,
-            r#"UPDATE seat SET status = TRUE, reserved_by = $2, phone = $3
+            r#"UPDATE seats SET status = TRUE, reserved_by = $2, phone = $3
                 WHERE id = $1 AND status = FALSE
                 RETURNING id, status, reserved_by, phone"#,
             vec![id.into(), user_name.clone().into(), phone.clone().into()],
