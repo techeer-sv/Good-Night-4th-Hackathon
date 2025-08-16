@@ -54,12 +54,37 @@ npm run dev
 ### 최소 요구사항
 1. **좌석 현황 표시:**
   - `useEffect`를 사용하여 백엔드 API(/api/booked-seats)에서 예약된 좌석 배열을 가져옴.
+  ``` javascript
+    useEffect(() => {
+    fetchBookedSeats();
+  }, []);
+  ```
   - 좌석을 표시하는 `Seat`컴포넌트가 `SeatGrid`컴포넌트를 부모로 함으로써 3x3배열로 나타남.
+  ``` javascript
+  const SeatGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  margin-bottom: 30px;
+  `;
+  ```
   - props(isBooked, isSelected)를 받은 `Seat`컴포넌트가 좌석의 상태를 시각적으로 나타냄.
 2. **좌석 예약 기능:**
   - 사용자가 예약 가능한 좌석을 클릭하면 선택된 좌석 정보를 `Home` 컴포넌트의 `selectedSeats` 상태로 저장하고 `Reservation` 컴포넌트를 렌더링.
   - `Reservation` 컴포넌트에서 예약자 정보를 입력하고 '예매 완료' 버튼을 누르면 모든 필드가 입력되었는지 검증, 빈 필드가 있으면 경고 메시지 표시.
   - 모든 정보 입력 완료 후 `/api/db-test API`로 서버 상태를 확인, 정상이면 `POST /api/book-seats` API를 호출. 백엔드에서는 1% 확률의 의도적인 예매 실패를 시뮬레이션.
+  ``` javascript
+        const response = await fetch('http://localhost:5000/api/book-seats', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          seats: selectedSeats,
+          customerInfo: formData
+        })
+      });
+  ```
   - API 호출 결과에 따라 성공 시 성공 메시지를 표시, 홈 화면으로 복귀, 실패 시에는 오류 메시지를 표시하고 폼 데이터를 초기화.
 3. **API 엔드포인트:**
   - `GET /api/booked-seats`: 모든 예약된 좌석의 번호를 JSON 배열로 반환.
