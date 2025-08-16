@@ -13,7 +13,7 @@ const HomeContainer = styled.div`
 `;
 
 const Title = styled.h1`
-  color: #333;
+  color: gray;
   margin-bottom: 30px;
   font-size: 28px;
   text-align: center;
@@ -148,6 +148,104 @@ const Home = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState('home'); // 'home' 또는 'reservation'
 
+  // 🧪 런타임 타입 체크 함수들
+  const typeCheck = {
+    // 배열 타입 체크
+    isArray: (value) => {
+      if (!Array.isArray(value)) {
+        console.error('❌ 타입 오류: 배열이 아닙니다.', { value, type: typeof value });
+        return false;
+      }
+      return true;
+    },
+
+    // 숫자 타입 체크
+    isNumber: (value) => {
+      if (typeof value !== 'number' || isNaN(value)) {
+        console.error('❌ 타입 오류: 숫자가 아닙니다.', { value, type: typeof value });
+        return false;
+      }
+      return true;
+    },
+
+    // 문자열 타입 체크
+    isString: (value) => {
+      if (typeof value !== 'string') {
+        console.error('❌ 타입 오류: 문자열이 아닙니다.', { value, type: typeof value });
+        return false;
+      }
+      return true;
+    },
+
+    // 함수 타입 체크
+    isFunction: (value) => {
+      if (typeof value !== 'function') {
+        console.error('❌ 타입 오류: 함수가 아닙니다.', { value, type: typeof value });
+        return false;
+      }
+      return true;
+    },
+
+    // 객체 타입 체크
+    isObject: (value) => {
+      if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+        console.error('❌ 타입 오류: 객체가 아닙니다.', { value, type: typeof value });
+        return false;
+      }
+      return true;
+    },
+
+    // 좌석 번호 유효성 체크 (1-9 범위)
+    isValidSeatNumber: (seatNumber) => {
+      if (!typeCheck.isNumber(seatNumber)) return false;
+      if (seatNumber < 1 || seatNumber > 9 || !Number.isInteger(seatNumber)) {
+        console.error('❌ 좌석 번호 오류: 1-9 범위의 정수여야 합니다.', { seatNumber });
+        return false;
+      }
+      return true;
+    },
+
+    // 좌석 배열 유효성 체크
+    isValidSeatsArray: (seats) => {
+      if (!typeCheck.isArray(seats)) return false;
+      
+      for (let i = 0; i < seats.length; i++) {
+        if (!typeCheck.isValidSeatNumber(seats[i])) {
+          console.error('❌ 좌석 배열 오류: 유효하지 않은 좌석 번호가 포함되어 있습니다.', { seats, invalidIndex: i });
+          return false;
+        }
+      }
+      
+      // 중복 좌석 체크
+      const uniqueSeats = [...new Set(seats)];
+      if (uniqueSeats.length !== seats.length) {
+        console.error('❌ 좌석 배열 오류: 중복된 좌석이 있습니다.', { seats, uniqueSeats });
+        return false;
+      }
+      
+      return true;
+    },
+
+    // 페이지 상태 유효성 체크
+    isValidPageState: (pageState) => {
+      const validPages = ['home', 'reservation'];
+      if (!typeCheck.isString(pageState) || !validPages.includes(pageState)) {
+        console.error('❌ 페이지 상태 오류: 유효하지 않은 페이지 상태입니다.', { pageState, validPages });
+        return false;
+      }
+      return true;
+    },
+
+    // 로딩 상태 유효성 체크
+    isValidLoadingState: (loadingState) => {
+      if (typeof loadingState !== 'boolean') {
+        console.error('❌ 로딩 상태 오류: 불린 값이 아닙니다.', { loadingState, type: typeof loadingState });
+        return false;
+      }
+      return true;
+    }
+  };
+
   // 컴포넌트 마운트 시 예약된 좌석 조회
   useEffect(() => {
     fetchBookedSeats();
@@ -159,7 +257,22 @@ const Home = () => {
       const data = await response.json();
       
       if (data.success) {
-        setBookedSeats(data.bookedSeats);
+        // API 응답 데이터 타입 체크
+        if (!typeCheck.isArray(data.bookedSeats)) {
+          console.error('❌ API 응답 오류: bookedSeats가 배열이 아닙니다.', data);
+          return;
+        }
+        
+        // 각 좌석 번호 유효성 체크
+        const validSeats = data.bookedSeats.filter(seat => typeCheck.isValidSeatNumber(seat));
+        if (validSeats.length !== data.bookedSeats.length) {
+          console.warn('⚠️ 일부 좌석 번호가 유효하지 않아 필터링되었습니다.', {
+            original: data.bookedSeats,
+            filtered: validSeats
+          });
+        }
+        
+        setBookedSeats(validSeats);
       }
     } catch (error) {
       console.error('예약된 좌석 조회 오류:', error);
@@ -169,21 +282,59 @@ const Home = () => {
   };
 
   const handleSeatClick = (seatNumber) => {
+    // 매개변수 타입 체크
+    if (!typeCheck.isValidSeatNumber(seatNumber)) {
+      console.error('❌ handleSeatClick: 유효하지 않은 좌석 번호입니다.', { seatNumber });
+      return;
+    }
+
+    // bookedSeats 상태 타입 체크
+    if (!typeCheck.isValidSeatsArray(bookedSeats)) {
+      console.error('❌ handleSeatClick: bookedSeats 상태가 유효하지 않습니다.', { bookedSeats });
+      return;
+    }
+
     // 이미 예약된 좌석은 클릭 불가
     if (bookedSeats.includes(seatNumber)) {
+      console.log('ℹ️ 이미 예약된 좌석입니다.', { seatNumber });
       return;
     }
 
     setSelectedSeats(prev => {
-      if (prev.includes(seatNumber)) {
-        return prev.filter(seat => seat !== seatNumber);
-      } else {
-        return [...prev, seatNumber];
+      // 이전 상태 타입 체크
+      if (!typeCheck.isValidSeatsArray(prev)) {
+        console.error('❌ selectedSeats 상태가 유효하지 않습니다.', { prev });
+        return [];
       }
+
+      const newSelectedSeats = prev.includes(seatNumber) 
+        ? prev.filter(seat => seat !== seatNumber)
+        : [...prev, seatNumber];
+
+      // 새 상태 유효성 체크
+      if (!typeCheck.isValidSeatsArray(newSelectedSeats)) {
+        console.error('❌ 새로운 selectedSeats 상태가 유효하지 않습니다.', { newSelectedSeats });
+        return prev; // 이전 상태 유지
+      }
+
+      console.log('✅ 좌석 선택 상태 업데이트:', { 
+        previous: prev, 
+        new: newSelectedSeats, 
+        clicked: seatNumber 
+      });
+
+      return newSelectedSeats;
     });
   };
 
   const handleBooking = () => {
+    // selectedSeats 상태 타입 체크
+    if (!typeCheck.isValidSeatsArray(selectedSeats)) {
+      console.error('❌ handleBooking: selectedSeats 상태가 유효하지 않습니다.', { selectedSeats });
+      alert('좌석 선택 상태에 오류가 있습니다. 페이지를 새로고침해주세요.');
+      return;
+    }
+
     if (selectedSeats.length === 0) {
       alert('좌석을 선택해주세요!');
       return;
@@ -194,16 +345,38 @@ const Home = () => {
   };
 
   const handleBackToHome = () => {
+    // currentPage 상태 타입 체크
+    if (!typeCheck.isValidPageState(currentPage)) {
+      console.error('❌ handleBackToHome: currentPage 상태가 유효하지 않습니다.', { currentPage });
+      return;
+    }
+
     setCurrentPage('home');
   };
 
   const handleReservationComplete = () => {
+    // selectedSeats 상태 타입 체크
+    if (!typeCheck.isValidSeatsArray(selectedSeats)) {
+      console.error('❌ handleReservationComplete: selectedSeats 상태가 유효하지 않습니다.', { selectedSeats });
+    }
+
     setSelectedSeats([]); // 선택된 좌석 초기화
     setCurrentPage('home'); // 홈으로 돌아가기
     fetchBookedSeats(); // 예약된 좌석 목록 새로고침
   };
 
   const renderSeats = () => {
+    // bookedSeats와 selectedSeats 상태 타입 체크
+    if (!typeCheck.isValidSeatsArray(bookedSeats)) {
+      console.error('❌ renderSeats: bookedSeats 상태가 유효하지 않습니다.', { bookedSeats });
+      return <div>좌석 정보를 불러올 수 없습니다.</div>;
+    }
+
+    if (!typeCheck.isValidSeatsArray(selectedSeats)) {
+      console.error('❌ renderSeats: selectedSeats 상태가 유효하지 않습니다.', { selectedSeats });
+      return <div>좌석 선택 정보를 불러올 수 없습니다.</div>;
+    }
+
     const seats = [];
     for (let i = 1; i <= 9; i++) {
       const isBooked = bookedSeats.includes(i);
@@ -226,8 +399,46 @@ const Home = () => {
     return seats;
   };
 
+  // 전체 상태 유효성 체크 (개발 모드에서만)
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🔍 상태 유효성 체크 중...');
+      
+      const checks = [
+        { name: 'selectedSeats', value: selectedSeats, check: typeCheck.isValidSeatsArray },
+        { name: 'bookedSeats', value: bookedSeats, check: typeCheck.isValidSeatsArray },
+        { name: 'currentPage', value: currentPage, check: typeCheck.isValidPageState },
+        { name: 'isLoading', value: isLoading, check: typeCheck.isValidLoadingState }
+      ];
+
+      checks.forEach(({ name, value, check }) => {
+        if (!check(value)) {
+          console.error(`❌ ${name} 상태가 유효하지 않습니다.`, { value });
+        } else {
+          console.log(`✅ ${name} 상태가 유효합니다.`, { value });
+        }
+      });
+    }
+  }, [selectedSeats, bookedSeats, currentPage, isLoading]);
+
   // 예약 페이지 표시
   if (currentPage === 'reservation') {
+    // props 타입 체크
+    if (!typeCheck.isValidSeatsArray(selectedSeats)) {
+      console.error('❌ Reservation 컴포넌트에 전달되는 selectedSeats가 유효하지 않습니다.', { selectedSeats });
+      return <div>좌석 정보 오류가 발생했습니다.</div>;
+    }
+
+    if (!typeCheck.isFunction(handleBackToHome)) { // handleBackToHome를 사용
+      console.error('❌ Reservation 컴포넌트에 전달되는 onBack이 함수가 아닙니다.', { handleBackToHome });
+      return <div>함수 오류가 발생했습니다.</div>;
+    }
+
+    if (!typeCheck.isFunction(handleReservationComplete)) { // handleReservationComplete를 사용
+      console.error('❌ Reservation 컴포넌트에 전달되는 onComplete이 함수가 아닙니다.', { handleReservationComplete });
+      return <div>함수 오류가 발생했습니다.</div>;
+    }
+
     return (
       <Reservation
         selectedSeats={selectedSeats}
@@ -240,7 +451,6 @@ const Home = () => {
   if (isLoading) {
     return (
       <HomeContainer>
-        <Title>좌석 선택</Title>
         <div>로딩 중...</div>
       </HomeContainer>
     );
@@ -248,35 +458,30 @@ const Home = () => {
 
   return (
     <HomeContainer>
-      <Title>좌석 선택</Title>
+      <Title>STAGE</Title>
       
-      <Legend>
-        <LegendItem>
-          <LegendColor style={{ backgroundColor: '#fff', borderColor: '#ddd' }}></LegendColor>
-          <span>빈 좌석</span>
-        </LegendItem>
-        <LegendItem>
-          <LegendColor style={{ backgroundColor: '#4CAF50' }}></LegendColor>
-          <span>선택된 좌석</span>
-        </LegendItem>
-        <LegendItem>
-          <LegendColor style={{ backgroundColor: '#f44336' }}></LegendColor>
-          <span>예약된 좌석</span>
-        </LegendItem>
-      </Legend>
       
       <SeatGrid>
         {renderSeats()}
       </SeatGrid>
       
       <SelectedSeats>
-        <SelectedSeatsTitle>선택된 좌석</SelectedSeatsTitle>
+        <SelectedSeatsTitle>잔여 좌석</SelectedSeatsTitle>
         <SelectedSeatsList>
-          {selectedSeats.length > 0 ? (
-            selectedSeats.sort((a, b) => a - b).join(', ') + '번'
-          ) : (
-            '선택된 좌석이 없습니다.'
-          )}
+          {(() => {
+            const totalSeats = 9;
+            const bookedSeatsCount = bookedSeats.length;
+            const selectedSeatsCount = selectedSeats.length;
+            const availableSeats = totalSeats - bookedSeatsCount - selectedSeatsCount;
+            
+            if (availableSeats === 0) {
+              return '예약 가능한 좌석이 없습니다.';
+            } else if (availableSeats === 1) {
+              return '예약 가능한 좌석: 1개';
+            } else {
+              return `예약 가능한 좌석: ${availableSeats}개`;
+            }
+          })()}
         </SelectedSeatsList>
         <BookingButton 
           onClick={handleBooking}
