@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getShows, getShowPerformances, getPerformanceSeats, createReservation } from '../api/shows';
+import { Link } from 'react-router-dom'; // Added Link import
 
 const Default = () => {
   const [shows, setShows] = useState([]);
@@ -240,8 +241,8 @@ const Default = () => {
 
   return (
     <div className="-ml-1">
-      <h1 className="text-4xl font-bold text-white mb-8 drop-shadow-lg">
-        🎭 공연 목록
+      <h1 className="text-4xl font-bold text-white mb-8 drop-shadow-lg -ml-28">
+        공연 목록
       </h1>
       
       {/* Poster Grid */}

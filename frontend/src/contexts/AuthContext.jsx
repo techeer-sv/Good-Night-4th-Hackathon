@@ -19,9 +19,27 @@ export const AuthProvider = ({ children }) => {
   const handleLogin = async (credentials) => {
     try {
       setIsLoading(true);
-      await login(credentials);
-      setIsLoggedIn(true);
-      return { success: true };
+      const result = await login(credentials);
+      if (result.success) {
+        setIsLoggedIn(true);
+        // 백엔드 응답에서 사용자 정보 추출
+        if (result.data) {
+          // 백엔드 응답 구조에 따라 사용자 정보 설정
+          // 예: { userId: 1, username: "string" } 또는 { id: 1, name: "string" }
+          const userData = {
+            id: result.data.userId || result.data.id || 1,
+            username: result.data.username || result.data.name || credentials.name
+          };
+          setUser(userData);
+          console.log('사용자 정보 설정:', userData); // 디버깅용
+        } else {
+          // 응답 데이터가 없는 경우 기본값 설정
+          setUser({ id: 1, username: credentials.name });
+        }
+        return { success: true };
+      } else {
+        return { success: false, error: result.message || '로그인에 실패했습니다.' };
+      }
     } catch (error) {
       return { success: false, error: error.message };
     } finally {
@@ -47,6 +65,7 @@ export const AuthProvider = ({ children }) => {
     isLoggedIn,
     isLoading,
     user,
+    setUser,
     login: handleLogin,
     logout: handleLogout
   };

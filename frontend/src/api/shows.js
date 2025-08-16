@@ -44,4 +44,15 @@ export const createReservation = async (reservationData) => {
     const message = error.response?.data?.message || '예약에 실패했습니다.';
     throw new Error(message);
   }
+};
+
+// 사용자 예매내역 조회
+export const getUserReservations = async (userId) => {
+  try {
+    const response = await api.get(`/users/${userId}/reservations`);
+    return { success: true, data: response.data };
+  } catch (error) {
+    const message = error.response?.data?.message || '예매내역을 불러오는데 실패했습니다.';
+    throw new Error(message);
+  }
 }; 

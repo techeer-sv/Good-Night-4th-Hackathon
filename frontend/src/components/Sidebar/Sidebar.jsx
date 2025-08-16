@@ -1,6 +1,13 @@
 import React from 'react';
+import { Link, useLocation } from 'react-router-dom';
 
 const Sidebar = () => {
+  const location = useLocation();
+
+  const isActive = (path) => {
+    return location.pathname === path;
+  };
+
   return (
     <div className="h-full p-6">
       <div className="mb-8">
@@ -9,18 +16,28 @@ const Sidebar = () => {
       </div>
       
       <nav className="space-y-2">
-        <a href="#" className="flex items-center px-4 py-3 text-gray-200 hover:bg-white/20 hover:text-white rounded-lg transition-all duration-200 backdrop-blur-sm">
+        <Link 
+          to="/" 
+          className={`flex items-center px-4 py-3 rounded-lg transition-all duration-200 backdrop-blur-sm ${
+            isActive('/') 
+              ? 'bg-white/20 text-white' 
+              : 'text-gray-200 hover:bg-white/20 hover:text-white'
+          }`}
+        >
           <span className="mr-3">🏠</span>
           홈
-        </a>
-        <a href="#" className="flex items-center px-4 py-3 text-gray-200 hover:bg-white/20 hover:text-white rounded-lg transition-all duration-200 backdrop-blur-sm">
-          <span className="mr-3">🎭</span>
-          공연 목록
-        </a>
-        <a href="#" className="flex items-center px-4 py-3 text-gray-200 hover:bg-white/20 hover:text-white rounded-lg transition-all duration-200 backdrop-blur-sm">
+        </Link>
+        <Link 
+          to="/reservations" 
+          className={`flex items-center px-4 py-3 rounded-lg transition-all duration-200 backdrop-blur-sm ${
+            isActive('/reservations') 
+              ? 'bg-white/20 text-white' 
+              : 'text-gray-200 hover:bg-white/20 hover:text-white'
+          }`}
+        >
           <span className="mr-3">🎫</span>
           예매 내역
-        </a>
+        </Link>
         <a href="#" className="flex items-center px-4 py-3 text-gray-200 hover:bg-white/20 hover:text-white rounded-lg transition-all duration-200 backdrop-blur-sm">
           <span className="mr-3">⚙️</span>
           설정

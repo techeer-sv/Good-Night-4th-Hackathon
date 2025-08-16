@@ -3,6 +3,7 @@ import './App.css';
 import Main from './pages/main';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
+import ReservationsPage from './pages/ReservationsPage';
 import { AuthProvider } from './contexts/AuthContext';
 
 function App() {
@@ -14,6 +15,7 @@ function App() {
             <Route path="/" element={<Main />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
+            <Route path="/reservations" element={<ReservationsPage />} />
           </Routes>
         </div>
       </Router>
