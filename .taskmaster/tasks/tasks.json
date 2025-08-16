@@ -84,7 +84,7 @@
         "testStrategy": "- Render <Header /> and assert for role=\"navigation\" and link presence.\n- Snapshot mobile menu closed/open; verify aria-expanded toggles; keyboard: Enter/Space opens, Escape closes.\n- Verify SkipLink moves focus to #content.\n- ToastProvider smoke test: firing addToast renders message and auto-dismisses.",
         "priority": "high",
         "dependencies": [1],
-        "status": "in-progress",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -128,7 +128,7 @@
             "description": "Implement components/SkipLink.tsx (visually hidden until focus) and components/ToastProvider.tsx with useToast hook for status messages.",
             "dependencies": ["2.1"],
             "details": "Ensure SkipLink moves focus to #content and ToastProvider renders region role='status' aria-live='polite'.",
-            "status": "in-progress",
+            "status": "done",
             "testStrategy": "Verify SkipLink moves focus to main content; ToastProvider smoke test: firing addToast renders message and auto-dismisses."
           }
         ]
@@ -141,8 +141,54 @@
         "testStrategy": "- MSW handlers for /api/me, /api/auth/login, /api/auth/logout.\n- Login happy path: submit form -> redirects and header shows Logout/My Bookings.\n- Login invalid creds: shows error toast; no redirect.\n- Logout: triggers session invalidation and redirects.\n- Accessibility: form inputs have labels and describe errors; can submit with Enter.",
         "priority": "high",
         "dependencies": [1, 2],
-        "status": "pending",
-        "subtasks": []
+        "status": "in-progress",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement Session Retrieval via /api/me",
+            "description": "Create a React Query hook to fetch and cache the current session user from the backend endpoint /api/me, using the imported SessionUser type.",
+            "dependencies": [],
+            "details": "Develop hooks/useSessionQuery.ts using useQuery from @tanstack/react-query to call apiFetch<SessionUser>('/api/me'). Ensure session is persisted via httpOnly cookies managed by the backend.",
+            "status": "in-progress",
+            "testStrategy": "Mock /api/me with MSW; verify hook returns session data when authenticated and null/unauthorized otherwise."
+          },
+          {
+            "id": 2,
+            "title": "Build Login Form with Client-side Validation",
+            "description": "Develop a login page with email and password fields, enforcing HTML5 validation and minimal client-side checks. Use React Query's useMutation to POST credentials to /api/auth/login.",
+            "dependencies": ["3.1"],
+            "details": "Implement app/login/page.tsx with required email and password inputs. Disable submit while pending. On success, invalidate ['session'] and redirect to /events; on error, show toast.",
+            "status": "pending",
+            "testStrategy": "Simulate valid and invalid submissions; assert correct redirects, error toasts, and disabled states during mutation."
+          },
+          {
+            "id": 3,
+            "title": "Implement Logout Action",
+            "description": "Create a LogoutButton component that triggers a POST to /api/auth/logout using useMutation, invalidates the session, and redirects to /events.",
+            "dependencies": ["3.1"],
+            "details": "Develop components/LogoutButton.tsx to POST /api/auth/logout. Disable button while pending. On success, invalidate ['session'] and redirect.",
+            "status": "pending",
+            "testStrategy": "Mock /api/auth/logout with MSW; verify session invalidation and redirect on logout, and button disabled state during mutation."
+          },
+          {
+            "id": 4,
+            "title": "Integrate Session State into Header for Conditional Rendering",
+            "description": "Update the Header component to consume useSessionQuery, conditionally rendering Login/Logout and My Bookings links based on session state.",
+            "dependencies": ["3.1", "3.2", "3.3"],
+            "details": "Modify components/Header.tsx to show Login when unauthenticated, Logout and My Bookings when authenticated, using session data from useSessionQuery.",
+            "status": "pending",
+            "testStrategy": "Render Header in various auth states; assert correct links are shown and navigation works as expected."
+          },
+          {
+            "id": 5,
+            "title": "Ensure Accessibility and Error Handling for Auth Flows",
+            "description": "Add accessible labels to form inputs and buttons, provide clear error messages via toasts, and ensure all interactive elements are keyboard navigable.",
+            "dependencies": ["3.2", "3.3"],
+            "details": "Audit login and logout flows for accessibility, including ARIA attributes and focus management. Implement toast notifications for errors and success.",
+            "status": "pending",
+            "testStrategy": "Run accessibility tests (e.g., axe); verify labels, keyboard navigation, and toast visibility for error/success scenarios."
+          }
+        ]
       },
       {
         "id": 4,
@@ -246,7 +292,7 @@
     ],
     "metadata": {
       "created": "2025-08-16T12:16:34.191Z",
-      "updated": "2025-08-16T15:02:03.097Z",
+      "updated": "2025-08-16T15:09:28.998Z",
       "description": "Tasks for master context"
     }
   }

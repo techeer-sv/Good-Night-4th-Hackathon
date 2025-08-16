@@ -3,25 +3,12 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-
-// Placeholder for session hook - will be implemented in Task 3
-interface User {
-  email?: string;
-  id: string;
-}
-
-function useSession() {
-  // TODO: Replace with actual session hook from Task 3
-  return {
-    user: null as User | null, // Mock: no user logged in
-    isLoading: false,
-  };
-}
+import { useSessionQuery } from '@/hooks/useSessionQuery';
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
-  const { user, isLoading } = useSession();
+  const { data: user, isLoading } = useSessionQuery();
 
   const navigation = [
     { name: 'Events', href: '/events', current: pathname?.startsWith('/events') },
