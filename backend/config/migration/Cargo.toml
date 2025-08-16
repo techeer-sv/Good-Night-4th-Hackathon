@@ -10,6 +10,7 @@ name = "migration"
 path = "src/lib.rs"
 
 [dependencies]
-sea-orm-migration = { version = "1.1", features = ["runtime-tokio-rustls"] }
+sea-orm-migration = { version = "1.1", features = ["runtime-tokio-rustls", "sqlx-sqlite"] }
 async-trait = "0.1"
 tokio.workspace = true
+dotenvy.workspace = true

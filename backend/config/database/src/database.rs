@@ -32,7 +32,12 @@ async fn seed_seats() -> Result<(), DbErr> {
     if existing.len() >= 9 { return Ok(()); }
     for id in 1..=9 {
         if existing.iter().any(|m| m.id == id) { continue; }
-        let am = seat::ActiveModel { id: Set(id), status: Set(false) };
+        let am = seat::ActiveModel { 
+            id: Set(id), 
+            status: Set(false),
+            reserved_by: Set(None),
+            phone: Set(None)
+        };
         let _ = am.insert(db()).await?;
     }
     Ok(())

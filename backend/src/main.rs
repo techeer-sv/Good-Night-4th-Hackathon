@@ -23,14 +23,17 @@ async fn main() {
     let _ = dotenvy::dotenv();
     tracing_subscriber::fmt().init();
 
-    // DB 초기화 (feature memory-seats 활성 시 no-op)
-    if let Err(e) = config_database::init_db().await {
-        tracing::warn!(error = %e, "DB init failed (continuing)");
-    }
+    // Skip DB init for now until SQLite driver issues resolved
+    // if let Err(e) = config_database::init_db().await {
+    //     tracing::warn!(error = %e, "DB init failed (continuing)");
+    // }
 
-    // 서버 포트
     let acceptor = TcpListener::new("0.0.0.0:5800").bind().await;
-
     let router = config_api::build_router(redis_ping);
+    
+    println!("Server starting at http://localhost:5800");
+    println!("OpenAPI spec at http://localhost:5800/openapi.json");
+    println!("Swagger UI at http://localhost:5800/swagger-ui");
+    
     Server::new(acceptor).serve(router).await;
 }

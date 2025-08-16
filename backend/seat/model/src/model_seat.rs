@@ -9,6 +9,8 @@ pub struct Model {
     #[serde(skip_deserializing)]
     pub id: i32,
     pub status: bool,
+    pub reserved_by: Option<String>,
+    pub phone: Option<String>,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]

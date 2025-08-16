@@ -4,7 +4,7 @@
 
 use once_cell::sync::Lazy;
 use std::time::Duration;
-use salvo::prelude::*; // Router, Handler, #[handler]
+use salvo::prelude::*; // Router, Handler, #[handler], SwaggerUi
 use salvo::oapi::OpenApi;
 use seat_controller as seat; // seat handlers crate
 
@@ -36,31 +36,30 @@ pub static API_CONFIG: Lazy<ApiConfig> = Lazy::new(ApiConfig::from_env);
 async fn health() -> &'static str { "OK" }
 
 #[handler]
-async fn hello() -> &'static str { "Hello from config-api" }
+async fn hello() -> &'static str { "공연 예약 시스템 API" }
 
 pub fn build_router(redis_ping: impl Handler) -> Router {
-    let api_router = Router::with_path("api/seats")
-        .get(seat::list_seats)
-        .push(Router::with_path("external").get(seat::fetch_seats_from_external))
-        .push(Router::with_path("sync").post(seat::sync_all_seats))
-        .push(
-            Router::with_path("<id>")
-                .get(seat::get_seat)
-                .put(seat::update_seat_status)
-                .push(Router::with_path("toggle").post(seat::toggle_seat))
-        );
-
     let root = Router::new()
         .push(Router::with_path("healthz").get(health))
         .push(Router::with_path("redis/ping").get(redis_ping))
-        .push(api_router)
+        .push(
+            Router::with_path("api/v1/seats")
+                .get(seat::list_seats)
+                .push(Router::with_path("reservation").post(seat::reserve_seat))
+                .push(
+                    Router::with_path("{id}")
+                        .get(seat::get_seat)
+                        .put(seat::update_seat_status)
+                        .push(Router::with_path("toggle").post(seat::toggle_seat))
+                        .push(Router::with_path("reservation").post(seat::reserve_seat))
+                )
+        )
         .get(hello);
 
-    // Attach OpenAPI and Swagger UI endpoints (auto infer paths/handlers that have metadata)
-    // Provide OpenAPI JSON at /openapi.json and Swagger UI at /swagger-ui
-    // Minimal integration: expose /openapi.json & /swagger-ui automatically
-    let openapi = OpenApi::new("TicketTock API", "0.1.0");
+    // OpenAPI integration: merge router with OpenAPI spec
+    let openapi = OpenApi::new("공연 예약 시스템 API", "1.0.0").merge_router(&root);
     root.push(openapi.into_router("/openapi.json"))
+        .push(SwaggerUi::new("/openapi.json").into_router("swagger-ui"))
 }
 
 // (Removed unused alias `Config`.)
