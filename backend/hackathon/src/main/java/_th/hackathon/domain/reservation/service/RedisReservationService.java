@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@Primary
 @RequiredArgsConstructor
 public class RedisReservationService implements ReservationService {
 

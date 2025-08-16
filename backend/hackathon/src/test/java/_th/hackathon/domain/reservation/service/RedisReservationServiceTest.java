@@ -82,9 +82,16 @@ class RedisReservationServiceTest {
         em.flush(); em.clear();
         psId = ps.getId();
 
-        // 🔄 Redis 게이트 키 정리(이전 테스트 잔여 키 제거)
         String gateKey = "resv:gate:" + perfId + ":" + psId;
         stringRedisTemplate.delete(gateKey);
+    }
+
+    @AfterEach
+    void tearDown() {
+        String gateKey   = "resv:gate:" + perfId + ":" + psId; // 현재 사용 키
+        String legacyKey = "resv:"       + perfId + ":" + psId; // 혹시 남아있는 레거시 키
+        stringRedisTemplate.delete(gateKey);
+        stringRedisTemplate.delete(legacyKey);
     }
 
     @Test
