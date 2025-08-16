@@ -151,6 +151,7 @@ docker-compose.yml (redis 등 서비스 정의)
     cd backend
     cargo run
     ```
+    실행 후 OpenAPI 스펙(JSON): http://localhost:5800/openapi.json
 4. (예정) OpenResty + Redis 조합 실행:
     ```bash
     docker compose up -d redis
