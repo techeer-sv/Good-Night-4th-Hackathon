@@ -141,7 +141,7 @@
         "testStrategy": "- MSW handlers for /api/me, /api/auth/login, /api/auth/logout.\n- Login happy path: submit form -> redirects and header shows Logout/My Bookings.\n- Login invalid creds: shows error toast; no redirect.\n- Logout: triggers session invalidation and redirects.\n- Accessibility: form inputs have labels and describe errors; can submit with Enter.",
         "priority": "high",
         "dependencies": [1, 2],
-        "status": "in-progress",
+        "status": "done",
         "subtasks": [
           {
             "id": 1,
@@ -185,7 +185,7 @@
             "description": "Add accessible labels to form inputs and buttons, provide clear error messages via toasts, and ensure all interactive elements are keyboard navigable.",
             "dependencies": ["3.2", "3.3"],
             "details": "Audit login and logout flows for accessibility, including ARIA attributes and focus management. Implement toast notifications for errors and success.",
-            "status": "in-progress",
+            "status": "done",
             "testStrategy": "Run accessibility tests (e.g., axe); verify labels, keyboard navigation, and toast visibility for error/success scenarios."
           }
         ]
@@ -198,8 +198,54 @@
         "testStrategy": "- MSW handler for GET /api/events?page=&category=.\n- Renders 12 cards with proper data; displays empty state when none.\n- Changing category updates URL and refetches list.\n- Pagination navigates and fetches new data; maintains ARIA current page indicator.\n- Prefetch called on hover (spy queryClient.prefetchQuery).",
         "priority": "high",
         "dependencies": [1, 2, 3],
-        "status": "pending",
-        "subtasks": []
+        "status": "in-progress",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Implement Server-Side Prefetching and Dehydration for Events Listing",
+            "description": "Set up the /events route to parse searchParams (page, category), prefetch event data using TanStack Query's prefetchQuery, and dehydrate the query state for client hydration.",
+            "dependencies": [],
+            "details": "Use getServerQueryClient and dehydrate to prefetch and serialize event data for the requested page and category. Ensure the server returns the dehydrated state to the client component for hydration.",
+            "status": "in-progress",
+            "testStrategy": "Verify that the server correctly prefetches and serializes event data for various page and category combinations. Use MSW to mock /api/events and assert the dehydrated state contains the expected data."
+          },
+          {
+            "id": 2,
+            "title": "Build Client-Side Hydration and Event List Rendering",
+            "description": "Create EventsPageClient to hydrate the prefetched state, use useQuery with the same key, and render a paginated list of EventCards with badges for remainingSeats.",
+            "dependencies": ["4.1"],
+            "details": "Wrap the client component in HydrationBoundary with the provided state. Use useQuery to fetch and render events, displaying badges for remainingSeats. Handle loading skeletons and empty states.",
+            "status": "pending",
+            "testStrategy": "Assert that 12 EventCards render with correct data, badges display remainingSeats, and loading/empty states appear as appropriate. Use MSW to simulate empty and loading responses."
+          },
+          {
+            "id": 3,
+            "title": "Implement Category Filter with URL Synchronization",
+            "description": "Develop a CategoryFilter component that updates the querystring using useRouter/useSearchParams and triggers refetching of the event list.",
+            "dependencies": ["4.2"],
+            "details": "Ensure the filter updates the URL's category parameter and causes the event list to refetch. Maintain accessibility and keyboard navigation for the filter controls.",
+            "status": "pending",
+            "testStrategy": "Test that selecting a category updates the URL, triggers a refetch, and displays the correct filtered events. Verify ARIA attributes and keyboard accessibility."
+          },
+          {
+            "id": 4,
+            "title": "Add Pagination Controls and Scroll Behavior",
+            "description": "Implement Prev/Next pagination links that update the page parameter, disable appropriately, and manage scroll position on page change.",
+            "dependencies": ["4.2"],
+            "details": "Ensure pagination controls update the page parameter in the URL, disable when on the first or last page, and scroll to top on page change. Maintain ARIA current page indicators.",
+            "status": "pending",
+            "testStrategy": "Verify pagination updates the event list and URL, disables controls at boundaries, and scrolls to top on navigation. Assert ARIA attributes for accessibility."
+          },
+          {
+            "id": 5,
+            "title": "Enable EventCard Prefetching and Navigation",
+            "description": "Enhance EventCard to use next/image for posters, link to /events/[id], and prefetch event detail data on hover using queryClient.prefetchQuery.",
+            "dependencies": ["4.2"],
+            "details": "Configure EventCard to prefetch event detail queries on hover for faster navigation. Use next/image for poster display and Next.js Link for navigation.",
+            "status": "pending",
+            "testStrategy": "Spy on queryClient.prefetchQuery to confirm it is called on hover. Assert that navigation to /events/[id] uses prefetched data when available."
+          }
+        ]
       },
       {
         "id": 5,
@@ -288,11 +334,68 @@
         "dependencies": [8, 9, 11],
         "status": "pending",
         "subtasks": []
+      },
+      {
+        "id": 13,
+        "title": "Implement Concert Seat Selection UI with Responsive and Accessible Design",
+        "description": "Develop an interactive seat selection interface that visually displays a seat map/grid, allows users to select seats, and clearly distinguishes between available, reserved, and selected seats, including seat numbers and pricing. Ensure responsive layout and accessibility compliance.",
+        "details": "Design the seat map using a grid-based layout (CSS Flexbox or CSS Grid) to visually represent seats, grouping by rows and sections as needed. Each seat should be a clickable button or element, with distinct styles for available, reserved, and selected states (e.g., color, border, icon). Use React state management (useState or context) to track selection and update UI in real time. Display seat numbers and price info on each seat, and show a summary of selected seats and total price. Implement hover and focus effects for better usability. Ensure keyboard navigation (tab, arrow keys) and ARIA roles (e.g., role=\"grid\", role=\"button\", aria-selected, aria-disabled) for accessibility. Make the layout responsive using media queries or utility frameworks (e.g., Tailwind CSS), adapting to mobile and desktop. Consider headless component patterns for composability and testability. Validate color contrast and focus indicators for WCAG AA compliance. Optionally, use a modal or drawer for seat details on mobile.",
+        "testStrategy": "Verify seat map renders correctly across devices and screen sizes. Test seat selection via mouse, touch, and keyboard (tab, arrow keys, enter/space). Confirm correct visual distinction between available, reserved, and selected seats. Check that seat numbers and prices are displayed and update as seats are selected/deselected. Use automated accessibility tools (e.g., jest-axe, Lighthouse) to check ARIA roles, keyboard operability, and color contrast. Manually test with screen readers for correct announcements. Validate responsiveness by resizing browser and testing on mobile emulators.",
+        "status": "pending",
+        "dependencies": [8, 9, 11],
+        "priority": "high",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Design Responsive Seat Map Layout",
+            "description": "Create a visually clear, grid-based seat map using CSS Grid or Flexbox, grouping seats by rows and sections as needed, and ensuring the layout adapts seamlessly to mobile and desktop devices.",
+            "dependencies": [],
+            "details": "Implement a seat map that visually represents the venue's seating arrangement, with clear grouping and spacing. Use media queries or a utility framework (e.g., Tailwind CSS) to ensure responsiveness across devices.",
+            "status": "pending",
+            "testStrategy": "Verify the seat map renders correctly on various screen sizes and orientations. Test resizing and device emulation to confirm layout adaptability."
+          },
+          {
+            "id": 2,
+            "title": "Implement Interactive Seat States and Selection Logic",
+            "description": "Develop interactive seat elements (buttons or similar) with distinct visual styles for available, reserved, and selected states, and manage seat selection state using React (useState or context).",
+            "dependencies": ["13.1"],
+            "details": "Each seat should be clickable, updating its state and appearance in real time. Use color, border, or icons to differentiate states. Ensure seat numbers and prices are displayed on each seat.",
+            "status": "pending",
+            "testStrategy": "Test seat selection and deselection via mouse and touch. Confirm visual distinction between seat states and real-time UI updates."
+          },
+          {
+            "id": 3,
+            "title": "Display Seat Details and Selection Summary",
+            "description": "Show seat numbers and pricing on each seat, and provide a summary section displaying selected seats and the total price. Optionally, implement a modal or drawer for seat details on mobile.",
+            "dependencies": ["13.2"],
+            "details": "Ensure seat details are visible and easy to read. The summary should update dynamically as seats are selected or deselected. For mobile, use a modal or drawer to show detailed seat info if space is limited.",
+            "status": "pending",
+            "testStrategy": "Verify seat numbers and prices are visible and accurate. Confirm the summary updates correctly as selections change. Test modal/drawer behavior on mobile devices."
+          },
+          {
+            "id": 4,
+            "title": "Ensure Accessibility and Keyboard Navigation",
+            "description": "Implement ARIA roles (e.g., role=\"grid\", role=\"button\", aria-selected, aria-disabled), keyboard navigation (tab, arrow keys), and focus indicators to meet accessibility standards (WCAG AA).",
+            "dependencies": ["13.2"],
+            "details": "Enable users to navigate and select seats using only the keyboard. Apply appropriate ARIA attributes and ensure color contrast and focus indicators meet accessibility guidelines.",
+            "status": "pending",
+            "testStrategy": "Test keyboard navigation (tab, arrow keys, enter/space) for all seat elements. Use accessibility tools to validate ARIA roles, color contrast, and focus visibility."
+          },
+          {
+            "id": 5,
+            "title": "Validate Component Structure and Testability",
+            "description": "Refactor seat selection logic and UI into composable, headless components to maximize reusability and test coverage.",
+            "dependencies": ["13.2", "13.3", "13.4"],
+            "details": "Separate logic from presentation using headless component patterns. Write unit and integration tests to cover seat selection, state updates, and accessibility features.",
+            "status": "pending",
+            "testStrategy": "Run automated tests for all components. Confirm logic is decoupled from UI and components are easily testable in isolation."
+          }
+        ]
       }
     ],
     "metadata": {
       "created": "2025-08-16T12:16:34.191Z",
-      "updated": "2025-08-16T15:36:17.313Z",
+      "updated": "2025-08-16T16:45:00.313Z",
       "description": "Tasks for master context"
     }
   }
