@@ -1,0 +1,51 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres
+    restart: always
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres_data_dev:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=hackathon
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_DB=hackathon
+
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    restart: always
+    ports:
+      - 8000:80
+    volumes:
+      - pgadmin_data_dev:/var/lib/pgadmin
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@gmail.com
+      - PGADMIN_DEFAULT_PASSWORD=secret
+      - PGADMIN_LISTEN_PORT=80
+  
+  redis:
+    image: redis:alpine
+    container_name: redis
+    restart: always
+    ports:
+      - 6379:6379
+    volumes:
+      - redis_data_dev:/data
+  
+  redis-insight:
+    container_name: redis-insight
+    image: redis/redisinsight
+    restart: always
+    ports:
+      - '5540:5540'
+    volumes:
+      - redis_insight_data_dev:/db
+
+volumes:
+  pgadmin_data_dev:
+  postgres_data_dev:
+  redis_data_dev:
+  redis_insight_data_dev:

@@ -1,0 +1,187 @@
+definitions:
+  models.ReservationRequest:
+    properties:
+      email:
+        type: string
+      fname:
+        type: string
+      id:
+        type: integer
+      lname:
+        type: string
+    type: object
+  models.Seat:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: integer
+      is_available:
+        type: boolean
+      number:
+        type: integer
+      updated_at:
+        type: string
+    type: object
+  models.SeatRequest:
+    properties:
+      id:
+        type: integer
+      number:
+        type: integer
+    type: object
+info:
+  contact: {}
+paths:
+  /seats:
+    get:
+      consumes:
+      - application/json
+      description: Get all seats
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/models.Seat'
+            type: array
+      summary: Get all seats
+    post:
+      consumes:
+      - application/json
+      description: Create a seat
+      parameters:
+      - description: Seat
+        in: body
+        name: seat
+        required: true
+        schema:
+          $ref: '#/definitions/models.SeatRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SeatRequest'
+      summary: Create a seat
+  /seats/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a seat
+      parameters:
+      - description: Seat ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Seat'
+      summary: Delete a seat
+    get:
+      consumes:
+      - application/json
+      description: Get a seat by number
+      parameters:
+      - description: Seat ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Seat'
+      summary: Get a seat
+  /seats/buy:
+    post:
+      consumes:
+      - application/json
+      description: Buy a seat
+      parameters:
+      - description: Reservation
+        in: body
+        name: seat
+        required: true
+        schema:
+          $ref: '#/definitions/models.ReservationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ReservationRequest'
+      summary: Buy a seat
+  /seats/cancel:
+    delete:
+      consumes:
+      - application/json
+      description: Cancel a reservation
+      parameters:
+      - description: Reservation
+        in: body
+        name: seat
+        required: true
+        schema:
+          $ref: '#/definitions/models.ReservationRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ReservationRequest'
+      summary: Cancel a reservation
+  /seats/reserve:
+    post:
+      consumes:
+      - application/json
+      description: Reserve a seat
+      parameters:
+      - description: Seat
+        in: body
+        name: seat
+        required: true
+        schema:
+          $ref: '#/definitions/models.SeatRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SeatRequest'
+      summary: Reserve a seat
+  /seats/unreserve:
+    delete:
+      consumes:
+      - application/json
+      description: Unreserve a seat
+      parameters:
+      - description: Seat
+        in: body
+        name: seat
+        required: true
+        schema:
+          $ref: '#/definitions/models.SeatRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SeatRequest'
+      summary: Unreserve a seat
+swagger: "2.0"
