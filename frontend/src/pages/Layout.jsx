@@ -23,7 +23,7 @@ const Layout = ({ children }) => {
       </div>
 
       {/* Main Area */}
-      <div className="flex flex-col flex-1 ml-80 relative z-10">
+      <div className="flex flex-col flex-1 ml-40 relative z-10">
         {/* Main Content */}
         <main className="flex-1 p-6 pt-20">
           <div className="bg-transparent">
