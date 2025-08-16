@@ -1,0 +1,17 @@
+.seat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  max-width: 250px;
+  margin: 20px auto;
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background-color: #f9f9f9;
+}
+
+.error {
+  color: #c62828; /* Red */
+  text-align: center;
+  margin: 20px;
+}

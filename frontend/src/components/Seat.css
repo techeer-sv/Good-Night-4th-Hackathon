@@ -1,0 +1,31 @@
+.seat {
+  width: 60px;
+  height: 60px;
+  border: 1px solid #777;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 8px;
+  cursor: pointer;
+  border-radius: 8px;
+  user-select: none;
+  font-size: 1.2em;
+  font-weight: bold;
+  transition: background-color 0.2s, transform 0.2s;
+}
+
+.seat.available {
+  background-color: #c8e6c9; /* Light Green */
+  color: #2e7d32;
+}
+
+.seat.available:hover {
+  background-color: #a5d6a7;
+  transform: scale(1.05);
+}
+
+.seat.reserved {
+  background-color: #ffcdd2; /* Light Red */
+  color: #c62828;
+  cursor: not-allowed;
+}
