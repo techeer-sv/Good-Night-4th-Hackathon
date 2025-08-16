@@ -74,16 +74,16 @@ npm run dev
   - `Reservation` 컴포넌트에서 예약자 정보를 입력하고 '예매 완료' 버튼을 누르면 모든 필드가 입력되었는지 검증, 빈 필드가 있으면 경고 메시지 표시.
   - 모든 정보 입력 완료 후 `/api/db-test API`로 서버 상태를 확인, 정상이면 `POST /api/book-seats` API를 호출. 백엔드에서는 1% 확률의 의도적인 예매 실패를 시뮬레이션.
   ``` javascript
-        const response = await fetch('http://localhost:5000/api/book-seats', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          seats: selectedSeats,
-          customerInfo: formData
-        })
-      });
+    const response = await fetch('http://localhost:5000/api/book-seats', {
+      method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      seats: selectedSeats,
+      customerInfo: formData
+    })
+  });
   ```
   - API 호출 결과에 따라 성공 시 성공 메시지를 표시, 홈 화면으로 복귀, 실패 시에는 오류 메시지를 표시하고 폼 데이터를 초기화.
 3. **API 엔드포인트:**
@@ -97,7 +97,7 @@ npm run dev
         success: false,
         message: '좌석 조회 중 오류가 발생했습니다.'
       });
-    }
+    })})
   ```
   - `POST /api/book-seats`: 예약자 정보(이름, 이메일, 전화번호)와 선택된 좌석 배열을 받아 좌석을 예약 처리, 예매 성공/실패 결과를 JSON으로 반환.
 4. **코드 품질 보장:**
