@@ -163,6 +163,17 @@ const Reservation = ({ selectedSeats, onBack, onComplete }) => {
     setIsSubmitting(true);
     
     try {
+      // 99% 확률로 성공, 1% 확률로 실패
+      const randomValue = Math.random();
+      const isSuccess = randomValue < 0.99; // 99% 확률로 true
+      
+      console.log(`랜덤 값: ${randomValue}, 성공 여부: ${isSuccess}`);
+      
+      if (!isSuccess) {
+        // 1% 확률로 실패
+        throw new Error('예매 실패');
+      }
+      
       // 먼저 서버 상태 확인
       console.log('서버 상태 확인 중...');
       const healthCheck = await fetch('http://localhost:5000/api/db-test');
@@ -212,7 +223,16 @@ const Reservation = ({ selectedSeats, onBack, onComplete }) => {
       console.error('예매 오류 상세 정보:', error);
       console.error('오류 스택:', error.stack);
       
-      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+      // 폼 데이터 초기화
+      setFormData({
+        name: '',
+        email: '',
+        phone: ''
+      });
+      
+      if (error.message.includes('예매 실패')) {
+        alert('예매 중 오류가 발생했습니다.');
+      } else if (error.name === 'TypeError' && error.message.includes('fetch')) {
         alert('서버에 연결할 수 없습니다. 백엔드 서버가 실행 중인지 확인해주세요.');
       } else if (error.message.includes('서버 상태 확인 실패')) {
         alert('백엔드 서버가 실행되지 않았습니다. 서버를 시작해주세요.');
