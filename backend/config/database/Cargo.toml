@@ -1,0 +1,14 @@
+[package]
+name = "config-database"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+once_cell.workspace = true
+anyhow.workspace = true
+seat_model = { path = "../../seat/model" }
+sea-orm.workspace = true
+
+[features]
+memory-seats = []

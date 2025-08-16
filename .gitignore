@@ -42,3 +42,21 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Rust build
+/target
+**/target/
+
+# IDE / tooling
+.idea/
+.vscode/
+
+# Logs
+*.log
+
+# Cargo local artifacts
+Cargo.lock
+
+# Coverage
+coverage/
+*.lcov
