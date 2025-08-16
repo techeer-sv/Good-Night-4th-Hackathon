@@ -4,6 +4,7 @@ import _th.hackathon.domain.catalog.entity.PerformanceSeat;
 import _th.hackathon.domain.catalog.repository.PerformanceSeatRepository;
 import _th.hackathon.domain.reservation.entity.Reservation;
 import _th.hackathon.domain.reservation.repository.ReservationRepository;
+import _th.hackathon.domain.reservation.service.ReservationService;
 import _th.hackathon.domain.user.entity.User;
 import _th.hackathon.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,14 +13,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Primary
 @RequiredArgsConstructor
-public class CasReservationService implements ReservationService {
+public class NaiveReservationService implements ReservationService {
 
     private final PerformanceSeatRepository performanceSeatRepository;
     private final ReservationRepository reservationRepository;
     private final UserRepository userRepository;
 
-    /** 좌석 확정 예매: AVAILABLE -> SOLD (원자적 UPDATE) + 예약 이력 저장 */
+    /** CAS 제거 버전: 읽고-검사하고-저장(중간에 인위적 딜레이) */
     @Override
     @Transactional
     public Long reserve(Long userId,
@@ -27,47 +29,48 @@ public class CasReservationService implements ReservationService {
                         String reserverName,
                         String reserverPhone) {
 
-        // 유효성(빠른 실패)
-        if (reserverName == null || reserverName.isBlank()) {
-            throw new IllegalArgumentException("예약자 이름은 필수입니다.");
-        }
-        if (reserverPhone == null || reserverPhone.isBlank()) {
-            throw new IllegalArgumentException("예약자 전화번호는 필수입니다.");
-        }
+        if (reserverName == null || reserverName.isBlank()) throw new IllegalArgumentException("예약자 이름은 필수입니다.");
+        if (reserverPhone == null || reserverPhone.isBlank()) throw new IllegalArgumentException("예약자 전화번호는 필수입니다.");
+        if (!reserverPhone.matches("^[0-9\\-]{7,20}$")) throw new IllegalArgumentException("전화번호 형식이 올바르지 않습니다.");
 
-        if (!reserverPhone.matches("^[0-9\\-]{7,20}$")) {
-            throw new IllegalArgumentException("전화번호 형식이 올바르지 않습니다.");
-        }
-
-        // 사용자 확인
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
 
-        // CAS로 좌석 선점(AVAILABLE -> SOLD)
-        int updated = performanceSeatRepository.tryMarkSold(performanceSeatId);
-        if (updated == 0) {
-            // 이미 SOLD이거나 존재하지 않음
+        // 1) 현재 좌석 상태 읽기
+        PerformanceSeat ps = performanceSeatRepository.findById(performanceSeatId)
+                .orElseThrow(() -> new IllegalArgumentException("좌석이 존재하지 않습니다."));
+
+        if (!ps.isAvailable()) {
             throw new IllegalStateException("이미 예매된 좌석입니다.");
         }
 
-        // 예약 레코드 저장 (동일 트랜잭션 내에서 실패 시 CAS도 롤백)
-        PerformanceSeat ps = performanceSeatRepository.findById(performanceSeatId).orElseThrow();
+        // 2) 레이스 윈도우를 키우기 위한 인위적 딜레이 (동시성 실패 유도)
+        try {
+            Thread.sleep(80); // 50~200ms 등으로 늘리면 실패 빈도↑
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        // 3) 상태 변경(단순 필드 세팅) — CAS/락/버전 없음
+        ps.markSold(); // 내부에서 status = SOLD 같은 단순 세팅
+
+        // 4) 예약 레코드 저장
         Reservation r = Reservation.builder()
                 .user(user)
                 .performanceSeat(ps)
                 .reserverName(reserverName)
                 .reserverPhone(reserverPhone)
-                .build(); // @PrePersist: createdAt/PAID 세팅
+                .build();
+
         return reservationRepository.save(r).getId();
     }
 
-    /** 예매 취소: SOLD -> AVAILABLE 복귀 + 상태 기록 */
     @Override
     @Transactional
     public void cancel(Long reservationId) {
         Reservation r = reservationRepository.findById(reservationId).orElseThrow();
-        performanceSeatRepository.releaseSold(r.getPerformanceSeat().getId()); // SOLD -> AVAILABLE
-        r.cancel(); // ReservationStatus.CANCELLED
-        // JPA 변경감지로 자동 UPDATE
+        performanceSeatRepository.findById(r.getPerformanceSeat().getId())
+                .ifPresent(PerformanceSeat::markAvailable);
+        r.cancel();
     }
 }

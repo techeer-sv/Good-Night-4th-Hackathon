@@ -37,4 +37,16 @@ public class PerformanceSeat {
     private InventoryStatus status; // AVAILABLE / SOLD
 
     @PrePersist void init(){ if (status == null) status = InventoryStatus.AVAILABLE; }
+
+    public boolean isAvailable() {
+        return this.status == InventoryStatus.AVAILABLE;
+    }
+
+    public void markSold() {
+        this.status = InventoryStatus.SOLD;
+    }
+
+    public void markAvailable() {
+        this.status = InventoryStatus.AVAILABLE;
+    }
 }
