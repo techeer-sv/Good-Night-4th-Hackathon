@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSessionQuery } from '@/hooks/useSessionQuery';
+import { LogoutButton } from './LogoutButton';
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -87,13 +88,7 @@ export function Header() {
                 <span className="text-sm text-gray-700">
                   Welcome, {user.email || 'User'}
                 </span>
-                <button
-                  type="button"
-                  className="text-sm text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 rounded transition-colors"
-                  // TODO: Add logout handler in Task 3
-                >
-                  Logout
-                </button>
+                <LogoutButton variant="link" />
               </div>
             ) : (
               <Link
@@ -165,14 +160,10 @@ export function Header() {
                     <div className="text-sm text-gray-700">
                       Welcome, {user.email || 'User'}
                     </div>
-                    <button
-                      type="button"
-                      className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-900 hover:text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
-                      onClick={closeMobileMenu}
-                      // TODO: Add logout handler in Task 3
-                    >
-                      Logout
-                    </button>
+                    <LogoutButton 
+                      variant="link" 
+                      className="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-gray-900 hover:text-gray-700 hover:bg-gray-50"
+                    />
                   </div>
                 ) : (
                   <Link
