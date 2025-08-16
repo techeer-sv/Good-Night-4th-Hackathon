@@ -149,7 +149,7 @@
             "description": "Create a React Query hook to fetch and cache the current session user from the backend endpoint /api/me, using the imported SessionUser type.",
             "dependencies": [],
             "details": "Develop hooks/useSessionQuery.ts using useQuery from @tanstack/react-query to call apiFetch<SessionUser>('/api/me'). Ensure session is persisted via httpOnly cookies managed by the backend.",
-            "status": "in-progress",
+            "status": "done",
             "testStrategy": "Mock /api/me with MSW; verify hook returns session data when authenticated and null/unauthorized otherwise."
           },
           {
@@ -158,7 +158,7 @@
             "description": "Develop a login page with email and password fields, enforcing HTML5 validation and minimal client-side checks. Use React Query's useMutation to POST credentials to /api/auth/login.",
             "dependencies": ["3.1"],
             "details": "Implement app/login/page.tsx with required email and password inputs. Disable submit while pending. On success, invalidate ['session'] and redirect to /events; on error, show toast.",
-            "status": "pending",
+            "status": "in-progress",
             "testStrategy": "Simulate valid and invalid submissions; assert correct redirects, error toasts, and disabled states during mutation."
           },
           {
@@ -292,7 +292,7 @@
     ],
     "metadata": {
       "created": "2025-08-16T12:16:34.191Z",
-      "updated": "2025-08-16T15:09:28.998Z",
+      "updated": "2025-08-16T15:17:51.114Z",
       "description": "Tasks for master context"
     }
   }
