@@ -34,7 +34,6 @@ public class CatalogService {
 
     /** 특정 회차의 가용 좌석(AVAILABLE) 목록 – 등급 순 정렬 권장 */
     public List<PerformanceSeat> getAvailableSeats(Long performanceId) {
-        return performanceSeatRepository
-                .findByPerformanceIdAndStatusOrderBySeatNoAsc(performanceId, InventoryStatus.AVAILABLE);
+        return performanceSeatRepository.findByPerformanceIdOrderBySeatNoAsc(performanceId);
     }
 }

@@ -51,7 +51,8 @@ public class CatalogController {
         return catalogService.getAvailableSeats(performanceId).stream()
                 .map(ps -> new PerfSeatRes(
                         ps.getId(),
-                        ps.getSeatNo()
+                        ps.getSeatNo(),
+                        ps.getStatus()
                 ))
                 .toList();
     }

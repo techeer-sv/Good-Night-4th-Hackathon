@@ -12,9 +12,7 @@ import java.util.List;
 public interface PerformanceSeatRepository extends JpaRepository<PerformanceSeat, Long> {
 
     // 좌석번호 기준으로 정렬
-    List<PerformanceSeat> findByPerformanceIdAndStatusOrderBySeatNoAsc(
-            Long performanceId, InventoryStatus status
-    );
+    List<PerformanceSeat> findByPerformanceIdOrderBySeatNoAsc(Long performanceId);
 
     // CAS: AVAILABLE -> SOLD (원자적)
     @Modifying(clearAutomatically = true, flushAutomatically = true)
