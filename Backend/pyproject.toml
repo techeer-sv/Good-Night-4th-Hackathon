@@ -1,0 +1,24 @@
+[tool.mypy]
+python_version = "3.11"
+plugins = ["mypy_django_plugin.main", "mypy_drf_plugin.main"]
+ignore_missing_imports = false
+warn_unused_ignores = true
+warn_redundant_casts = true
+warn_no_return = true
+# 마이그레이션/가상환경 등은 검사 제외
+exclude = "(^\\.venv/|^seats/migrations/|^app/migrations/)"
+
+# 엄격도(해커톤용으로 완만하게)
+disallow_untyped_defs = false
+check_untyped_defs = false
+
+[tool.django-stubs]
+django_settings_module = "app.settings"
+
+[tool.ruff]
+line-length = 88   # 한 줄 길이 (PEP8 기본은 79, 블랙/ruff는 88 자주 씀)
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W"]  # PEP8 오류, flake8 경고 등
+ignore = ["E501"]         # (예시) 너무 긴 줄은 무시
