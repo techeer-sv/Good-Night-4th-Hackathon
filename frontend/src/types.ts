@@ -4,4 +4,6 @@ export interface Seat {
   isReserved: boolean;
   reservedBy: string | null;
   reservationTime: string | null;
+  selectedBy: string | null;
+  selectedAt: string | null;
 }

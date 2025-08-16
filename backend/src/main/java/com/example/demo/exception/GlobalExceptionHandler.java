@@ -1,4 +1,4 @@
-package com.example.demo;
+package com.example.demo.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +24,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ReservationFailedException.class)
     public ResponseEntity<Object> handleReservationFailedException(ReservationFailedException ex, WebRequest request) {
         return new ResponseEntity<>(Map.of("error", ex.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(ConcurrentReservationException.class)
+    public ResponseEntity<Object> handleConcurrentReservationException(ConcurrentReservationException ex, WebRequest request) {
+        return new ResponseEntity<>(Map.of("error", ex.getMessage(), "retryable", true), HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(Exception.class)

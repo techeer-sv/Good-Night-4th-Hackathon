@@ -2,16 +2,42 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 10px;
-  max-width: 250px;
+  max-width: 280px;
   margin: 20px auto;
   padding: 20px;
-  border: 1px solid #ddd;
+  border: 1px solid #555;
   border-radius: 10px;
-  background-color: #f9f9f9;
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+@media (max-width: 768px) {
+  .seat-grid {
+    max-width: 220px;
+    gap: 8px;
+    padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .seat-grid {
+    max-width: 180px;
+    gap: 6px;
+    padding: 12px;
+  }
 }
 
 .error {
-  color: #c62828; /* Red */
+  color: #f44336;
+  background-color: rgba(244, 67, 54, 0.1);
+  border: 1px solid rgba(244, 67, 54, 0.3);
+  border-radius: 6px;
+  padding: 16px;
   text-align: center;
-  margin: 20px;
+  margin: 20px auto;
+  max-width: 400px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }

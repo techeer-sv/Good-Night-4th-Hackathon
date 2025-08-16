@@ -1,6 +1,8 @@
 .seat {
-  width: 60px;
-  height: 60px;
+  width: 64px;
+  height: 64px;
+  min-width: 44px;
+  min-height: 44px;
   border: 1px solid #777;
   display: flex;
   justify-content: center;
@@ -11,7 +13,9 @@
   user-select: none;
   font-size: 1.2em;
   font-weight: bold;
-  transition: background-color 0.2s, transform 0.2s;
+  transition: background-color 0.2s;
+  border: none;
+  outline: none;
 }
 
 .seat.available {
@@ -21,7 +25,50 @@
 
 .seat.available:hover {
   background-color: #a5d6a7;
-  transform: scale(1.05);
+}
+
+.seat:focus {
+  outline: 3px solid #2196f3;
+  outline-offset: 2px;
+}
+
+.seat.selected {
+  background-color: #fff3e0; /* Light Orange */
+  color: #e65100;
+  cursor: pointer;
+}
+
+.seat.selected:hover {
+  background-color: #ffe0b2;
+}
+
+.seat:disabled {
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+@media (max-width: 768px) {
+  .seat {
+    width: 56px;
+    height: 56px;
+    margin: 6px;
+    font-size: 1.1em;
+  }
+}
+
+@media (max-width: 480px) {
+  .seat {
+    width: 48px;
+    height: 48px;
+    margin: 4px;
+    font-size: 1em;
+  }
+}
+
+.seat.selected-by-other {
+  background-color: #ffcdd2; /* Light Red - same as reserved */
+  color: #c62828;
+  cursor: not-allowed;
 }
 
 .seat.reserved {
