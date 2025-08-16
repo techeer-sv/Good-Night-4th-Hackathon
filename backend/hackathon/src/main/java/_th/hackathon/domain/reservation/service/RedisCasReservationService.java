@@ -12,6 +12,8 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 @Service
 @Primary
 @RequiredArgsConstructor
@@ -53,18 +55,21 @@ public class RedisCasReservationService implements ReservationService {
         }
 
         try {
+            // 1) DB CAS
             int updated = performanceSeatRepository.tryMarkSold(ps.getId());
             if (updated == 0) {
-                // DB에서 실패 → Redis 롤백
-                redisRepository.reset(ps.getPerformance().getId(), ps.getId());
                 throw new IllegalStateException("이미 예매된 좌석입니다.");
             }
 
-            // 사용자 조회
+            // 2) 1% 확률 결제 실패(임의) → 예외 던지면 @Transactional 롤백 + 아래 catch에서 Redis reset
+            if (ThreadLocalRandom.current().nextInt(100) == 0) {
+                throw new IllegalStateException("결제 처리에 실패했습니다. (임의 1%)");
+            }
+
+            // 3) 사용자 조회 & 예약 저장
             User user = userRepository.findById(userId)
                     .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 유저입니다."));
 
-            // 예약 엔티티 저장
             Reservation r = Reservation.builder()
                     .user(user)
                     .performanceSeat(ps)
@@ -75,7 +80,7 @@ public class RedisCasReservationService implements ReservationService {
             return reservationRepository.save(r).getId();
 
         } catch (Exception e) {
-            // DB 예외 발생 시 Redis 롤백
+            // 어떤 예외든 Redis 게이트 원복 (DB는 트랜잭션 롤백)
             redisRepository.reset(ps.getPerformance().getId(), ps.getId());
             throw e;
         }
