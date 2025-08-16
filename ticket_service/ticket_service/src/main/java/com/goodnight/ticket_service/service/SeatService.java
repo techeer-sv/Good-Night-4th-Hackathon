@@ -16,15 +16,8 @@ import lombok.RequiredArgsConstructor;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class SeatService {
-    private final SeatRepository seatRepository;
 
-    /*
-     * 좌석 저장
-     */
-    @Transactional
-    public void saveSeat(Seat seat) {
-        seatRepository.save(seat);
-    }
+    private final SeatRepository seatRepository;
 
     /*
      * 좌석 예약

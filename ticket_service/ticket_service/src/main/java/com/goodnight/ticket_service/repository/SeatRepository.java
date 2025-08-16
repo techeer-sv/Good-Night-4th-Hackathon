@@ -16,7 +16,7 @@ public class SeatRepository {
     private final EntityManager em;
 
     public void save(Seat seat) {
-        em.persist(seat);
+        em.merge(seat);
     }
 
     public Seat findById(Long id) {

@@ -9,23 +9,32 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.goodnight.ticket_service.domain.Seat;
 import com.goodnight.ticket_service.domain.SeatStatus;
 import com.goodnight.ticket_service.service.SeatService;
 
-@WebMvcTest(SeatController.class)
-public class SeatControllerTest {
+@ExtendWith(MockitoExtension.class)
+class SeatControllerTest {
 
-    @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @Mock
     private SeatService seatService;
+
+    @InjectMocks
+    private SeatController seatController;
+
+    @org.junit.jupiter.api.BeforeEach
+    void setUp() {
+        mockMvc = MockMvcBuilders.standaloneSetup(seatController).build();
+    }
 
     @Test
     void 모든_좌석_목록_조회_테스트() throws Exception {

@@ -26,6 +26,18 @@ public class Seat {
     @Enumerated(EnumType.STRING)
     private SeatStatus status; // 좌석 상태 (예: 사용 가능 available, 예약됨 reserved)
 
+    // 기본 생성자
+    public Seat() {
+    }
+
+    // 전체 생성자
+    public Seat(String seatCode, SeatStatus status) {
+        this.seatCode = seatCode;
+        this.status = status;
+    }
+
+    // -- 비즈니스 로직 --//
+
     /*
      * 좌석 상태 변경
      */
@@ -33,12 +45,6 @@ public class Seat {
         if (newStatus == null) {
             throw new IllegalArgumentException("새로운 상태는 null일 수 없습니다.");
         }
-
-        // 이미 예약된 좌석을 다시 예약하려고 할 때 예외 발생
-        if (this.status == SeatStatus.RESERVED && newStatus == SeatStatus.RESERVED) {
-            throw new SeatAlreadyReservedException("이미 예약된 좌석입니다.");
-        }
-
         this.status = newStatus;
     }
 

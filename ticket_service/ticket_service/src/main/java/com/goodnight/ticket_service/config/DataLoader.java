@@ -27,34 +27,20 @@ public class DataLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        // 초기 좌석 데이터 생성 (A1~A10, B1~B10)
+        // 초기 좌석 데이터 생성 (3x3 격자 형태, 총 9개)
         createInitialSeats();
     }
 
     private void createInitialSeats() {
-        // A열 좌석 생성
-        for (int i = 1; i <= 3; i++) {
-            Seat seat = new Seat();
-            seat.setSeatCode("A" + i);
-            seat.setStatus(SeatStatus.AVAILABLE);
-            seatRepository.save(seat);
-        }
+        // 3x3 격자 형태로 좌석 생성
+        String[] rows = { "A", "B", "C" };
+        int[] cols = { 1, 2, 3 };
 
-        // B열 좌석 생성
-        for (int i = 1; i <= 3; i++) {
-            Seat seat = new Seat();
-            seat.setSeatCode("B" + i);
-            seat.setStatus(SeatStatus.AVAILABLE);
-            seatRepository.save(seat);
+        for (String row : rows) {
+            for (int col : cols) {
+                Seat seat = new Seat(row + col, SeatStatus.AVAILABLE);
+                seatRepository.save(seat);
+            }
         }
-
-        // C열 좌석 생성
-        for (int i = 1; i <= 3; i++) {
-            Seat seat = new Seat();
-            seat.setSeatCode("C" + i);
-            seat.setStatus(SeatStatus.AVAILABLE);
-            seatRepository.save(seat);
-        }
-
     }
 }

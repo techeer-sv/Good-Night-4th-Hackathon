@@ -1,56 +1,186 @@
 package com.goodnight.ticket_service.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ActiveProfiles;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.goodnight.ticket_service.domain.Seat;
 import com.goodnight.ticket_service.domain.SeatStatus;
+import com.goodnight.ticket_service.exception.SeatAlreadyReservedException;
 import com.goodnight.ticket_service.repository.SeatRepository;
 
-import jakarta.transaction.Transactional;
+import java.util.Arrays;
+import java.util.List;
 
-@SpringBootTest
-@Transactional
-@ActiveProfiles("test") // 테스트 프로파일을 활성화하여, application-test.yml 설정을 사용한다.
-public class SeatServiceTest {
+import static org.mockito.Mockito.*;
 
-    @Autowired
-    SeatService seatService;
-    @Autowired
-    SeatRepository seatRepository;
+@ExtendWith(MockitoExtension.class)
+class SeatServiceTest {
 
-    @Test
-    void stock_id_조회() throws Exception {
-        // given
-        Seat seat = new Seat();
-        seat.setSeatCode("A1");
-        seat.setStatus(SeatStatus.AVAILABLE);
-        seatService.saveSeat(seat);
+    @Mock
+    private SeatRepository seatRepository;
 
-        // when
-        Seat foundSeat = seatService.findSeatById(seat.getId());
+    @InjectMocks
+    private SeatService seatService;
 
-        // then
-        assertEquals(seat, foundSeat); // 저장된 좌석과 조회된 좌석이 동일해야 한다.
+    private Seat testSeat;
+
+    @BeforeEach
+    void setUp() {
+        testSeat = new Seat("A1", SeatStatus.AVAILABLE);
+        testSeat.setId(1L);
     }
 
     @Test
-    void seat_상태_예외() throws Exception {
-        // given
-        Seat seat = new Seat();
-        seat.setSeatCode("B1");
-        seat.setStatus(SeatStatus.RESERVED);
-        seatService.saveSeat(seat);
+    @DisplayName("좌석 ID로 조회 테스트")
+    void findSeatById() {
+        // Given
+        when(seatRepository.findById(1L)).thenReturn(testSeat);
 
-        // when
-        Seat foundSeat = seatService.findSeatById(seat.getId());
+        // When
+        Seat foundSeat = seatService.findSeatById(1L);
 
-        // then
-        assertEquals(SeatStatus.RESERVED, foundSeat.getStatus()); // 조회된 좌석의 상태가 RESERVED여야 한다.
+        // Then
+        assertNotNull(foundSeat);
+        assertEquals("A1", foundSeat.getSeatCode());
+        assertEquals(SeatStatus.AVAILABLE, foundSeat.getStatus());
+        verify(seatRepository).findById(1L);
+    }
 
+    @Test
+    @DisplayName("모든 좌석 조회 테스트")
+    void findAllSeats() {
+        // Given
+        List<Seat> expectedSeats = Arrays.asList(testSeat);
+        when(seatRepository.findAll()).thenReturn(expectedSeats);
+
+        // When
+        List<Seat> result = seatService.findAllSeats();
+
+        // Then
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        verify(seatRepository).findAll();
+    }
+
+    @Test
+    @DisplayName("사용 가능한 좌석 조회 테스트")
+    void findAvailableSeats() {
+        // Given
+        List<Seat> expectedSeats = Arrays.asList(testSeat);
+        when(seatRepository.findByStatus(SeatStatus.AVAILABLE)).thenReturn(expectedSeats);
+
+        // When
+        List<Seat> result = seatService.findAvailableSeats();
+
+        // Then
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(SeatStatus.AVAILABLE, result.get(0).getStatus());
+        verify(seatRepository).findByStatus(SeatStatus.AVAILABLE);
+    }
+
+    @Test
+    @DisplayName("예약된 좌석 조회 테스트")
+    void findReservedSeats() {
+        // Given
+        Seat reservedSeat = new Seat("B1", SeatStatus.RESERVED);
+        reservedSeat.setId(2L);
+        List<Seat> expectedSeats = Arrays.asList(reservedSeat);
+        when(seatRepository.findByStatus(SeatStatus.RESERVED)).thenReturn(expectedSeats);
+
+        // When
+        List<Seat> result = seatService.findReservedSeats();
+
+        // Then
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        assertEquals(SeatStatus.RESERVED, result.get(0).getStatus());
+        verify(seatRepository).findByStatus(SeatStatus.RESERVED);
+    }
+
+    @Test
+    @DisplayName("좌석 예약 테스트")
+    void reserveSeat() {
+        // Given
+        when(seatRepository.findById(1L)).thenReturn(testSeat);
+        doNothing().when(seatRepository).save(any(Seat.class));
+
+        // When
+        seatService.reserveSeat(1L);
+
+        // Then
+        verify(seatRepository).findById(1L);
+        verify(seatRepository).save(any(Seat.class));
+        assertEquals(SeatStatus.RESERVED, testSeat.getStatus());
+    }
+
+    @Test
+    @DisplayName("이미 예약된 좌석 예약 시도 테스트")
+    void reserveSeat_AlreadyReserved() {
+        // Given
+        testSeat.changeStatus(SeatStatus.RESERVED);
+        when(seatRepository.findById(1L)).thenReturn(testSeat);
+
+        // When & Then
+        assertThrows(SeatAlreadyReservedException.class, () -> {
+            seatService.reserveSeat(1L);
+        });
+
+        verify(seatRepository).findById(1L);
+        verify(seatRepository, never()).save(any(Seat.class));
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 좌석 예약 시도 테스트")
+    void reserveSeat_SeatNotFound() {
+        // Given
+        when(seatRepository.findById(1L)).thenReturn(null);
+
+        // When & Then
+        assertThrows(IllegalArgumentException.class, () -> {
+            seatService.reserveSeat(1L);
+        });
+
+        verify(seatRepository).findById(1L);
+        verify(seatRepository, never()).save(any(Seat.class));
+    }
+
+    @Test
+    @DisplayName("좌석 예약 해제 테스트")
+    void cancelSeatReservation() {
+        // Given
+        testSeat.changeStatus(SeatStatus.RESERVED);
+        when(seatRepository.findById(1L)).thenReturn(testSeat);
+        doNothing().when(seatRepository).save(any(Seat.class));
+
+        // When
+        seatService.cancelSeatReservation(1L);
+
+        // Then
+        verify(seatRepository).findById(1L);
+        verify(seatRepository).save(any(Seat.class));
+        assertEquals(SeatStatus.AVAILABLE, testSeat.getStatus());
+    }
+
+    @Test
+    @DisplayName("예약되지 않은 좌석 해제 시도 테스트")
+    void cancelSeatReservation_NotReserved() {
+        // Given
+        when(seatRepository.findById(1L)).thenReturn(testSeat);
+
+        // When & Then
+        assertThrows(IllegalArgumentException.class, () -> {
+            seatService.cancelSeatReservation(1L);
+        });
+
+        verify(seatRepository).findById(1L);
+        verify(seatRepository, never()).save(any(Seat.class));
     }
 }

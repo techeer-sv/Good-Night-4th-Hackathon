@@ -26,4 +26,12 @@ public class Member {
     // 예약과 회원은 1:N 관계이므로, 회원이 여러 예약을 가질 수 있습니다.
     private List<Reservation> reservations = new ArrayList<>();
 
+    // 기본 생성자
+    public Member() {
+    }
+
+    // 전체 생성자
+    public Member(String name) {
+        this.name = name;
+    }
 }

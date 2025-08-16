@@ -14,6 +14,29 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Schema(description = "좌석 예약 응답 정보")
 public class ReservationResponseDto {
+    public static ReservationResponseDto fromEntity(com.goodnight.ticket_service.domain.Reservation reservation) {
+        if (reservation == null)
+            return null;
+        Long seatId = null;
+        String seatCode = null;
+        // 예약 좌석이 여러 개일 수 있으므로 첫 번째 좌석 정보만 사용
+        if (reservation.getReservationSeats() != null && !reservation.getReservationSeats().isEmpty()) {
+            com.goodnight.ticket_service.domain.Seat seat = reservation.getReservationSeats().get(0).getSeat();
+            if (seat != null) {
+                seatId = seat.getId();
+                seatCode = seat.getSeatCode();
+            }
+        }
+        return ReservationResponseDto.builder()
+                .reservationId(reservation.getId())
+                .seatId(seatId)
+                .seatCode(seatCode)
+                .memberName(reservation.getMember() != null ? reservation.getMember().getName() : null)
+                .status("SUCCESS")
+                .reservationDate(reservation.getReservationDate())
+                .message("예약 정보 조회 성공")
+                .build();
+    }
 
     @Schema(description = "예약 ID", example = "1")
     private Long reservationId;
