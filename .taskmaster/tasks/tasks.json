@@ -101,7 +101,7 @@
             "description": "Build components/Header.tsx with logo linking to /events, navigation links (Events, My Bookings when authed), and conditional Login/Logout based on session. Integrate session hook from Task 3.",
             "dependencies": ["2.1"],
             "details": "Use Tailwind for responsive design. Ensure header uses role='navigation' and appropriate aria-label. Implement conditional rendering for auth links.",
-            "status": "in-progress",
+            "status": "done",
             "testStrategy": "Render <Header /> and assert for role='navigation', correct links based on session state, and accessibility labels."
           },
           {
@@ -110,7 +110,7 @@
             "description": "Add a mobile menu button to the header with aria-controls and aria-expanded. Create a menu panel toggled via state, trap focus while open, and close on Escape.",
             "dependencies": ["2.2"],
             "details": "Ensure 44px touch targets, keyboard accessibility, and visual cues for menu state. Use Tailwind for responsive visibility and transitions.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Snapshot mobile menu closed/open; verify aria-expanded toggles; keyboard: Enter/Space opens, Escape closes; focus trap works."
           },
           {
@@ -119,7 +119,7 @@
             "description": "Build a simple server-side footer in components/Footer.tsx with links and copyright, styled responsively for mobile and desktop.",
             "dependencies": ["2.1"],
             "details": "Ensure footer remains at the bottom of the page and adapts to screen size using Tailwind. Include semantic markup and accessibility considerations.",
-            "status": "pending",
+            "status": "done",
             "testStrategy": "Render footer and verify correct links, responsive layout, and accessibility attributes."
           },
           {
@@ -128,7 +128,7 @@
             "description": "Implement components/SkipLink.tsx (visually hidden until focus) and components/ToastProvider.tsx with useToast hook for status messages.",
             "dependencies": ["2.1"],
             "details": "Ensure SkipLink moves focus to #content and ToastProvider renders region role='status' aria-live='polite'.",
-            "status": "pending",
+            "status": "in-progress",
             "testStrategy": "Verify SkipLink moves focus to main content; ToastProvider smoke test: firing addToast renders message and auto-dismisses."
           }
         ]
@@ -246,7 +246,7 @@
     ],
     "metadata": {
       "created": "2025-08-16T12:16:34.191Z",
-      "updated": "2025-08-16T14:55:43.332Z",
+      "updated": "2025-08-16T15:02:03.097Z",
       "description": "Tasks for master context"
     }
   }
