@@ -1,0 +1,19 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create # 자동으로 테이블을 만들어주는 것.
+    properties:
+      hibernate:
+        # show_sql: true # sout을 통해서 sql log를 보여주는 것.
+        "[format_sql]": true # SQL을 예쁘게 띄어주는 것.
+
+logging.level:
+  "[org.hibernate.SQL]": debug
+  # org.hibernate.type: trace #스프링 부트 2.x, hibernate5 # SQL 실행 파라미터를 로그로 남긴다.
+  # https://github.com/gavlyukovskiy/spring-boot-data-source-decorator ## 쿼리 파라미터 로그 외부 라이브러리 모음.
