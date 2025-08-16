@@ -27,6 +27,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.get("/")
+async def root():
+    return {"message": "Hello, FastAPI!"}
+
 # 좌석 데이터 모델 정의 (Pydantic)
 class SeatResponse(BaseModel):
     id: int
