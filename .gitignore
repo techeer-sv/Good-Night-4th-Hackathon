@@ -1,0 +1,25 @@
+# Rust build
+/target
+**/target/
+
+# Env files
+.env
+.env.*
+
+# IDE / tooling
+.idea/
+.vscode/
+.DS_Store
+
+# Logs
+*.log
+
+# Cargo local artifacts
+Cargo.lock
+
+# Node (if frontend later)
+node_modules/
+
+# Coverage
+coverage/
+*.lcov

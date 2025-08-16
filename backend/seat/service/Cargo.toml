@@ -1,0 +1,33 @@
+[package]
+name = "seat-service"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[features]
+# mock feature enables SeaORM mock support only for tests using required-features
+mock = ["sea-orm/mock"]
+
+[dependencies]
+# use local model-seat crate instead of missing entity crate
+seat_model = { path = "../model" }
+sea-orm = { version = "1.1", features = [
+    "macros",
+    "debug-print",
+    "runtime-tokio-rustls",
+    "sqlx-postgres"
+], default-features = true }
+tokio = { version = "1.47.1", features = ["macros","rt-multi-thread"] }
+
+[dev-dependencies]
+tokio = { version = "1.47.1", features = ["macros","rt"] }
+
+[[test]]
+name = "mock"
+path = "test/mock.rs"      # explicit path because folder is `test/` not default `tests/`
+required-features = ["mock"]
+
+[lints.rust]
+unused_imports = "warn"
+unused_variables = "warn"
+unsafe_code = "forbid"

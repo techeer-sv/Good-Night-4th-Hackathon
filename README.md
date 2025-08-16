@@ -111,3 +111,61 @@
 ---
 
 <!-- 구현 내용 작성 -->
+
+## 프로젝트 구조 (2025 Refactor)
+
+```
+backend/
+  Cargo.toml (워크스페이스 루트 & 바이너리)
+  src/main.rs (앱 엔트리)
+  config/
+     api/ (라우터 & ApiConfig)
+     database/ (DB 초기화)
+     migration/ (SeaORM migration)
+  seat/
+     model/ (SeaORM Entity: Seat)
+     service/ (Query & Mutation 로직)
+     controller/ (HTTP Handler)
+openresty/ (Nginx + Lua, API Gateway 예정)
+redis/ (Redis 설정)
+docker-compose.yml (redis 등 서비스 정의)
+```
+
+### 주요 변경 사항
+* 워크스페이스를 `backend/` 단일 Cargo.toml로 통합
+* SeaORM 1.1.* 로 업그레이드 및 Entity/Service 모듈 정리
+* 중복되던 `entity` 크레이트 제거 → `seat_model` 로 단순화
+* 컨트롤러/서비스 레이어 분리 (model ↔ service ↔ controller)
+* Redis 연결 및 PING 헬스체크 코드 정비
+* 공통 의존성/에디션/린트 설정을 workspace 수준으로 통합
+
+### 실행 방법
+1. (선택) 환경 변수 설정: `.env` (예: DB_URL, REDIS_URL 등)
+2. 마이그레이션 (필요 시):
+    ```bash
+    cd backend
+    cargo run -p migration
+    ```
+3. 서버 실행:
+    ```bash
+    cd backend
+    cargo run
+    ```
+4. (예정) OpenResty + Redis 조합 실행:
+    ```bash
+    docker compose up -d redis
+    # openresty 서비스 정의 추가 예정
+    ```
+
+### 좌석 도메인 개요
+* Seat: id, status (예약 가능/불가)
+* Query: 전체 좌석/단일 좌석 조회
+* Mutation: 상태 변경 (경합 해결은 추후 Redis/DB 락 전략 적용 예정)
+
+### 다음 개선 예정 (Todo)
+* docker-compose에 `app`, `gateway` 서비스 추가 및 OpenResty entrypoint 수정
+* 동시성 제어(낙관락 또는 분산락) 적용
+* 실시간 좌석 상태(WS or SSE) 반영
+* 테스트 커버리지 확장 (service + controller 통합 테스트)
+* README에 아키텍처 다이어그램 추가
+
