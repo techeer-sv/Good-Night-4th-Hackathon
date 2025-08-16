@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.SessionAttribute;
 
 @Service
 @RequiredArgsConstructor
@@ -22,7 +23,7 @@ public class CasReservationService implements ReservationService {
     /** 좌석 확정 예매: AVAILABLE -> SOLD (원자적 UPDATE) + 예약 이력 저장 */
     @Override
     @Transactional
-    public Long reserve(Long userId,
+    public Long reserve(@SessionAttribute("userId") Long userId,
                         Long performanceSeatId,
                         String reserverName,
                         String reserverPhone) {

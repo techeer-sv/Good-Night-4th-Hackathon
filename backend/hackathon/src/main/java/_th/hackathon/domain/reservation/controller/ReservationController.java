@@ -1,11 +1,14 @@
 package _th.hackathon.domain.reservation.controller;
 
 import _th.hackathon.domain.reservation.service.ReservationService;
+import _th.hackathon.domain.user.entity.User;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
+
 
 @RestController
 @RequestMapping("/api/reservations")
@@ -15,23 +18,27 @@ public class ReservationController {
     private final ReservationService reservationService; // 인터페이스 주입 (CAS/Redis 구현 교체 가능)
 
     // 요청/응답 DTO (record로 간단히)
-    public record ReserveReq(Long userId, Long performanceSeatId, String reserverName, String reserverPhone) {}
+    public record ReserveReq(Long performanceSeatId, String reserverName, String reserverPhone) {}
     public record ReserveRes(Long reservationId) {}
     public record CancelRes(Long reservationId, String status) {}
 
     /** 예매 생성: AVAILABLE -> SOLD (DB CAS) + 예약 이력 저장 */
     @PostMapping
-    public ResponseEntity<ReserveRes> reserve(@RequestBody ReserveReq req) {
+    public ResponseEntity<ReserveRes> reserve(HttpSession session, @RequestBody ReserveReq req) {
+        User loginUser = (User) session.getAttribute("user");
+        if (loginUser == null) {
+            return ResponseEntity.status(401).build(); // 로그인 안 된 경우
+        }
         Long id = reservationService.reserve(
-                req.userId(),
+                loginUser.getId(),
                 req.performanceSeatId(),
                 req.reserverName(),
                 req.reserverPhone()
         );
-        return ResponseEntity
-                .created(URI.create("/api/reservations/" + id))
+        return ResponseEntity.created(URI.create("/api/reservations/" + id))
                 .body(new ReserveRes(id));
     }
+
 
     /** 예매 취소: SOLD -> AVAILABLE */
     @PostMapping("/{id}/cancel")
