@@ -91,26 +91,6 @@ const SelectedSeatsList = styled.div`
   line-height: 1.6;
 `;
 
-const Legend = styled.div`
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-  margin-bottom: 20px;
-  font-size: 14px;
-`;
-
-const LegendItem = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 8px;
-`;
-
-const LegendColor = styled.div`
-  width: 20px;
-  height: 20px;
-  border-radius: 4px;
-  border: 1px solid #ddd;
-`;
 
 const BookingButton = styled.button`
   background: #2196F3;
@@ -327,7 +307,7 @@ const Home = () => {
     });
   };
 
-  const handleBooking = () => {
+  const handleBooking = () => {                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
     // selectedSeats 상태 타입 체크
     if (!typeCheck.isValidSeatsArray(selectedSeats)) {
       console.error('❌ handleBooking: selectedSeats 상태가 유효하지 않습니다.', { selectedSeats });

@@ -7,11 +7,11 @@
 이 프로젝트는 사용자가 웹에서 공연 좌석을 확인하고 예약할 수 있는 시스템입니다. 프론트엔드는 **React**를 사용해 직관적이고 반응형 UI를 구현하였고, 백엔드는 **Node.js와 Express**를 활용해 빠르고 안정적으로 구현했습니다. 또한 **REST API**를 통해 프론트엔드와 백엔드 간 데이터를 실시간으로 교환합니다.
 
 ## 프로젝트 실행 방법
-1. **레포지토리 클론:**
-git clone https://github.com/doyun9288/Good-Night-4th-Hackathon.git
+1. **레포지토리 클론:**  
+git clone https://github.com/doyun9288/Good-Night-4th-Hackathon.git  
 cd ood-Night-4th-Hackathon
 2. **환경 설치**
-- Node.js 설치: [https://nodejs.org/](https://nodejs.org/)
+Node.js 설치: [https://nodejs.org/](https://nodejs.org/)
 3. **프론트엔드 설치 밎 실행**
 - 프론트엔드 디렉토리로 이동  
 cd frontend
