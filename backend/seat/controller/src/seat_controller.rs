@@ -34,12 +34,11 @@ struct SeatUpdatePayload {
 /// 
 /// 사용자가 좌석을 예약할 때 필요한 정보를 담는 구조체입니다.
 #[derive(Deserialize, ToSchema)]
-#[salvo(schema(rename_all = "camelCase"))]
+// 문서 및 요청 모두 snake_case 표준 (user_name). camelCase(userName) 더 이상 허용 안 함.
 struct SeatReservationPayload { 
     /// 예약자 이름
     user_name: String,
-    /// 예약자 전화번호 (선택사항)
-    phone: Option<String>
+    phone: Option<String>,
 }
 
 /// 공개 좌석 정보 구조체
@@ -152,7 +151,8 @@ pub async fn reserve_seat(req: &mut Request) -> Result<Json<seat::Model>, Status
 		.param::<String>("id")
 		.and_then(|s| s.parse::<i32>().ok())
 		.ok_or_else(|| StatusError::bad_request())?;
-	let payload: SeatReservationPayload = req.parse_json().await.map_err(|_| StatusError::bad_request())?;
+    let payload: SeatReservationPayload = req.parse_json().await.map_err(|_| StatusError::bad_request())?;
+    info!(user_name=%payload.user_name, "parsed reservation payload");
 	
     // Reserve the seat using the mutation service
     let updated_seat = Mutation::reserve_seat(db(), id, payload.user_name, payload.phone).await
@@ -316,8 +316,8 @@ pub async fn admin_reset(req: &mut Request) -> Result<Json<ResetResponse>, Statu
     description = "Redis 전역 시퀀스를 이용해 다음 좌석을 원자적으로 예약 시도. 원자성은 DB conditional UPDATE 로 보장."
 )]
 pub async fn reserve_next_seat(req: &mut Request) -> Result<Json<ReservationResponse>, StatusError> {
-    // 요청 본문에서 예약자 정보 파싱
     let payload: SeatReservationPayload = req.parse_json().await.map_err(|_| StatusError::bad_request())?;
+    info!(user_name=%payload.user_name, "parsed reservation payload(fcfs)");
     
     // 헤더에서 사용자 ID 추출 (중복 예약 방지용)
     let user_id = req.header::<String>("X-User-Id")
@@ -405,4 +405,30 @@ async fn count_available() -> Result<i64, sea_orm::DbErr> {
     );
     let rows: Vec<Row> = Row::find_by_statement(stmt).all(db_conn).await?;
     Ok(rows.first().map(|r| r.cnt).unwrap_or(0))
+}
+
+// -----------------------------
+// Tests
+// -----------------------------
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+
+    #[test]
+    fn seat_reservation_payload_deserialize_snake_case_ok() {
+        let v = json!({"user_name":"Alice","phone":"010"});
+        let s: SeatReservationPayload = serde_json::from_value(v).expect("snake_case should deserialize");
+        assert_eq!(s.user_name, "Alice");
+        assert_eq!(s.phone.as_deref(), Some("010"));
+    }
+
+    #[test]
+    fn seat_reservation_payload_deserialize_camel_case_rejected() {
+        let v = json!({"userName":"Alice"});
+        let err = serde_json::from_value::<SeatReservationPayload>(v).err().expect("camelCase must fail now");
+        // Error message should mention missing field user_name
+        let msg = err.to_string();
+        assert!(msg.contains("user_name"), "unexpected error msg: {msg}");
+    }
 }
