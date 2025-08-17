@@ -1,5 +1,8 @@
-// 개발 환경에서는 하드코딩된 IP 사용
-const API_BASE_URL = "http://localhost:3001";
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL ??
+  (typeof window !== "undefined"
+    ? `${window.location.protocol}//${window.location.hostname}:3001`
+    : "http://localhost:3001");
 
 export interface Seat {
   id: number;
