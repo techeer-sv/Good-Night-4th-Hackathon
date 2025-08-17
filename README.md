@@ -111,3 +111,151 @@
 ---
 
 <!-- 구현 내용 작성 -->
+# Backend
+## API 엔드포인트
+
+| Method | 이름 | Endpoint | 설명 |
+|--------|------|----------|------|
+| `GET` | 좌석 목록 조회 | `/api/seats` | 전체 좌석 예약 여부 조회 (프론트 조회용) |
+| `GET` | 예약 내역 확인 | `/api/reservations` | 사용자 정보(JSON)를 전달하면 예약 좌석 목록 반환 |
+| `POST` | 좌석 잠금 | `/api/seats/{seatId}/lock` | Redis에 좌석 잠금 정보 저장. 세션ID 필요. TTL 200초 설정 |
+| `DELETE` | 좌석 잠금 해제 | `/api/seats/{seatId}/lock` | Redis에서 잠금 정보 삭제 |
+| `GET` | 좌석 잠금 여부 조회 | `/api/seats/{seatId}/lock` | 해당 좌석이 잠겨있는지 확인 (프론트 동기화용) |
+| `POST` | 좌석 예약 시도 | `/api/seats/{seatId}/reserve` | 사용자 정보 전달 후 좌석 예약 시도 |
+
+---
+
+### 요청 & 응답 예시
+
+#### 1. 좌석 목록 조회 `GET /api/seats`
+
+- 응답 JSON:
+```json
+[
+  {
+    "seatId": 1,
+    "seatNumber": "A1",
+    "isReserved": false
+  },
+  {
+    "seatId": 2,
+    "seatNumber": "A2",
+    "isReserved": true
+  },
+  {
+    "seatId": 3,
+    "seatNumber": "A3",
+    "isReserved": false
+  }
+]
+```
+
+---
+
+#### 2. 예약 내역 확인 `GET /api/reservations`
+
+- 요청 JSON:
+```json
+{
+  "userName": "boseong",
+  "ph": "010-1111-1111"
+}
+```
+
+- 응답 JSON:
+```json
+{
+  "seatId": [1, 2, 3]
+}
+```
+
+---
+
+#### 3. 좌석 잠금 `POST /api/seats/{seatId}/lock`
+
+- 요청 JSON:
+```json
+{
+  "seatId": 5,
+  "sessionId": 3
+}
+```
+
+- 응답 JSON (성공 시):
+```json
+{
+  "message": "좌석이 성공적으로 잠금 처리되었습니다.",
+  "seatId": 5,
+  "sessionId": 3,
+  "lockedAt": 1724192769215
+}
+```
+
+- 실패 응답 예시:
+```json
+{
+  "error": "이미 다른 사용자가 좌석을 선택 중입니다."
+}
+```
+
+---
+
+#### 4. 좌석 잠금 해제 `DELETE /api/seats/{seatId}/lock`
+
+- 요청 파라미터:  
+  `sessionId=3`
+
+- 응답 JSON:
+```json
+{
+  "message": "좌석 잠금이 해제되었습니다.",
+  "seatId": 5
+}
+```
+
+---
+
+#### 5. 좌석 잠금 여부 조회 `GET /api/seats/{seatId}/lock`
+
+- 응답 JSON:
+```json
+{
+  "seatId": 5,
+  "locked": true
+}
+```
+
+---
+
+#### 6. 좌석 예약 시도 `POST /api/seats/{seatId}/reserve`
+
+- 요청 JSON:
+```json
+{
+  "seatId": 1,
+  "userName": "boseong",
+  "ph": "010-1111-1111"
+}
+```
+
+- 응답 JSON:
+```json
+{
+  "seatId": 1,
+  "reserved": true,
+  "userId": 3
+}
+```
+#### 추가 사항
+- 휴대폰 번호 입력 시, 010-xxxx-xxxx의 형식 지키도록 유효성 검사 추가
+  - VO(값 객체)를 사용하여 전화번호 입력 방식을 지정하고, 이에 대한 유효성 검사를 구현함
+- 락 설정 방식 : Redis를 활용한 분산 락
+   - 좌석 클릭 시
+     - 해당 세션id를 Redis에 seat:{seatId} 키로 sessionId 저장
+     - 이미 다른 세션으로 잠금된 경우 -> 실패 응답 반환
+   - 좌석 잠금 해제
+     - Redis에서 해당 키 삭제
+     - 세션 불일치 혹은 TTL초과 시 만료(TTL은 200초로 설정)
+   - 좌석 예약 시
+     - 해당 좌석이 Redis에 잠금되어있고, 그 세션이 현재 요청자의 SessionId와 일치하면 예약
+     - 예약 성공 시, Redis에서 해당 키 삭제, DB에 추가
