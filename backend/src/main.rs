@@ -5,12 +5,15 @@ use sea_orm::Database;
 
 #[handler]
 async fn redis_ping() -> String {
+    let pass = std::env::var("REDIS_PASSWORD").unwrap_or_else(|_| "(unset)".into());
+    let host = std::env::var("REDIS_HOST").unwrap_or_else(|_| "127.0.0.1".into());
+    let port = std::env::var("REDIS_PORT").unwrap_or_else(|_| "6379".into());
     match REDIS_CLIENT.get_multiplexed_async_connection().await {
         Ok(mut conn) => match redis::cmd("PING").query_async::<String>(&mut conn).await {
-            Ok(pong) => pong,
-            Err(e) => format!("ERR: {}", e),
+            Ok(pong) => format!("OK:{} host={} port={} pass_len={}", pong, host, port, pass.len()),
+            Err(e) => format!("ERR: ping_failed host={} port={} pass_len={} err={}", host, port, pass.len(), e),
         },
-        Err(e) => format!("ERR: {}", e),
+        Err(e) => format!("ERR: conn_failed host={} port={} pass_len={} err={}", host, port, pass.len(), e),
     }
 }
 

@@ -26,6 +26,8 @@ async fn main() {
             seat::Model {
                 id: 1,
                 status: true,
+                reserved_by: None,
+                phone: None,
             },
         )
             .await
@@ -33,20 +35,18 @@ async fn main() {
 
         assert_eq!(
             seat,
-            seat::ActiveModel {
-                id: sea_orm::ActiveValue::Unchanged(6),
-                status: sea_orm::ActiveValue::Set(true),
-            }
+            seat::ActiveModel {id:sea_orm::ActiveValue::Unchanged(6),status:sea_orm::ActiveValue::Set(true), reserved_by: todo!(), phone: todo!() }
         );
     }
 
     {
         let seat = Mutation::update_seat_by_id(
             db,
-            1,
             seat::Model {
                 id: 1,
                 status: false,
+                reserved_by: None,
+                phone: None,
             },
         )
             .await
@@ -54,10 +54,7 @@ async fn main() {
 
         assert_eq!(
             seat,
-            seat::Model {
-                id: 1,
-                status: true,
-            }
+            seat::Model {id:1,status:true, reserved_by: todo!(), phone: todo!() }
         );
     }
 

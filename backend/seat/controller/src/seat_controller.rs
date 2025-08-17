@@ -15,6 +15,11 @@ use serde::{Deserialize, Serialize};
 use serde_json::json;
 use tracing::info;
 use config_redis::incr_fcfs_sequence;
+use sea_orm::{TransactionTrait, ConnectionTrait}; // transaction & execute
+use config_redis::{get_current_sequence, FCFS_SEQ_KEY};
+use redis::AsyncCommands;
+use once_cell::sync::Lazy;
+use std::env;
 
 /// 좌석 상태 업데이트 요청 구조체
 /// 
@@ -168,6 +173,10 @@ struct ReservationResponse {
     success: bool,
     seat: Option<PublicSeatInfo>,
     reason: Option<String>,
+    /// 남은 미예약 좌석 수 (성공/실패 모두 참고용)
+    remaining_seats: Option<i64>,
+    /// 사용자 키 TTL 잔여 (초) - 이미 예약/성공 둘 다 표기 가능
+    user_ttl_remaining: Option<i64>,
 }
 
 // Standard reason codes (string constants) for reservation outcomes.
@@ -175,6 +184,68 @@ pub mod reservation_reason {
     pub const SOLD_OUT: &str = "sold_out";
     pub const ALREADY_RESERVED: &str = "already_reserved";
     pub const CONTENTION: &str = "contention"; // too many races tried
+}
+
+/// 관리자용 좌석 및 FCFS 시퀀스 리셋 요청 페이로드
+#[derive(Deserialize, ToSchema)]
+#[salvo(schema(rename_all = "camelCase"))]
+pub struct ResetRequest {
+    /// 새로 생성할 좌석 개수 (기본 100)
+    pub seat_count: Option<i32>,
+}
+
+/// 관리자용 리셋 응답
+#[derive(Serialize, ToSchema)]
+#[salvo(schema(rename_all = "camelCase"))]
+pub struct ResetResponse {
+    pub seat_count: i32,
+    pub sequence: i64,
+}
+
+static ADMIN_TOKEN: Lazy<String> = Lazy::new(|| env::var("ADMIN_RESET_TOKEN").unwrap_or_else(|_| "dev-reset".to_string()));
+
+/// 좌석 전체를 재생성하고 Redis FCFS 시퀀스를 0으로 초기화하는 관리자 엔드포인트
+///
+/// 보안: 헤더 `X-Admin-Token` 이 환경 변수 ADMIN_RESET_TOKEN 과 일치해야 함.
+#[endpoint(tags("seats"), summary="좌석/시퀀스 리셋", description="모든 좌석을 비우고 seat_count 만큼 새로 생성, Redis fcfs:seq 0 초기화")]
+pub async fn admin_reset(req: &mut Request) -> Result<Json<ResetResponse>, StatusError> {
+    // 인증 토큰 체크
+    let token = req.header::<String>("X-Admin-Token").unwrap_or_default();
+    if token != *ADMIN_TOKEN {
+        return Err(StatusError::forbidden().brief("invalid admin token"));
+    }
+    let payload: ResetRequest = req.parse_json().await.unwrap_or(ResetRequest { seat_count: Some(100) });
+    let count = payload.seat_count.unwrap_or(100).max(0) as i32;
+
+    // DB 트랜잭션으로 좌석 재생성
+    let db_conn = db();
+    if let Err(e) = db_conn.transaction::<_, (), sea_orm::DbErr>(|txn| Box::pin(async move {
+        use sea_orm::{Statement, DatabaseBackend};
+        // TRUNCATE + RESTART (Postgres)
+        let stmt = Statement::from_sql_and_values(DatabaseBackend::Postgres, "TRUNCATE seats RESTART IDENTITY", vec![]);
+        txn.execute(stmt).await?;
+        if count > 0 {
+            let insert_sql = format!("INSERT INTO seats (status) SELECT false FROM generate_series(1,{count})");
+            let insert_stmt = Statement::from_sql_and_values(DatabaseBackend::Postgres, &insert_sql, vec![]);
+            txn.execute(insert_stmt).await?;
+        }
+        Ok(())
+    })).await {
+        tracing::error!(error=%e, "admin reset db failure");
+        return Err(StatusError::internal_server_error());
+    }
+
+    // Redis 시퀀스 0 세팅
+    if let Ok(mut conn) = config_redis::CLIENT.get_multiplexed_async_connection().await {
+        let _: Result<(), _> = conn.del(FCFS_SEQ_KEY).await;
+        let _: Result<(), _> = conn.set(FCFS_SEQ_KEY, 0).await;
+    } else {
+        tracing::warn!("admin reset: redis connection failed; sequence may be stale");
+    }
+
+    let seq = get_current_sequence().await.unwrap_or(0);
+    tracing::info!(seat_count=count, sequence=seq, "admin reset completed");
+    Ok(Json(ResetResponse { seat_count: count, sequence: seq }))
 }
 
 /// FCFS 방식 글로벌 좌석 예약 (시퀀스 기반)
@@ -227,28 +298,96 @@ pub async fn reserve_next_seat(req: &mut Request) -> Result<Json<ReservationResp
         .and_then(|v| Some(v.to_string()))
         .ok_or_else(|| StatusError::bad_request().brief("Missing X-User-Id header"))?;
 
+    // 사용자 중복 예약 방지: 이미 성공한 기록 여부 확인 (Redis key: fcfs:user:<user_id>)
+    let user_key = format!("fcfs:user:{user_id}");
+    let mut redis_conn = match config_redis::CLIENT.get_multiplexed_async_connection().await {
+        Ok(c) => c,
+        Err(e) => {
+            tracing::error!(error=%e, "Redis connection failed for user duplicate check");
+            return Err(StatusError::internal_server_error());
+        }
+    };
+    {
+        use redis::AsyncCommands;
+        if let Ok(Some(existing_id)) = redis_conn.get::<_, Option<i64>>(&user_key).await {
+            // 이미 예약된 사용자 -> 기존 좌석 정보 + TTL
+            let remaining = count_available().await.unwrap_or(-1);
+            let ttl = redis_conn.ttl::<_, i64>(&user_key).await.ok();
+            // TTL -1 (no expire) or -2 (no key) normalization
+            let norm_ttl = ttl.filter(|v| *v >= 0);
+            let public = PublicSeatInfo { id: existing_id as i32, status: true };
+            return Ok(Json(ReservationResponse { success: true, seat: Some(public), reason: Some(reservation_reason::ALREADY_RESERVED.into()), remaining_seats: Some(remaining), user_ttl_remaining: norm_ttl }));
+        }
+    }
+
     // 이미 예약된 좌석을 건너뛰기 위한 재시도 제한 (사용자 오류 방지)
     const MAX_ATTEMPTS: usize = 5;
-    for _ in 0..MAX_ATTEMPTS {
+    for attempt in 0..MAX_ATTEMPTS {
         // Redis에서 FCFS 시퀀스 번호 생성 (요청 순서 보장)
-        let seq = incr_fcfs_sequence().await.map_err(|_| StatusError::internal_server_error())? as i32;
-        info!(seq, user=%user_id, "Attempting FCFS reservation");
+        let seq = match incr_fcfs_sequence().await {
+            Ok(v) => v as i32,
+            Err(e) => {
+                tracing::error!(error=%e, attempt, "Redis sequence increment failed");
+                return Err(StatusError::internal_server_error());
+            }
+        };
+        info!(seq, user=%user_id, attempt, "Attempting FCFS reservation");
 
         // 원자적 예약 시도: 데이터베이스에서 사용 가능성 검증 및 예약 처리
         match Mutation::reserve_if_available(db(), seq, payload.user_name.clone(), payload.phone.clone()).await {
             Ok(updated) => {
-                return Ok(Json(ReservationResponse { success: true, seat: Some(PublicSeatInfo { id: updated.id, status: updated.status }), reason: None }));
+                // 사용자 -> seat id 매핑 기록 (재시도 불가 처리)
+                {
+                    use redis::AsyncCommands;
+                    let user_ttl: i64 = std::env::var("FCFS_USER_TTL").ok().and_then(|v| v.parse().ok()).unwrap_or(900);
+                    if user_ttl == 0 {
+                        if let Err(e) = redis_conn.set::<_, _, ()>(&user_key, updated.id).await {
+                            tracing::warn!(error=%e, user=%user_id, "Failed to write user seat mapping (no-expiry)");
+                        }
+                    } else {
+                        if let Err(e) = redis_conn.set_ex::<_, _, ()>(&user_key, updated.id, user_ttl as u64).await {
+                            tracing::warn!(error=%e, user=%user_id, "Failed to write user seat mapping");
+                        }
+                    }
+                }
+                let remaining = count_available().await.unwrap_or(-1);
+                tracing::info!(seat_id=updated.id, seq, remaining, "FCFS reservation success");
+                // TTL 정보 조회 (방금 set_ex 했으니 ttl 존재)
+                let ttl = redis_conn.ttl::<_, i64>(&user_key).await.ok();
+                let norm_ttl = ttl.filter(|v| *v >= 0);
+                return Ok(Json(ReservationResponse { success: true, seat: Some(PublicSeatInfo { id: updated.id, status: updated.status }), reason: None, remaining_seats: Some(remaining), user_ttl_remaining: norm_ttl }));
             }
             Err(sea_orm::DbErr::Custom(msg)) if msg.contains("already reserved") => {
-                // Try next sequence
-                continue;
+                tracing::debug!(seq, attempt, "Seat already reserved at sequence, retrying");
+                continue; // Try next sequence
             }
             Err(sea_orm::DbErr::RecordNotFound(_)) => {
-                // Possibly sequence exceeded max id -> treat as sold out
-                return Ok(Json(ReservationResponse { success: false, seat: None, reason: Some(reservation_reason::SOLD_OUT.into()) }));
+                let remaining = 0;
+                tracing::info!(seq, remaining, "Sequence exceeded existing seat ids -> sold out");
+                return Ok(Json(ReservationResponse { success: false, seat: None, reason: Some(reservation_reason::SOLD_OUT.into()), remaining_seats: Some(remaining), user_ttl_remaining: None }));
             }
-            Err(_) => return Err(StatusError::internal_server_error())
+            Err(e) => {
+                tracing::error!(error=%e, seq, attempt, "FCFS reservation internal DB error");
+                return Err(StatusError::internal_server_error());
+            }
         }
     }
-    Ok(Json(ReservationResponse { success: false, seat: None, reason: Some(reservation_reason::CONTENTION.into()) }))
+    let remaining = count_available().await.unwrap_or(-1);
+    tracing::warn!(user=%user_id, attempts=MAX_ATTEMPTS, remaining, "FCFS contention limit reached");
+    Ok(Json(ReservationResponse { success: false, seat: None, reason: Some(reservation_reason::CONTENTION.into()), remaining_seats: Some(remaining), user_ttl_remaining: None }))
+}
+
+/// 현재 남은(미예약) 좌석 수를 카운트하는 헬퍼
+async fn count_available() -> Result<i64, sea_orm::DbErr> {
+    use sea_orm::FromQueryResult;
+    #[derive(Debug, FromQueryResult)]
+    struct Row { cnt: i64 }
+    let db_conn = db();
+    let stmt = sea_orm::Statement::from_sql_and_values(
+        sea_orm::DatabaseBackend::Postgres,
+        "SELECT COUNT(*) as cnt FROM seats WHERE status = FALSE",
+        vec![]
+    );
+    let rows: Vec<Row> = Row::find_by_statement(stmt).all(db_conn).await?;
+    Ok(rows.first().map(|r| r.cnt).unwrap_or(0))
 }

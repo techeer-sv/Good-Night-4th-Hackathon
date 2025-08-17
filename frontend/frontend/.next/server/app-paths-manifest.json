@@ -1,0 +1,12 @@
+{
+  "/api/me/route": "app/api/me/route.js",
+  "/api/events/route": "app/api/events/route.js",
+  "/api/events/[id]/route": "app/api/events/[id]/route.js",
+  "/api/v1/seats/reservation/fcfs/route": "static/webpack/app/api/v1/seats/reservation/fcfs/route.e86eef8fbdb0eb47.hot-update.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/events/page": "app/events/page.js",
+  "/seat-selection/page": "app/seat-selection/page.js",
+  "/page": "app/page.js",
+  "/events/[id]/page": "app/events/[id]/page.js"
+}
