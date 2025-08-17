@@ -60,7 +60,7 @@ public class SeatService {
             throw new IllegalStateException("이미 예약된 좌석입니다.");
         }
 
-        boolean isSuccess = random.nextInt(100) >= 1; // 99% 성공 확률
+        boolean isSuccess = random.nextInt(100) >= 1;
 
         if (isSuccess) {
             PhoneNumber phoneNumber = new PhoneNumber(requestDto.getPhone());

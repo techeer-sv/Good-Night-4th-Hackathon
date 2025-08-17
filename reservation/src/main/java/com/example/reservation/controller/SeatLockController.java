@@ -22,15 +22,13 @@ public class SeatLockController {
     public ResponseEntity<?> lockSeat(@PathVariable Long seatId,
                                       @Valid @RequestBody SeatLockRequestDto requestDto) {
         String sessionId = requestDto.getSessionId();
-        
-        // sessionId가 필수
+
         if (sessionId == null || sessionId.trim().isEmpty()) {
             return ResponseEntity.badRequest().body(
                     Map.of("error", "sessionId는 필수입니다. /api/sessions 엔드포인트에서 세션을 생성해주세요.")
             );
         }
-        
-        // 세션 유효성 검증
+
         if (!sessionService.isValidSession(sessionId)) {
             return ResponseEntity.badRequest().body(
                     Map.of("error", "유효하지 않은 세션이거나 만료된 세션입니다.")

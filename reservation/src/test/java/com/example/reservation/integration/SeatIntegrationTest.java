@@ -40,23 +40,19 @@ public class SeatIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        // 테스트용 좌석 미리 등록
         seatRepository.save(Seat.builder().seatNumber("A1").isReserved(false).build());
 
-        // 세션 ID와 좌석을 Redis에 잠금
         redisService.setValueWithTTL("seat:1", "s1", 200);
     }
 
     @Test
     void 좌석예약_통합테스트() throws Exception {
-        // given
         var requestDto = new ObjectMapper().createObjectNode();
         requestDto.put("seatId", 1L);
         requestDto.put("userName", "테스트유저");
         requestDto.put("phone", "010-1111-2222");
         requestDto.put("sessionId", "s1");
 
-        // when & then
         mockMvc.perform(post("/api/seats/reserve")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestDto)))

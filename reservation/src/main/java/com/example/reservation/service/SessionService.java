@@ -10,7 +10,6 @@ import java.util.concurrent.ConcurrentHashMap;
 @Slf4j
 public class SessionService {
 
-    // 5개의 고정 세션 ID
     private static final List<String> PREDEFINED_SESSIONS = List.of(
             "s1", "s2", "s3", "s4", "s5"
     );
@@ -25,7 +24,6 @@ public class SessionService {
         log.info("Predefined sessions initialized: {}", PREDEFINED_SESSIONS);
     }
 
-    // 기존 생성 메서드는 비활성화
     public String createSession() {
         throw new UnsupportedOperationException("고정된 세션만 사용 가능합니다.");
     }
@@ -36,7 +34,7 @@ public class SessionService {
         if (info == null) return false;
 
         long sessionAge = System.currentTimeMillis() - info.getCreatedAt();
-        long maxAge = 30 * 60 * 1000; // 30분
+        long maxAge = 30 * 60 * 1000;
 
         if (sessionAge > maxAge) {
             sessions.remove(sessionId);

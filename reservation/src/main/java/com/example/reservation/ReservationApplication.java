@@ -17,7 +17,6 @@ public class ReservationApplication {
 	@Bean
 	public CommandLineRunner initData(SeatRepository seatRepository) {
 		return args -> {
-			// 좌석이 없을 때만 초기 데이터 생성
 			if (seatRepository.count() == 0) {
 				char row = 'A';
 				for (int i = 0; i < 3; i++) {

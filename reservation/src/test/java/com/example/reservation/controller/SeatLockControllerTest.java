@@ -35,7 +35,7 @@ class SeatLockControllerTest {
     @Test
     @DisplayName("좌석 잠금 - 성공")
     void lockSeat_success() throws Exception {
-        // given
+
         Long seatId = 1L;
         String sessionId = "SESSION123";
 
@@ -46,7 +46,6 @@ class SeatLockControllerTest {
         when(sessionService.isValidSession(sessionId)).thenReturn(true);
         when(seatLockService.lockSeat(seatId, sessionId)).thenReturn(true);
 
-        // when & then
         mockMvc.perform(post("/api/seats/{seatId}/lock", seatId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -59,13 +58,12 @@ class SeatLockControllerTest {
     @Test
     @DisplayName("좌석 잠금 - 세션 누락")
     void lockSeat_missingSession() throws Exception {
-        // given
+
         Long seatId = 1L;
         SeatLockRequestDto request = new SeatLockRequestDto();
         request.setSeatId(seatId);
         request.setSessionId("");
 
-        // when & then
         mockMvc.perform(post("/api/seats/{seatId}/lock", seatId)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))

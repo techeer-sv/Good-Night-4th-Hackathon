@@ -13,5 +13,5 @@ public class SeatLockRequestDto {
     private Long seatId;
     
     @NotBlank(message = "sessionId는 필수입니다")
-    private String sessionId; // /api/sessions 엔드포인트에서 생성된 sessionId
+    private String sessionId;
 }
