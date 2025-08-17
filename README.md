@@ -159,10 +159,9 @@ docker-compose.yml (redis 등 서비스 정의)
             {"success":true,"seat":{"id":3,"status":true}}
             ```
             실패(reason) 예: `sold_out`, `already_reserved`, `contention`
-4. (예정) OpenResty + Redis 조합 실행:
+4. OpenResty + Redis 조합 실행:
     ```bash
-    docker compose up -d redis
-    # openresty 서비스 정의 추가 예정
+    docker compose up -d
     ```
 
 ### 좌석 도메인 개요
@@ -170,11 +169,36 @@ docker-compose.yml (redis 등 서비스 정의)
 * Query: 전체 좌석/단일 좌석 조회
 * Mutation: 상태 변경 (경합 해결은 추후 Redis/DB 락 전략 적용 예정)
 
+### 환경 변수 (.env)
+핵심 변수 예시는 `.env.example` 참고.
+
+| 변수 | 설명 | 비고 |
+|------|------|------|
+| DATABASE_URL | Postgres 연결 문자열 | 필수 |
+| REDIS_HOST / REDIS_PORT / REDIS_PASSWORD | Redis 접속 정보 | REDIS_URL 로 대체 가능 |
+| REDIS_URL | 전체 URL 직접 지정 | 선택 |
+| FCFS_USER_HEADER | Gateway에서 사용자 식별 헤더 | 기본 X-User-Id |
+| VITE_API_BASE / NEXT_PUBLIC_API_BASE | 프론트엔드 빌드 타임 API Base | 프레임워크별 prefix |
+| GOOGLE_API_KEY | Gemini 사용 시 | 선택 |
+| GEMINI_MODEL | Gemini 모델 ID | 기본 gemini-1.5-flash |
+
+### FCFS API 스펙 요약
+상세 문서: `docs/api-spec.md` 참고.
+
+| 항목 | 값 |
+|------|-----|
+| Method | POST |
+| Path | /api/v1/seats/reservation/fcfs |
+| Header | X-User-Id (또는 FCFS_USER_HEADER) |
+| Body | { "userName": string, "phone": string } |
+| Success | { "success": true, "seat": { "id": number, "status": true } } |
+| Error reason | sold_out | duplicate | contention | already_reserved |
+
 ### 다음 개선 예정 (Todo)
 * docker-compose에 `app`, `gateway` 서비스 추가 및 OpenResty entrypoint 수정
 * 동시성 제어(낙관락 또는 분산락) 적용
 * 실시간 좌석 상태(WS or SSE) 반영
 * 테스트 커버리지 확장 (service + controller 통합 테스트)
 * README에 아키텍처 다이어그램 추가
-* 예약 응답 reason 코드 enum-like 문서화 및 클라이언트 매핑 표 추가
+* 예약 응답 reason 코드 enum-like 문서화 및 클라이언트 매핑 표 추가 (apiSpec.json 동기화 자동화)
 

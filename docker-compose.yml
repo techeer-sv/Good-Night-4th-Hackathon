@@ -4,27 +4,31 @@ services:
     image: postgres:15-alpine
     container_name: postgres
     environment:
-      - POSTGRES_DB=tickettock
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     ports:
-      - "5432:5432"
+      - "${POSTGRES_EXTERNAL_PORT}:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
     restart: unless-stopped
+    networks:
+      - tickettock
 
   redis:
     build: ./redis
     container_name: redis
     environment:
-      - REDIS_PASSWORD=${REDIS_PASSWORD:-redis_pass}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
     command: >
       sh -c 'exec redis-server /usr/local/etc/redis/redis.conf --requirepass "$${REDIS_PASSWORD}"'
     ports:
-      - "6379:6379"
+      - "${REDIS_EXTERNAL_PORT}:6379"
     volumes:
       - redis-data:/data
     restart: unless-stopped
+    networks:
+      - tickettock
 
   backend:
     build:
@@ -32,36 +36,47 @@ services:
       dockerfile: Dockerfile
     container_name: backend
     environment:
-      - DATABASE_URL=postgres://postgres:${POSTGRES_PASSWORD:-postgres}@postgres:5432/tickettock
-      - RUST_LOG=info
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - REDIS_PASSWORD=${REDIS_PASSWORD:-redis_pass}
+      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - RUST_LOG=${RUST_LOG}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - APP_PORT=${APP_PORT}
+      - ADMIN_RESET_TOKEN=${ADMIN_RESET_TOKEN}
     volumes:
       - backend-data:/app/data
     depends_on:
       - postgres
       - redis
     ports:
-      - "5800:5800"
+      - "${BACKEND_EXTERNAL_PORT}:${APP_PORT}"
     restart: unless-stopped
+    networks:
+      - tickettock
 
   gateway:
     build: ./openresty
     container_name: gateway
     environment:
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - DEFAULT_DUP_TTL=5
-      - REDIS_PASSWORD=${REDIS_PASSWORD:-redis_pass}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - DEFAULT_DUP_TTL=${DEFAULT_DUP_TTL}
+      - FCFS_USER_HEADER=${FCFS_USER_HEADER}
     depends_on:
       - backend
       - redis
     ports:
-      - "8080:80"
+      - "${GATEWAY_EXTERNAL_PORT}:80"
     restart: unless-stopped
+    networks:
+      - tickettock
 
 volumes:
   postgres-data:
   redis-data:
   backend-data:
+
+networks:
+  tickettock:
+    driver: bridge

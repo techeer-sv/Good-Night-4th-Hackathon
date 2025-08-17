@@ -40,7 +40,7 @@ async fn hello() -> &'static str { "공연 예약 시스템 API" }
 
 pub fn build_router(redis_ping: impl Handler) -> Router {
     let root = Router::new()
-        .push(Router::with_path("healthz").get(health))
+        .push(Router::with_path("health").get(health))
         .push(Router::with_path("redis/ping").get(redis_ping))
         .push(
             Router::with_path("api/v1/seats")
@@ -50,7 +50,7 @@ pub fn build_router(redis_ping: impl Handler) -> Router {
                 .push(Router::with_path("reservation/fcfs").post(seat::reserve_next_seat))
                 // Admin reset (seat table + sequence)
                 .push(
-                    Router::with_path("admin/reset")
+                    Router::with_path("reset")
                         .post(seat::admin_reset)
                 )
                 .push(
