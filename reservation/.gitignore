@@ -1,37 +1,71 @@
-HELP.md
-.gradle
-build/
-!gradle/wrapper/gradle-wrapper.jar
-!**/src/main/**/build/
-!**/src/test/**/build/
+# ========================
+# OS 관련
+# ========================
+.DS_Store
+Thumbs.db
 
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-bin/
-!**/src/main/**/bin/
-!**/src/test/**/bin/
-
-### IntelliJ IDEA ###
-.idea
-*.iws
+# ========================
+# IDE/Editor 관련
+# ========================
+.idea/
 *.iml
+*.iws
 *.ipr
-out/
-!**/src/main/**/out/
-!**/src/test/**/out/
-
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-
-### VS Code ###
 .vscode/
+*.sw?
+
+# ========================
+# Build 관련
+# ========================
+/target/
+/build/
+
+# ========================
+# Gradle 관련
+# ========================
+.gradle/
+/out/
+/bin/
+/**/build/
+!gradle/wrapper/gradle-wrapper.jar
+.gradle/
+*.log
+
+# ========================
+# Java 관련
+# ========================
+*.class
+
+# ========================
+# Logs
+# ========================
+*.log
+logs/
+*.tmp
+
+# ========================
+# 환경설정 파일
+# ========================
+.env
+*.env
+application-*.yml
+application-*.properties
+
+# ========================
+# Docker
+# ========================
+docker-compose.override.yml
+*.pid
+
+# ========================
+# 기타
+# ========================
+*.sqlite
+*.h2.db
+
+# ========================
+# Test
+# ========================
+test-output/
+coverage/
+jacoco.exec
