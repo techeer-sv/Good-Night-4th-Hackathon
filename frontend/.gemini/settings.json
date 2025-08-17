@@ -14,6 +14,30 @@
 				"AZURE_OPENAI_API_KEY": "YOUR_AZURE_KEY_HERE",
 				"OLLAMA_API_KEY": "YOUR_OLLAMA_API_KEY_HERE"
 			}
+		},
+		"playwright": {
+			"command": "npx",
+			"args": [
+				"@playwright/mcp@latest"
+			],
+			"type": "stdio"
+		},
+		"sequential-thinking": {
+			"command": "uvx",
+			"args": [
+				"--from",
+				"git+https://github.com/arben-adm/mcp-sequential-thinking",
+				"--with",
+				"portalocker",
+				"mcp-sequential-thinking"
+			]
+		},
+		"context7": {
+			"command": "npx",
+			"args": [
+				"-y",
+				"@upstash/context7-mcp"
+			]
 		}
 	}
 }

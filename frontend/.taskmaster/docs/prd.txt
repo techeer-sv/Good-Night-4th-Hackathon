@@ -1,0 +1,418 @@
+<context>
+Here’s a clean, copy-paste prompt (in assertive English) you can give to GPT-4 to implement each screen in Svelte. It’s precise, scoped, and includes structure, components, and interactions.
+
+⸻
+
+Build These Screens in Svelte (SvelteKit + Tailwind) must us packagemanager bun
+
+Implement all screens in SvelteKit using TailwindCSS. Recreate the provided HTML UIs as Svelte components with the same look-and-feel, behavior, and responsive styles.
+
+Tech & Setup
+	•	Framework: SvelteKit
+	•	Styling: TailwindCSS (configure via postcss + tailwind.config.cjs)
+	•	Icons: Use Material Icons (via webfont) as in the HTML
+	•	State: Use Svelte stores for seat selection and booking data
+	•	Routing: File-based routes
+	•	TypeScript: Enabled
+
+Routes (Pages)
+
+Create these pages matching the given designs:
+	1.	/select – Seat Selection
+
+	•	Recreate the “Select Your Seats” page.
+	•	Includes the header (“SeatFinder”), gradient background, STAGE chip, and a 3×3 seat grid (A1–C3).
+	•	Seats have three states: Available, Booked (disabled), Selected.
+	•	When the user selects a seat, open a booking modal (glassmorphism) requesting Name and Contact Number.
+	•	On form submit:
+	•	Save { name, contact, seatId } to a store.
+	•	Navigate to /details.
+
+	2.	/details – Booking Details Form
+
+	•	Recreate the “Booking Information” screen (“StageSeats” header).
+	•	Pre-fill the selected seat if available from the store, but the form must be independently editable.
+	•	Fields: Name (text), Contact Number (tel).
+	•	Validate required fields. On submit:
+	•	Simulate a booking API (POST /api/book) with a small timeout.
+	•	If success → go to /confirm.
+	•	If failure (e.g., seat already booked) → go to /failed with failure info.
+
+	3.	/confirm – Confirmation
+
+	•	Recreate the “Confirm Your Booking” page (“Showtix” header).
+	•	Show performance details (mock constants), selected seat, and price.
+	•	Buttons: Back (go -1), Confirm Booking (finalize, then maybe toast or navigate to a “My Tickets” placeholder).
+
+	4.	/failed – Booking Failed
+
+	•	Recreate the “Booking Failed” page (“StageSeat” header).
+	•	Show the error card with the red icon and message.
+	•	Show an updated seat grid (example: mark A3 and C2 as booked).
+	•	Buttons: Retry (navigate back to /select) and View Updated Seats (stay on the page or refresh seat map).
+
+Shared Components
+
+Create reusable components in src/lib/components:
+	•	Header.svelte
+Props: { brand: string, nav?: { label: string, href: string }[] }
+Supports the different site titles used in the mockups (“SeatFinder”, “StageSeats”, “Showtix”).
+	•	StageChip.svelte – the “STAGE” pill.
+	•	Seat.svelte – a single seat box (props: { id: string, state: 'available'|'booked'|'selected' } and click handler).
+	•	SeatGrid.svelte – renders a 3×3 grid from a seats array and emits select events.
+	•	BookingModal.svelte – glassmorphism modal with Name + Contact fields; emits submit with payload.
+	•	GlassButton.svelte, GlassCard.svelte – utility styled wrappers.
+
+Stores & Types
+
+Create src/lib/stores/booking.ts:
+
+import { writable } from 'svelte/store';
+
+export type SeatState = 'available' | 'booked' | 'selected';
+
+export interface Seat {
+  id: string;      // e.g., "A1"
+  state: SeatState;
+}
+
+export interface BookingInfo {
+  name: string;
+  contact: string;
+  seatId: string;
+}
+
+export const seats = writable<Seat[]>([
+  // initial state mirrors the HTML examples:
+  { id: 'A1', state: 'available' },
+  { id: 'A2', state: 'booked' },
+  { id: 'A3', state: 'available' },
+  { id: 'B1', state: 'available' },
+  { id: 'B2', state: 'booked' },
+  { id: 'B3', state: 'available' },
+  { id: 'C1', state: 'available' },
+  { id: 'C2', state: 'booked' },
+  { id: 'C3', state: 'available' }
+]);
+
+export const booking = writable<BookingInfo | null>(null);
+
+Mock API
+
+Implement SvelteKit endpoints under src/routes/api:
+	•	POST /api/book
+Body: { name, contact, seatId }
+Behavior:
+	•	If seat is booked, return 409 with { error: 'seat_unavailable' }.
+	•	Otherwise set seat to booked and return { ok: true }.
+	•	(Optional) GET /api/seats – returns current seats array for hydration.
+
+Page Behaviors (Key Requirements)
+	•	/select
+	•	Render header + hero text exactly like the provided HTML.
+	•	Show STAGE chip component.
+	•	Seat grid shows states visually, matching Tailwind classes (glassy, booked disabled look).
+	•	Clicking an available seat sets it as selected (only one at a time) and opens modal.
+	•	Closing modal clears selection.
+	•	Submitting modal sets booking store and navigates to /details.
+	•	/details
+	•	Use “Booking Information” styling from the second HTML.
+	•	Validate inputs. Disable submit while “sending”.
+	•	Call /api/book. On:
+	•	200 → navigate /confirm.
+	•	409 → navigate /failed?seatId=....
+	•	/confirm
+	•	Mirror typography, cards, and section dividers.
+	•	Show mock performance info (title, date/time, venue) and selected seat from store.
+	•	Confirm Booking simply shows success (you can console.log or toast).
+	•	/failed
+	•	Show red error icon and message: “The seat you selected is no longer available.”
+	•	Render the updated seat grid where conflict seats (e.g., A3, C2) are visibly booked.
+	•	Retry → /select
+	•	View Updated Seats → keep user here but refresh from store (or /api/seats).
+
+Styling Parity
+	•	Match the Tailwind classes from the HTML you were given (glassy backgrounds, rounded-2xl, shadows, gradients, etc.).
+	•	Include the legend (“Available / Booked / Selected”) on /select.
+	•	Use Material Icons with <span class="material-icons">...</span> as in the HTML.
+	•	Ensure mobile-first responsiveness (stacked layout, proper spacing).
+
+Accessibility
+	•	Buttons and inputs must have aria-labels where icons are used.
+	•	Modal traps focus and closes on Escape.
+	•	Disabled seats are not focusable.
+
+Deliverables
+	•	SvelteKit project with:
+	•	src/routes/select/+page.svelte
+	•	src/routes/details/+page.svelte
+	•	src/routes/confirm/+page.svelte
+	•	src/routes/failed/+page.svelte
+	•	src/routes/api/book/+server.ts
+	•	src/lib/components/* (as listed)
+	•	src/lib/stores/booking.ts
+	•	Include basic unit tests for the booking API (happy path & seat conflict).
+
+Sample Snippets (Style & Wiring)
+
+Seat.svelte
+
+<script lang="ts">
+  export let id: string;
+  export let state: 'available'|'booked'|'selected' = 'available';
+  export let onSelect: (id: string) => void;
+
+  const isBooked = state === 'booked';
+  const isSelected = state === 'selected';
+</script>
+
+<div
+  role="button"
+  tabindex={isBooked ? -1 : 0}
+  aria-disabled={isBooked}
+  class={`aspect-square flex items-center justify-center rounded-2xl transition-all
+    ${isBooked
+      ? 'bg-gray-200/70 cursor-not-allowed shadow-inner'
+      : `glassy cursor-pointer hover:scale-105 hover:shadow-xl
+         ${isSelected ? 'bg-[var(--md-sys-color-primary)] shadow-2xl' : ''}`
+    }`}
+  on:click={() => !isBooked && onSelect(id)}
+>
+  <span class={`text-lg font-medium ${isSelected ? 'text-white' : 'text-gray-800'}`}>{id}</span>
+</div>
+
+/select/+page.svelte (core flow)
+
+<script lang="ts">
+  import Header from '$lib/components/Header.svelte';
+  import StageChip from '$lib/components/StageChip.svelte';
+  import SeatGrid from '$lib/components/SeatGrid.svelte';
+  import BookingModal from '$lib/components/BookingModal.svelte';
+  import { seats, booking } from '$lib/stores/booking';
+  import { get, writable } from 'svelte/store';
+  import { goto } from '$app/navigation';
+
+  const showModal = writable(false);
+  const selectedSeat = writable<string | null>(null);
+
+  function handleSelect(seatId: string) {
+    selectedSeat.set(seatId);
+    showModal.set(true);
+  }
+
+  function handleClose() {
+    selectedSeat.set(null);
+    showModal.set(false);
+  }
+
+  function handleSubmit(form: { name: string; contact: string }) {
+    const seatId = get(selectedSeat);
+    booking.set({ ...form, seatId: seatId! });
+    showModal.set(false);
+    goto('/details');
+  }
+</script>
+
+<Header brand="SeatFinder" />
+<main class="...">
+  <StageChip />
+  <SeatGrid {handleSelect} />
+  {#if $showModal}
+    <BookingModal on:close={handleClose} on:submit={(e) => handleSubmit(e.detail)} selectedSeat={$selectedSeat} />
+  {/if}
+</main>
+
+/routes/api/book/+server.ts (mock)
+
+import type { RequestHandler } from '@sveltejs/kit';
+import { seats } from '$lib/stores/booking'; // in a real app, use DB not a store
+
+export const POST: RequestHandler = async ({ request }) => {
+  const { name, contact, seatId } = await request.json();
+
+  // naive in-memory check; replace with DB in real usage
+  let current: any[];
+  seats.update((arr) => (current = arr, arr));
+  const seat = current!.find((s) => s.id === seatId);
+  if (!seat || seat.state === 'booked') {
+    return new Response(JSON.stringify({ error: 'seat_unavailable' }), { status: 409 });
+  }
+  seat.state = 'booked';
+  seats.set([...current!]);
+
+  return new Response(JSON.stringify({ ok: true }), { status: 200 });
+};
+
+Acceptance Criteria
+	•	Visual parity with the provided HTML (typography, spacing, colors, shadows, glass effects).
+	•	Seat selection and modal flow on /select works exactly as described.
+	•	Form validation and API success/failure routing on /details works.
+	•	/confirm shows correct selected seat and details.
+	•	/failed shows error UI and updated seat states with working buttons.
+	•	All pages are responsive and accessible.
+
+⸻
+
+Do not deviate from this spec. Reuse components where possible, keep code idiomatic to SvelteKit, and match the original Tailwind styling closely.
+
+Tickettock 좌석 예약 API 명세서
+
+1. 개요
+	•	이 API는 티켓톡 서비스에서 좌석 목록 조회, 단일 좌석 조회, 그리고 선착순(FCFS) 예약 기능을 제공합니다.
+	•	예약 요청 처리 과정에서 Gateway(OpenResty)가 중복 예약을 차단하고, 예약 순서(시퀀스)를 할당합니다. 이후 Salvo 백엔드가 좌석 데이터베이스를 원자적으로 업데이트하여 예약을 완료합니다.
+
+2. 기본 URL
+	•	모든 API 요청은 다음 Base URL을 사용합니다:
+
+http://localhost:5800
+
+
+
+3. 공통 응답 구조 (Global JSON Envelope)
+	•	모든 응답은 JSON 형태의 Envelope로 반환됩니다.
+	•	성공 응답 예:
+
+{ "success": true, ... }
+
+
+	•	실패 응답 예:
+
+{ "success": false, "reason": <code>, "message"?: <string> }
+
+	•	실패 응답의 reason 필드는 다음과 같은 표준 코드 중 하나입니다:
+
+sold_out, duplicate, contention, already_reserved,
+validation, internal_error, service_unavailable,
+redis_error, missing_user, sequence_unavailable, not_found
+
+
+
+4. 주요 엔드포인트
+
+GET /api/v1/seats (좌석 목록 조회)
+	•	설명: 모든 좌석의 목록을 조회합니다.
+	•	요청: GET http://localhost:5800/api/v1/seats
+	•	응답 (성공, HTTP 200):
+	•	응답 JSON 예시:
+
+{ 
+  "success": true, 
+  "seats": [
+    { "id": 1, "status": true },
+    { "id": 2, "status": false }
+  ]
+}
+
+
+	•	각 좌석 객체는 다음 필드를 포함합니다:
+	•	id (number): 좌석 고유 ID.
+	•	status (boolean): 좌석 상태 (true: 예약 가능, false: 이미 예약됨).
+
+	•	오류: 일반적으로 서버 내부 오류 시 internal_error 코드로 실패 반환(예: HTTP 500).
+
+GET /api/v1/seats/{id} (단일 좌석 조회)
+	•	설명: 경로 매개변수 id에 해당하는 특정 좌석 정보를 조회합니다.
+	•	요청: GET http://localhost:5800/api/v1/seats/{id} (예: /api/v1/seats/3)
+	•	응답 (성공, HTTP 200):
+
+{ 
+  "success": true, 
+  "seat": { "id": 3, "status": true } 
+}
+
+	•	seat 객체는 id(number)와 status(boolean)를 포함합니다.
+
+	•	응답 (실패, HTTP 404):
+
+{ "success": false, "reason": "not_found" }
+
+	•	존재하지 않는 좌석 ID를 요청하면 not_found 에러가 반환됩니다.
+
+POST /api/v1/seats/reservation/fcfs (선착순 좌석 예약)
+	•	설명: 전체 좌석을 대상으로 선착순 예약을 시도합니다.
+	•	요청 헤더:
+	•	X-User-Id (필수): 사용자 식별용 ID (중복 차단 및 멱등 처리에 사용).
+	•	X-Fcfs-Seq: Gateway가 Redis INCR로 할당하는 예약 시퀀스. 프론트엔드에서는 별도 설정 없이 X-User-Id만 보내면 되며, Gateway가 자동으로 이 헤더를 추가합니다.
+	•	요청 바디 (JSON):
+
+{ "user_name": "Alice", "phone": "010-1234-5678" }
+
+	•	user_name (string): 예약자 이름.
+	•	phone (string): 연락처.
+
+	•	응답 (성공, HTTP 200):
+
+{ 
+  "success": true,
+  "seat": { "id": 5, "status": true },
+  "remainingSeats": 3,
+  "userTtlRemaining": 870,
+  "sequence": 42
+}
+
+	•	seat (object): 예약된 좌석 정보 (id, status 포함).
+	•	remainingSeats (number): 예약 후 남은 좌석 수.
+	•	userTtlRemaining (number): 예약 성공 후 해당 사용자의 재예약 제한 TTL(초 단위) 남은 시간.
+	•	sequence (number): 게이트웨이가 할당한 예약 순번.
+
+	•	실패 응답 (예시):
+주요 실패 사유와 의미는 다음과 같습니다. 프론트엔드는 에러 reason에 따라 적절히 처리하거나 재시도 전략을 적용해야 합니다.
+	•	sold_out (HTTP 409): 더 이상 예약 가능한 좌석이 없음(재시도 불필요).
+	•	duplicate (HTTP 409): 동일 사용자/IP가 TTL 내에 재시도 시도(사용자/IP 키의 TTL 경과 후 재시도).
+	•	contention (HTTP 409): 좌석 경쟁으로 예약 충돌 발생(즉시 또는 백오프 후 재시도 가능).
+	•	already_reserved (HTTP 409): 같은 사용자가 이미 예약 성공(멱등 처리; 재시도 불필요).
+	•	validation (HTTP 400): 요청 본문 파싱 오류 또는 필수 필드 누락(입력 수정 후 재시도).
+	•	missing_user (HTTP 400): X-User-Id 헤더 미존재(헤더 포함 후 재시도).
+	•	service_unavailable (HTTP 503): Gateway의 Redis 연결 실패(인프라 장애; 잠시 후 재시도).
+	•	redis_error (HTTP 503): Gateway의 Lua Redis 실행 오류(잠시 후 재시도).
+	•	sequence_unavailable (HTTP 503): 예약 시퀀스 할당 실패(짧게 백오프 후 재시도).
+	•	internal_error (HTTP 500): 백엔드 내부 예외(서버 로그 및 상태 확인 후 재시도 여부 결정).
+
+5. 응답 스키마 예시 (TypeScript)
+
+interface Seat { id: number; status: boolean }
+
+interface SeatsListResponse { success: true; seats: Seat[] }
+interface SeatDetailResponse { success: true; seat: Seat }
+
+type Reason =
+  | 'sold_out' | 'duplicate' | 'contention' | 'already_reserved'
+  | 'validation' | 'internal_error' | 'service_unavailable'
+  | 'redis_error' | 'missing_user' | 'sequence_unavailable' | 'not_found'
+
+interface FcfsSuccessResponse {
+  success: true;
+  seat: Seat;
+  remainingSeats?: number;
+  userTtlRemaining?: number;
+  sequence: number;
+}
+interface ErrorResponse { success: false; reason: Reason; message?: string }
+
+6. Gateway 동작 방식
+	•	중복 방지: 사용자 ID와 IP를 결합한 키를 Lua 스크립트로 관리하여 동일 사용자의 연속 요청을 제한합니다.
+	•	시퀀스 할당: Redis INCR fcfs:seq 명령으로 예약 순번을 할당하고, 헤더 X-Fcfs-Seq에 담아 백엔드로 전달합니다.
+	•	에러 표준화: 모든 실패 응답은 { success: false, reason: <코드> } 형태로 일관되게 반환됩니다.
+	•	래핑 옵션: 쿼리 파라미터 ?wrap=1을 사용하면 래핑된 JSON 포맷으로 추가 디버그 정보를 포함하여 반환할 수 있습니다.
+
+7. 환경 변수 설정 (Backend)
+	•	FCFS_USER_HEADER: 사용자 헤더명 (기본값: X-User-Id). Gateway와 백엔드에서 동일하게 사용합니다.
+	•	FCFS_USER_TTL: 중복 예약 방지를 위한 사용자 TTL(초) (기본값: 900, 0이면 무제한).
+	•	REDIS_HOST, REDIS_PORT: Redis 서버 호스트와 포트 (기본: redis:6379).
+	•	REDIS_PASSWORD: Redis 비밀번호 (기본값: redis_pass, 필요시 변경).
+	•	APP_PORT: 백엔드 서버 포트 (기본값: 5800, http://localhost:5800으로 접근).
+	•	RUST_LOG: 로깅 레벨 (기본값: info, debug로 설정 시 상세 로그).
+
+8. 에러 처리 및 재시도 가이드
+	•	duplicate: 사용자/IP 키의 TTL이 만료된 후 재시도 가능합니다.
+	•	contention: 경합 발생 시 즉시 또는 짧은 백오프로 재시도하세요.
+	•	sold_out: 재고가 모두 소진된 상태이므로 재시도하지 않습니다.
+	•	already_reserved: 이미 성공된 예약으로, 추가 조치 없이 종료합니다.
+	•	validation: 요청 데이터를 검증하여 올바르게 수정한 후 재시도합니다.
+	•	missing_user: X-User-Id 헤더를 포함하여 재시도합니다.
+	•	service_unavailable / redis_error: 인프라 장애로 간주하고 잠시 후 재시도합니다.
+	•	sequence_unavailable: 시퀀스 할당 실패 시 짧게 대기했다가 재시도합니다.
+	•	internal_error: 서버 내부 오류이므로 서비스 상태를 확인하고 필요 시 재시도를 결정합니다.
+
+
+</PRD>
