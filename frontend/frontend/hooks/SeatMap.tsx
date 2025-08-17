@@ -2,9 +2,9 @@
 "use client";
 import React, { useMemo } from 'react';
 import { clsx } from 'clsx';
-import { SeatSectionComponent } from './SeatSectionComponent';
+import { SeatSectionComponent } from '../components/SeatSectionComponent';
 import { useSeatSelection } from '../frontend/src/hooks/useSeatSelection';
-import type { VenueLayout, Seat, SeatSelection } from '../frontend/src/types/seat';
+import type { VenueLayout, Seat, SeatSelection } from '../src/types/seat';
 
 interface SeatMapProps {
   venue: VenueLayout;
