@@ -6,7 +6,13 @@
 -- Validation Scenarios (Task 2.3): see scripts/validate_duplicate_filter.sh for automated checks.
 local _M = {}
 
+-- Temporary workaround: direct IP fallback if DNS fails
 local redis_host = os.getenv("REDIS_HOST") or "redis"
+if redis_host == 'redis' then
+  -- fallback static guess (docker compose network often 10.89.0.7 from inspect earlier)
+  local fallback_ip = os.getenv('REDIS_FALLBACK_IP') or '10.89.0.7'
+  -- we will attempt name first, then ip
+end
 local redis_port = tonumber(os.getenv("REDIS_PORT")) or 6379
 local redis_password = os.getenv("REDIS_PASSWORD") or "redis_pass"  -- fallback to default
 local ttl_default = tonumber(os.getenv("DEFAULT_DUP_TTL")) or 5  -- default short window (seconds); adjustable
@@ -27,6 +33,11 @@ local function get_redis()
   local r = redis:new()
   r:set_timeout(2000)
   local ok, err = r:connect(redis_host, redis_port)
+  if not ok then
+    -- second attempt: fallback IP if provided
+    local fh = os.getenv('REDIS_FALLBACK_IP') or '10.89.0.7'
+    ok, err = r:connect(fh, redis_port)
+  end
   if not ok then
     return nil, "redis_connect_failed:" .. (err or "")
   end
@@ -77,6 +88,13 @@ function _M.check(opts)
 
   local ukey = "fcfs:"..event..":user:"..user
   local ipkey = "fcfs:"..event..":ip:"..ip
+  if event == 'fcfs' then
+    -- unify with backend key convention (fcfs:user:<id>)
+    ukey = "fcfs:user:"..user
+    ipkey = "fcfs:ip:"..ip
+  end
+  -- debug: only log at very low rate (skip heavy logging)
+  if math.random() < 0.01 then ngx.log(ngx.NOTICE, "dup_check keys=", ukey, ",", ipkey) end
 
   local function eval_fallback()
     local res, ev_err = r:eval(SCRIPT, 2, ukey, ipkey, user, ip, ttl)

@@ -9,15 +9,15 @@
         "testStrategy": "- Run: npm run dev; verify home renders without errors.\n- Typecheck: npm run typecheck; ensure no TS errors.\n- Lint: npm run lint; ensure no blocking issues.\n- Smoke test Providers by creating a trivial useQuery in a sandbox component to confirm context works.",
         "priority": "high",
         "dependencies": [],
-        "status": "done",
+        "status": "pending",
         "subtasks": [
           {
             "id": 1,
             "title": "Create Next.js App Router project with TypeScript",
             "description": "Scaffold the Tickettock frontend using create-next-app with the App Router and TypeScript enabled.",
             "dependencies": [],
-            "details": "- Run scaffold:\n  npx create-next-app@latest tickettock --ts --eslint --app\n- cd tickettock\n- Verify Next.js v15+ in package.json.\n- Initialize git and baseline commit:\n  git init && git add -A && git commit -m \"chore: init Next.js app\"\n- Optional: define Node version for contributors:\n  echo \"18\" > .nvmrc\n- Ensure app/ directory exists (App Router) and default pages compile.\n<info added on 2025-08-16T12:45:31.087Z>\nAdjusted scaffolding steps to avoid nested folder:\n- Scaffold into a temp directory:\n  npx create-next-app@latest _scaffold --ts --eslint --app --no-tailwind --use-npm --import-alias \"@/*\"\n- Remove nested git to avoid sub-repo:\n  rm -rf _scaffold/.git\n- Move all non-node_modules project files to repo root while preserving the existing .taskmaster directory:\n  rsync -a --exclude node_modules --exclude .git --exclude .taskmaster _scaffold/ ./\n  Ensure files like .env.example, next-env.d.ts, public/, app/, and src/ (if present) are now at the root.\n- Merge package.json: if dependencies/devDependencies clash, prefer scaffolded versions; keep any unique existing scripts/fields and add missing scaffold scripts.\n- Remove the temp directory:\n  rm -rf _scaffold\n- Install dependencies to update the lockfile:\n  npm install\n- Quick smoke:\n  - Run: npm run dev, confirm the dev server starts, then stop.\n  - Verify root contains app directory and tsconfig.json/next-env.d.ts.\n  - Run: npm run build and/or npm run typecheck to confirm no TypeScript errors.\n\nRisks and collision strategy:\n- If a file already exists (e.g., .gitignore, README) and differs, append the scaffold content below a clear separator instead of overwriting.\n- Current repo only has GEMINI.md and .taskmaster, so collision risk is low.\n\nSuccess criteria:\n- next dev runs without errors.\n- Root contains the app directory and TypeScript config.\n- No TypeScript errors on build.\n</info added on 2025-08-16T12:45:31.087Z>\n<info added on 2025-08-16T13:13:35.326Z>\nExecution plan (2025-08-16):\n- Try direct scaffold in repo root:\n  npx create-next-app@latest . --ts --eslint --app --use-npm --no-tailwind --yes\n- If it aborts due to non-empty dir (.taskmaster/.vscode), fallback:\n  1) npx create-next-app@latest tmp_scaffold --ts --eslint --app --use-npm --no-tailwind --yes\n  2) Copy generated files into root, excluding .git and preserving existing .taskmaster and .vscode (do not overwrite). Example:\n     rsync -a --exclude .git --exclude .taskmaster --exclude .vscode tmp_scaffold/ ./\n  3) Remove temp directory:\n     rm -rf tmp_scaffold\n- Initialize git if not auto and create baseline commit:\n  git rev-parse --is-inside-work-tree || git init\n  git add -A && git commit -m \"chore: init Next.js app\"\n- Post-scaffold verification:\n  - package.json present with expected scripts\n  - app/ directory present (no src/ directory)\n  - next.config.* present\n  - No server run required in this step\n- Flags rationale:\n  - --ts, --eslint, --app align with App Router + TypeScript\n  - --no-tailwind defers Tailwind to a later task\n  - --use-npm aligns with later scripts\n  - Deliberately not enabling src/ now; src/lib will be introduced later\n</info added on 2025-08-16T13:13:35.326Z>\n<info added on 2025-08-16T13:15:28.152Z>\nProgress log:\n- Root scaffold attempt aborted due to non-empty directory.\n- Scaffolded into tmp_scaffold (App Router + TypeScript, no Tailwind) and merged into repo root via rsync, preserving .taskmaster and .vscode; removed temp directory.\n- Git repository already initialized; added and committed generated files (baseline commit visible in git log).\n- Verified presence of app/layout.tsx, app/page.tsx, next.config.ts, tsconfig.json, and package.json at the project root.\n\nNext:\n- Run npm run dev to confirm the dev server starts without errors, then stop.\n- If successful, mark this subtask complete and proceed to Subtask 1.2 to enable strict TypeScript options.\n</info added on 2025-08-16T13:15:28.152Z>",
-            "status": "done",
+            "details": "- Run scaffold:\n  npx create-next-app@latest tickettock --ts --eslint --app\n- cd tickettock\n- Verify Next.js v15+ in package.json.\n- Initialize git and baseline commit:\n  git init && git add -A && git commit -m \"chore: init Next.js app\"\n- Optional: define Node version for contributors:\n  echo \"18\" > .nvmrc\n- Ensure app/ directory exists (App Router) and default pages compile.\n<info added on 2025-08-16T12:45:31.087Z>\nAdjusted scaffolding steps to avoid nested folder:\n- Scaffold into a temp directory:\n  npx create-next-app@latest _scaffold --ts --eslint --app --no-tailwind --use-npm --import-alias \"@/*\"\n- Remove nested git to avoid sub-repo:\n  rm -rf _scaffold/.git\n- Move all non-node_modules project files to repo root while preserving the existing .taskmaster directory:\n  rsync -a --exclude node_modules --exclude .git --exclude .taskmaster _scaffold/ ./\n  Ensure files like .env.example, next-env.d.ts, public/, app/, and src/ (if present) are now at the root.\n- Merge package.json: if dependencies/devDependencies clash, prefer scaffolded versions; keep any unique existing scripts/fields and add missing scaffold scripts.\n- Remove the temp directory:\n  rm -rf _scaffold\n- Install dependencies to update the lockfile:\n  npm install\n- Quick smoke:\n  - Run: npm run dev, confirm the dev server starts, then stop.\n  - Verify root contains app directory and tsconfig.json/next-env.d.ts.\n  - Run: npm run build and/or npm run typecheck to confirm no TypeScript errors.\n\nRisks and collision strategy:\n- If a file already exists (e.g., .gitignore, README) and differs, append the scaffold content below a clear separator instead of overwriting.\n- Current repo only has GEMINI.md and .taskmaster, so collision risk is low.\n\nSuccess criteria:\n- next dev runs without errors.\n- Root contains the app directory and TypeScript config.\n- No TypeScript errors on build.\n</info added on 2025-08-16T12:45:31.087Z>",
+            "status": "in-progress",
             "testStrategy": "- npm run dev; open http://localhost:3000 and confirm the starter page renders.\n- git status shows clean working tree after the baseline commit."
           },
           {
@@ -25,8 +25,8 @@
             "title": "Enable strict TypeScript and base project structure",
             "description": "Turn on TS strictness and create initial folders with path aliases for clean imports.",
             "dependencies": ["1.1"],
-            "details": "- Update tsconfig.json compilerOptions:\n  {\n    \"compilerOptions\": {\n      \"strict\": true,\n      \"noUncheckedIndexedAccess\": true,\n      \"baseUrl\": \".\",\n      \"paths\": {\n        \"@/*\": [\"./src/*\", \"./app/*\", \"./components/*\", \"./hooks/*\", \"./types/*\"]\n      }\n    }\n  }\n- Create folders:\n  mkdir -p src/lib src/__tests__ src/mocks components hooks types app/(routes)\n- Add placeholder type files (adjust to PRD later):\n  echo \"export type Event={id:string;title:string;remainingSeats:number};\" > types/Event.ts\n  echo \"export type Booking={id:string;eventId:string;userId:string};\" > types/Booking.ts\n  echo \"export type SessionUser={id:string;email:string;name?:string};\" > types/SessionUser.ts\n- Commit:\n  git add tsconfig.json types/ src/ components/ hooks/ app/(routes) && git commit -m \"chore(ts): strict mode and base structure\"\n<info added on 2025-08-16T13:18:05.948Z>\nImplementation log (2025-08-16):\n- tsconfig updates: removed allowJs; added noUncheckedIndexedAccess, noImplicitOverride, noPropertyAccessFromIndexSignature, noImplicitReturns, noFallthroughCasesInSwitch; set baseUrl \".\"; expanded \"@/*\" paths to app, src, components, hooks, types.\n- Created directories: src/, src/lib, src/__tests__, src/mocks, components/, hooks/, types/.\n- Added/updated type definitions aligned with PRD (optional fields where TBD): types/Event.ts, types/Booking.ts, types/SessionUser.ts.\n- Commit: \"chore(ts): enable stricter compiler options and add base folders & types\".\nNext: Proceed to Subtask 1.3 to install core runtime and dev/test dependencies and ESLint config.\n</info added on 2025-08-16T13:18:05.948Z>",
-            "status": "done",
+            "details": "- Update tsconfig.json compilerOptions:\n  {\n    \"compilerOptions\": {\n      \"strict\": true,\n      \"noUncheckedIndexedAccess\": true,\n      \"baseUrl\": \".\",\n      \"paths\": {\n        \"@/*\": [\"./src/*\", \"./app/*\", \"./components/*\", \"./hooks/*\", \"./types/*\"]\n      }\n    }\n  }\n- Create folders:\n  mkdir -p src/lib src/__tests__ src/mocks components hooks types app/(routes)\n- Add placeholder type files (adjust to PRD later):\n  echo \"export type Event={id:string;title:string;remainingSeats:number};\" > types/Event.ts\n  echo \"export type Booking={id:string;eventId:string;userId:string};\" > types/Booking.ts\n  echo \"export type SessionUser={id:string;email:string;name?:string};\" > types/SessionUser.ts\n- Commit:\n  git add tsconfig.json types/ src/ components/ hooks/ app/(routes) && git commit -m \"chore(ts): strict mode and base structure\"",
+            "status": "pending",
             "testStrategy": "- npm run build (or npm run typecheck after scripts are added) should not introduce new TypeScript errors."
           },
           {
@@ -34,8 +34,8 @@
             "title": "Install core runtime and dev/test dependencies with ESLint setup",
             "description": "Add TanStack Query, state and theming libs, testing stack, and ESLint plugins including @tanstack/eslint-plugin-query.",
             "dependencies": ["1.1"],
-            "details": "- Install runtime deps:\n  npm i @tanstack/react-query @tanstack/react-query-devtools zustand clsx next-themes\n- Install dev/test deps:\n  npm i -D jest @testing-library/react @testing-library/jest-dom @testing-library/user-event whatwg-fetch msw jest-environment-jsdom ts-jest @types/jest @types/node @types/react eslint-config-next eslint-plugin-testing-library eslint-plugin-jest-dom @tanstack/eslint-plugin-query\n- Create or update .eslintrc.json:\n  {\n    \"extends\": [\"next/core-web-vitals\"],\n    \"plugins\": [\"testing-library\", \"jest-dom\", \"@tanstack/query\"],\n    \"rules\": {\n      \"@tanstack/query/no-unstable-deps\": \"error\"\n    }\n  }\n- Add basic Jest config jest.config.ts:\n  export default {\n    testEnvironment: \"jest-environment-jsdom\",\n    setupFilesAfterEnv: [\"<rootDir>/src/__tests__/setup.ts\"],\n    transform: { \"^.+\\\\.(t|j)sx?$\": [\"ts-jest\", { tsconfig: \"tsconfig.json\" }] }\n  };\n- Add test setup at src/__tests__/setup.ts:\n  import \"@testing-library/jest-dom\";\n  import { server } from \"../mocks/server\";\n  beforeAll(() => server.listen());\n  afterEach(() => server.resetHandlers());\n  afterAll(() => server.close());\n- Bootstrap MSW server at src/mocks/server.ts:\n  import { setupServer } from \"msw/node\";\n  export const server = setupServer();\n- Commit:\n  git add package.json package-lock.json .eslintrc.json jest.config.ts src/__tests__/setup.ts src/mocks/server.ts && git commit -m \"chore: deps and eslint/jest setup\"\n<info added on 2025-08-16T13:39:31.640Z>\n- Install additional tooling deps:\n  npm i -D tailwindcss postcss autoprefixer prettier husky lint-staged\n- Update package.json scripts:\n  - \"typecheck\": \"tsc -p tsconfig.json --noEmit\"\n  - \"test\": \"jest\"\n  - \"prepare\": \"husky install\"\n- Initialize Husky and add a temporary pre-commit hook (typecheck only for now):\n  npx husky install\n  npx husky add .husky/pre-commit \"npm run typecheck\"\n- Add lint-staged configuration in package.json (present but not invoked by the hook until ESLint flat config is finalized).\n- Add Prettier configuration file: .prettierrc.json\n- Rename package: \"name\": \"tickettock-frontend\"\n- Commit (temporary hook simplification; skip verification):\n  git add package.json package-lock.json .husky .prettierrc.json && git commit -m \"chore: tooling (husky, lint-staged, prettier), scripts, package rename\" --no-verify\n- Remaining polish:\n  - Migrate to ESLint flat config and integrate @tanstack/eslint-plugin-query with ESM-compatible loading.\n  - Restore pre-commit to run lint and lint-staged once the flat config is stable.\n- Note: Tailwind toolchain installed; full Tailwind configuration will be completed in Subtask 1.4.\n</info added on 2025-08-16T13:39:31.640Z>\n<info added on 2025-08-16T13:43:50.586Z>\n- Migrated to ESLint flat config (eslint.config.mjs) with Next core-web-vitals, testing-library, jest-dom, and @tanstack/query; enabled @tanstack/query/no-unstable-deps. Removed legacy .eslintrc.json. npm run lint passes.\n- Added lint script to package.json: \"lint\": \"eslint . --max-warnings=0\".\n- Restored full Husky pre-commit hook to run lint, typecheck, and lint-staged:\n  - .husky/pre-commit:\n    #!/usr/bin/env sh\n    . \"$(dirname -- \"$0\")/_/husky.sh\"\n    npm run lint\n    npm run typecheck\n    npx lint-staged\n- Fixed TS4111 (noPropertyAccessFromIndexSignature) in app/page.tsx by switching CSS module property access to bracket notation (e.g., styles[\"container\"]).\n- Verified typecheck completes without further errors and lint passes.\n- Commit:\n  git add eslint.config.mjs package.json .husky/pre-commit app/page.tsx\n  git rm .eslintrc.json\n  git commit -m \"chore: ESLint flat config, restore pre-commit (lint,typecheck,lint-staged); fix TS4111 via bracket access; lint/typecheck clean\"\n- Subtask complete. Proceeding to 1.4 (Tailwind configuration).\n</info added on 2025-08-16T13:43:50.586Z>",
-            "status": "done",
+            "details": "- Install runtime deps:\n  npm i @tanstack/react-query @tanstack/react-query-devtools zustand clsx next-themes\n- Install dev/test deps:\n  npm i -D jest @testing-library/react @testing-library/jest-dom @testing-library/user-event whatwg-fetch msw jest-environment-jsdom ts-jest @types/jest @types/node @types/react eslint-config-next eslint-plugin-testing-library eslint-plugin-jest-dom @tanstack/eslint-plugin-query\n- Create or update .eslintrc.json:\n  {\n    \"extends\": [\"next/core-web-vitals\"],\n    \"plugins\": [\"testing-library\", \"jest-dom\", \"@tanstack/query\"],\n    \"rules\": {\n      \"@tanstack/query/no-unstable-deps\": \"error\"\n    }\n  }\n- Add basic Jest config jest.config.ts:\n  export default {\n    testEnvironment: \"jest-environment-jsdom\",\n    setupFilesAfterEnv: [\"<rootDir>/src/__tests__/setup.ts\"],\n    transform: { \"^.+\\\\.(t|j)sx?$\": [\"ts-jest\", { tsconfig: \"tsconfig.json\" }] }\n  };\n- Add test setup at src/__tests__/setup.ts:\n  import \"@testing-library/jest-dom\";\n  import { server } from \"../mocks/server\";\n  beforeAll(() => server.listen());\n  afterEach(() => server.resetHandlers());\n  afterAll(() => server.close());\n- Bootstrap MSW server at src/mocks/server.ts:\n  import { setupServer } from \"msw/node\";\n  export const server = setupServer();\n- Commit:\n  git add package.json package-lock.json .eslintrc.json jest.config.ts src/__tests__/setup.ts src/mocks/server.ts && git commit -m \"chore: deps and eslint/jest setup\"",
+            "status": "pending",
             "testStrategy": "- npx eslint . to confirm plugin loads.\n- npx jest --version runs and config resolves (tests will be added later)."
           },
           {
@@ -43,8 +43,8 @@
             "title": "Add and configure Tailwind CSS",
             "description": "Install Tailwind, set content globs for App Router, and hook global styles.",
             "dependencies": ["1.1"],
-            "details": "- Install and init Tailwind:\n  npm i -D tailwindcss postcss autoprefixer\n  npx tailwindcss init -p\n- Configure tailwind.config.js content:\n  content: [\"./app/**/*.{ts,tsx,mdx}\", \"./components/**/*.{ts,tsx}\", \"./src/**/*.{ts,tsx}\"]\n- Create or update app/globals.css with base directives:\n  @tailwind base;\n  @tailwind components;\n  @tailwind utilities;\n- Ensure globals.css is imported in app/layout.tsx when Task 2 wires the layout. For now, add a temporary import in app/page.tsx to validate:\n  /* temporary */ import \"./globals.css\";\n- Commit:\n  git add tailwind.config.js postcss.config.js app/globals.css && git commit -m \"chore(ui): tailwind configured\"\n<info added on 2025-08-16T13:44:55.618Z>\n- Added tailwind.config.js with content globs for app, components, and src, and created postcss.config.js.\n- Updated app/globals.css by prepending @tailwind base; @tailwind components; @tailwind utilities; above existing custom styles.\n- Note: ESLint “Unknown at-rule @tailwind” warnings are expected until Tailwind processes CSS.\n- Temporary verification: in app/page.tsx (with the temporary import of ./globals.css), add a short element using Tailwind utilities (e.g., className=\"p-4 rounded bg-emerald-100 text-emerald-700\") to confirm styles compile; run npm run dev and verify styles render; then remove the temporary element (keep the import until Task 2 moves it to layout.tsx).\n- Run a dev build smoke test to ensure no build errors and Tailwind utilities appear in the output.\n</info added on 2025-08-16T13:44:55.618Z>",
-            "status": "done",
+            "details": "- Install and init Tailwind:\n  npm i -D tailwindcss postcss autoprefixer\n  npx tailwindcss init -p\n- Configure tailwind.config.js content:\n  content: [\"./app/**/*.{ts,tsx,mdx}\", \"./components/**/*.{ts,tsx}\", \"./src/**/*.{ts,tsx}\"]\n- Create or update app/globals.css with base directives:\n  @tailwind base;\n  @tailwind components;\n  @tailwind utilities;\n- Ensure globals.css is imported in app/layout.tsx when Task 2 wires the layout. For now, add a temporary import in app/page.tsx to validate:\n  /* temporary */ import \"./globals.css\";\n- Commit:\n  git add tailwind.config.js postcss.config.js app/globals.css && git commit -m \"chore(ui): tailwind configured\"",
+            "status": "pending",
             "testStrategy": "- Start dev server and add a temporary className=\"text-red-500\" somewhere in app/page.tsx to confirm styles apply; remove the temporary test after verification."
           },
           {
@@ -52,8 +52,8 @@
             "title": "Implement shared API client and React Query providers",
             "description": "Create a cookie-aware API fetch wrapper, server hydration helpers, and a client provider component with React Query Devtools.",
             "dependencies": ["1.2", "1.3"],
-            "details": "- Create src/lib/api.ts:\n  export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {\n    const res = await fetch(path, {\n      ...init,\n      credentials: \"include\",\n      headers: {\n        \"Content-Type\": \"application/json\",\n        ...(init?.headers || {})\n      }\n    });\n    if (!res.ok) {\n      const text = await res.text().catch(() => \"\");\n      throw new Error(text || `${res.status}`);\n    }\n    return (await res.json()) as T;\n  }\n- Create src/lib/reactQuery.ts:\n  import { QueryClient, dehydrate } from \"@tanstack/react-query\";\n  export function getServerQueryClient() { return new QueryClient(); }\n  export { dehydrate };\n- Create app/_providers.tsx (client component):\n  \"use client\";\n  import * as React from \"react\";\n  import { QueryClient, QueryClientProvider } from \"@tanstack/react-query\";\n  import { ReactQueryDevtools } from \"@tanstack/react-query-devtools\";\n  export default function Providers({ children }: { children: React.ReactNode }) {\n    const [client] = React.useState(() => new QueryClient({\n      defaultOptions: {\n        queries: { staleTime: 30_000, refetchOnWindowFocus: true },\n        mutations: { retry: 1 }\n      }\n    }));\n    return (\n      <QueryClientProvider client={client}>\n        {children}\n        <ReactQueryDevtools initialIsOpen={false} />\n      </QueryClientProvider>\n    );\n  }\n- Commit:\n  git add src/lib/api.ts src/lib/reactQuery.ts app/_providers.tsx && git commit -m \"feat(core): API client and React Query provider\"\n<info added on 2025-08-16T13:52:54.529Z>\n- Update src/lib/api.ts to handle no-content responses: if (res.status === 204 || res.status === 205) return undefined as T before attempting JSON parsing.\n- Add src/mocks/server.ts with MSW setup and in-memory data:\n  import { http, HttpResponse } from \"msw\";\n  import { setupServer } from \"msw/node\";\n  type Event = { id: string; name: string; date: string; venue: string; remainingSeats: number };\n  const events: Event[] = [\n    { id: \"1\", name: \"Rock Night\", date: \"2025-09-01\", venue: \"Main Hall\", remainingSeats: 100 },\n    { id: \"2\", name: \"Jazz Evening\", date: \"2025-09-10\", venue: \"Blue Room\", remainingSeats: 50 }\n  ];\n  export const handlers = [\n    http.get(\"/api/events\", () => HttpResponse.json(events)),\n    http.get(\"/api/events/:id\", ({ params }) => {\n      const id = (params as { id: string }).id; // strict index signature fix\n      const event = events.find(e => e.id === id);\n      return event ? HttpResponse.json(event) : new HttpResponse(null, { status: 404 });\n    }),\n    http.post(\"/api/bookings\", async ({ request }) => {\n      const { eventId } = await request.json();\n      const event = events.find(e => e.id === eventId);\n      if (!event) return new HttpResponse(null, { status: 404 });\n      if (event.remainingSeats <= 0) return HttpResponse.json({ message: \"Sold out\" }, { status: 409 });\n      event.remainingSeats = Math.max(0, event.remainingSeats - 1); // seat decrement simulation\n      return HttpResponse.json({ id: crypto.randomUUID(), eventId }, { status: 201 });\n    })\n  ];\n  export const server = setupServer(...handlers);\n- Commit:\n  git add src/lib/api.ts src/mocks/server.ts && git commit -m \"feat(data): MSW server with events/bookings handlers and apiFetch 204 handling\"\n- Next: create queryKeys and a sandbox page with loading UI (subtask 1.6) to consume these mocks.\n</info added on 2025-08-16T13:52:54.529Z>",
-            "status": "done",
+            "details": "- Create src/lib/api.ts:\n  export async function apiFetch<T>(path: string, init?: RequestInit): Promise<T> {\n    const res = await fetch(path, {\n      ...init,\n      credentials: \"include\",\n      headers: {\n        \"Content-Type\": \"application/json\",\n        ...(init?.headers || {})\n      }\n    });\n    if (!res.ok) {\n      const text = await res.text().catch(() => \"\");\n      throw new Error(text || `${res.status}`);\n    }\n    return (await res.json()) as T;\n  }\n- Create src/lib/reactQuery.ts:\n  import { QueryClient, dehydrate } from \"@tanstack/react-query\";\n  export function getServerQueryClient() { return new QueryClient(); }\n  export { dehydrate };\n- Create app/_providers.tsx (client component):\n  \"use client\";\n  import * as React from \"react\";\n  import { QueryClient, QueryClientProvider } from \"@tanstack/react-query\";\n  import { ReactQueryDevtools } from \"@tanstack/react-query-devtools\";\n  export default function Providers({ children }: { children: React.ReactNode }) {\n    const [client] = React.useState(() => new QueryClient({\n      defaultOptions: {\n        queries: { staleTime: 30_000, refetchOnWindowFocus: true },\n        mutations: { retry: 1 }\n      }\n    }));\n    return (\n      <QueryClientProvider client={client}>\n        {children}\n        <ReactQueryDevtools initialIsOpen={false} />\n      </QueryClientProvider>\n    );\n  }\n- Commit:\n  git add src/lib/api.ts src/lib/reactQuery.ts app/_providers.tsx && git commit -m \"feat(core): API client and React Query provider\"",
+            "status": "pending",
             "testStrategy": "- Typecheck to ensure no missing types: npx tsc -p tsconfig.json --noEmit."
           },
           {
@@ -61,8 +61,8 @@
             "title": "Add query keys, loading UI, API route mocks, and Next.js 15 params Promise examples",
             "description": "Provide standardized React Query keys, a global loading UI, bootstrap API mocks, and example pages/handlers using the params Promise pattern and caching flags.",
             "dependencies": ["1.5"],
-            "details": "- Create src/lib/queryKeys.ts:\n  export const queryKeys = {\n    session: () => [\"session\"] as const,\n    events: {\n      all: () => [\"events\"] as const,\n      list: (filters?: Record<string, unknown>) => [\"events\", { filters }] as const,\n      detail: (id: string) => [\"event\", id] as const,\n    },\n    bookings: {\n      all: () => [\"bookings\"] as const,\n      byUser: (userId: string) => [\"bookings\", { userId }] as const,\n    },\n  };\n- Add app/loading.tsx:\n  export default function Loading() { return <div>Loading…</div>; }\n- Bootstrap API route mocks under app/api (do not colocate with pages):\n  app/api/events/route.ts\n    export const runtime = \"edge\";\n    export const preferredRegion = \"auto\";\n    export const fetchCache = \"default-no-store\";\n    export async function GET() { return Response.json([]); }\n  app/api/events/[id]/route.ts\n    export const runtime = \"edge\";\n    export const preferredRegion = \"auto\";\n    export const fetchCache = \"default-no-store\";\n    type Params = { id: string };\n    export async function GET(_req: Request, { params }: { params: Promise<Params> }) {\n      const { id } = await params;\n      return Response.json({ id, title: \"TBD\", remainingSeats: 0 });\n    }\n- Example pages using caching flags and params Promise:\n  app/events/page.tsx (Server):\n    export const dynamic = \"force-dynamic\";\n    export const revalidate = 30;\n    export default async function Page() { return <div>Events</div>; }\n  app/events/[id]/page.tsx (Server):\n    export const dynamic = \"force-dynamic\";\n    type Params = { id: string };\n    export async function generateStaticParams() { return [{ id: \"example\" }]; }\n    export default async function Page({ params }: { params: Promise<Params> }) {\n      const { id } = await params;\n      return <div>Event {id}</div>;\n    }\n- Create a sandbox page to smoke test React Query without waiting for Task 2 layout. It wraps its subtree with Providers locally:\n  app/sandbox/page.tsx:\n    \"use client\";\n    import Providers from \"../_providers\";\n    import { useQuery } from \"@tanstack/react-query\";\n    import { apiFetch } from \"@/lib/api\";\n    import { queryKeys } from \"@/lib/queryKeys\";\n    function EventsSandbox() {\n      const { data } = useQuery({ queryKey: queryKeys.events.list(), queryFn: () => apiFetch(\"/api/events\") });\n      return <pre>{JSON.stringify(data)}</pre>;\n    }\n    export default function Page() { return <Providers><EventsSandbox /></Providers>; }\n- Commit:\n  git add src/lib/queryKeys.ts app/loading.tsx app/api/events/route.ts app/api/events/[id]/route.ts app/events/page.tsx app/events/[id]/page.tsx app/sandbox/page.tsx && git commit -m \"feat(scaffold): query keys, loading, API mocks, and params Promise examples\"\n<info added on 2025-08-16T13:59:44.680Z>\nPlan for 1.6 implementation\n\nFiles to add\n- src/lib/queryKeys.ts\n- app/loading.tsx\n- app/api/events/route.ts (edge runtime, default-no-store fetch cache)\n- app/api/events/[id]/route.ts (edge runtime, params Promise pattern, default-no-store)\n- app/events/page.tsx (dynamic = \"force-dynamic\" + revalidate = 30)\n- app/events/[id]/page.tsx (generateStaticParams stub + params Promise + dynamic = \"force-dynamic\")\n- app/sandbox/page.tsx (client sandbox; wraps subtree with Providers; useQuery with queryKeys.events.list() and apiFetch('/api/events'))\n\nConventions\n- API routes live under app/api; do not colocate route.ts alongside page.ts of same segment.\n- Use explicit export const dynamic and revalidate where needed.\n- Return minimal placeholder data from handlers/pages; richer mocks handled via MSW later.\n- queryKeys must return stable readonly tuples (as const) to ensure cache key stability.\n- Sandbox demonstrates useQuery with queryKeys.events.list() and apiFetch('/api/events').\n\nEdge cases\n- If params Promise rejects, allow server error for MVP.\n- Empty events list should result in sandbox rendering [] JSON.\n- generateStaticParams returns a single example to illustrate the pattern; real fetching to be added later.\n\nNext steps\n- Create the files above with minimal implementations adhering to the conventions.\n- Run typecheck and a quick dev build to smoke test.\n- Start dev server and verify /sandbox renders JSON output and /api/events returns [].\n</info added on 2025-08-16T13:59:44.680Z>",
-            "status": "done",
+            "details": "- Create src/lib/queryKeys.ts:\n  export const queryKeys = {\n    session: () => [\"session\"] as const,\n    events: {\n      all: () => [\"events\"] as const,\n      list: (filters?: Record<string, unknown>) => [\"events\", { filters }] as const,\n      detail: (id: string) => [\"event\", id] as const,\n    },\n    bookings: {\n      all: () => [\"bookings\"] as const,\n      byUser: (userId: string) => [\"bookings\", { userId }] as const,\n    },\n  };\n- Add app/loading.tsx:\n  export default function Loading() { return <div>Loading…</div>; }\n- Bootstrap API route mocks under app/api (do not colocate with pages):\n  app/api/events/route.ts\n    export const runtime = \"edge\";\n    export const preferredRegion = \"auto\";\n    export const fetchCache = \"default-no-store\";\n    export async function GET() { return Response.json([]); }\n  app/api/events/[id]/route.ts\n    export const runtime = \"edge\";\n    export const preferredRegion = \"auto\";\n    export const fetchCache = \"default-no-store\";\n    type Params = { id: string };\n    export async function GET(_req: Request, { params }: { params: Promise<Params> }) {\n      const { id } = await params;\n      return Response.json({ id, title: \"TBD\", remainingSeats: 0 });\n    }\n- Example pages using caching flags and params Promise:\n  app/events/page.tsx (Server):\n    export const dynamic = \"force-dynamic\";\n    export const revalidate = 30;\n    export default async function Page() { return <div>Events</div>; }\n  app/events/[id]/page.tsx (Server):\n    export const dynamic = \"force-dynamic\";\n    type Params = { id: string };\n    export async function generateStaticParams() { return [{ id: \"example\" }]; }\n    export default async function Page({ params }: { params: Promise<Params> }) {\n      const { id } = await params;\n      return <div>Event {id}</div>;\n    }\n- Create a sandbox page to smoke test React Query without waiting for Task 2 layout. It wraps its subtree with Providers locally:\n  app/sandbox/page.tsx:\n    \"use client\";\n    import Providers from \"../_providers\";\n    import { useQuery } from \"@tanstack/react-query\";\n    import { apiFetch } from \"@/lib/api\";\n    import { queryKeys } from \"@/lib/queryKeys\";\n    function EventsSandbox() {\n      const { data } = useQuery({ queryKey: queryKeys.events.list(), queryFn: () => apiFetch(\"/api/events\") });\n      return <pre>{JSON.stringify(data)}</pre>;\n    }\n    export default function Page() { return <Providers><EventsSandbox /></Providers>; }\n- Commit:\n  git add src/lib/queryKeys.ts app/loading.tsx app/api/events/route.ts app/api/events/[id]/route.ts app/events/page.tsx app/events/[id]/page.tsx app/sandbox/page.tsx && git commit -m \"feat(scaffold): query keys, loading, API mocks, and params Promise examples\"",
+            "status": "pending",
             "testStrategy": "- npm run dev; visit /sandbox to confirm [] renders from mocked /api/events.\n- Navigate to /events/example to confirm dynamic param renders and no route/page conflicts occur."
           },
           {
@@ -70,8 +70,8 @@
             "title": "Configure project scripts, Next config, and run smoke checks",
             "description": "Add standard npm scripts, next.config optimizations, and verify build/lint/typecheck/test. Finalize initial commit.",
             "dependencies": ["1.3", "1.4", "1.5", "1.6"],
-            "details": "- Update package.json scripts:\n  {\n    \"scripts\": {\n      \"dev\": \"next dev\",\n      \"build\": \"next build\",\n      \"start\": \"next start\",\n      \"lint\": \"next lint\",\n      \"typecheck\": \"tsc -p tsconfig.json --noEmit\",\n      \"test\": \"jest\"\n    }\n  }\n- Add next.config.js (or next.config.mjs) with optional optimizations:\n  /** @type {import('next').NextConfig} */\n  const nextConfig = {\n    images: {\n      remotePatterns: [\n        // { protocol: 'https', hostname: 'images.example.com' }\n      ]\n    },\n    experimental: {\n      optimizePackageImports: [\"react\", \"@tanstack/react-query\"]\n    }\n  };\n  module.exports = nextConfig;\n- Ensure no page/route conflicts: API mocks live only under app/api/*; UI pages under app/events/*.\n- Run checks:\n  npm run lint\n  npm run typecheck\n  npm test -- --passWithNoTests\n  npm run build\n- Commit and push:\n  git add package.json next.config.* && git commit -m \"chore(config): scripts and next config\"\n  git tag v0.1.0\n<info added on 2025-08-16T14:15:25.266Z>\nPlan:\n- Stage and commit pending files from 1.6:\n  - git add app/api app/events app/sandbox components/* lib/queryKeys* app/**/loading.* app/**/loading.tsx\n  - git commit -m \"feat(scaffold): query keys, loading UI, api routes, events pages, sandbox\"\n\n- Update package.json scripts to match spec (remove --turbopack, keep plain next dev):\n  {\n    \"scripts\": {\n      \"dev\": \"next dev\",\n      \"build\": \"next build\",\n      \"start\": \"next start\",\n      \"lint\": \"next lint\",\n      \"typecheck\": \"tsc -p tsconfig.json --noEmit\",\n      \"test\": \"jest\"\n    }\n  }\n\n- Enhance next.config.ts:\n  - Set reactStrictMode: true\n  - experimental.optimizePackageImports: ['react', '@tanstack/react-query']\n  - images.remotePatterns: add placeholder for future hosts\n  Example:\n  import type { NextConfig } from 'next';\n  const nextConfig: NextConfig = {\n    reactStrictMode: true,\n    images: {\n      remotePatterns: [\n        // { protocol: 'https', hostname: 'images.example.com' }\n      ]\n    },\n    experimental: {\n      optimizePackageImports: ['react', '@tanstack/react-query']\n    }\n  };\n  export default nextConfig;\n\n- Run smoke checks:\n  - npm run lint\n  - npm run typecheck\n  - npm test -- --passWithNoTests\n  - npm run build\n\n- If all pass, commit and tag:\n  - git add package.json next.config.ts\n  - git commit -m \"chore(config): optimize imports + strict mode\"\n  - git tag v0.1.0\n\n- Edge considerations:\n  - Confirm Next 15.4.6 supports experimental.optimizePackageImports; if lint errors arise from config typing or unused fields, adjust ESLint config or annotate as needed without disabling type checks.\n</info added on 2025-08-16T14:15:25.266Z>",
-            "status": "done",
+            "details": "- Update package.json scripts:\n  {\n    \"scripts\": {\n      \"dev\": \"next dev\",\n      \"build\": \"next build\",\n      \"start\": \"next start\",\n      \"lint\": \"next lint\",\n      \"typecheck\": \"tsc -p tsconfig.json --noEmit\",\n      \"test\": \"jest\"\n    }\n  }\n- Add next.config.js (or next.config.mjs) with optional optimizations:\n  /** @type {import('next').NextConfig} */\n  const nextConfig = {\n    images: {\n      remotePatterns: [\n        // { protocol: 'https', hostname: 'images.example.com' }\n      ]\n    },\n    experimental: {\n      optimizePackageImports: [\"react\", \"@tanstack/react-query\"]\n    }\n  };\n  module.exports = nextConfig;\n- Ensure no page/route conflicts: API mocks live only under app/api/*; UI pages under app/events/*.\n- Run checks:\n  npm run lint\n  npm run typecheck\n  npm test -- --passWithNoTests\n  npm run build\n- Commit and push:\n  git add package.json next.config.* && git commit -m \"chore(config): scripts and next config\"\n  git tag v0.1.0",
+            "status": "pending",
             "testStrategy": "- Lint shows no errors (except allowed warnings).\n- Typecheck passes.\n- Build succeeds with no errors.\n- Manual smoke: /events, /events/example, and /sandbox load; network calls to /api/events succeed using mocks."
           }
         ]
@@ -84,54 +84,8 @@
         "testStrategy": "- Render <Header /> and assert for role=\"navigation\" and link presence.\n- Snapshot mobile menu closed/open; verify aria-expanded toggles; keyboard: Enter/Space opens, Escape closes.\n- Verify SkipLink moves focus to #content.\n- ToastProvider smoke test: firing addToast renders message and auto-dismisses.",
         "priority": "high",
         "dependencies": [1],
-        "status": "done",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "Implement Base Layout Structure",
-            "description": "Create the foundational app layout in app/layout.tsx, including html lang, default metadata, Tailwind imports, <Providers>, <SkipToContent> anchor, <Header />, <main id='content' tabIndex={-1}> for children, and <Footer />.",
-            "dependencies": [],
-            "details": "Ensure semantic structure and accessibility attributes are present. Integrate Tailwind responsive classes and focus-visible styles throughout the layout.",
-            "status": "done",
-            "testStrategy": "Render layout and verify presence of all major sections. Check for correct html lang, metadata, and accessibility attributes."
-          },
-          {
-            "id": 2,
-            "title": "Develop Responsive Header with Navigation and Auth Links",
-            "description": "Build components/Header.tsx with logo linking to /events, navigation links (Events, My Bookings when authed), and conditional Login/Logout based on session. Integrate session hook from Task 3.",
-            "dependencies": ["2.1"],
-            "details": "Use Tailwind for responsive design. Ensure header uses role='navigation' and appropriate aria-label. Implement conditional rendering for auth links.",
-            "status": "done",
-            "testStrategy": "Render <Header /> and assert for role='navigation', correct links based on session state, and accessibility labels."
-          },
-          {
-            "id": 3,
-            "title": "Implement Mobile Menu with Accessibility Features",
-            "description": "Add a mobile menu button to the header with aria-controls and aria-expanded. Create a menu panel toggled via state, trap focus while open, and close on Escape.",
-            "dependencies": ["2.2"],
-            "details": "Ensure 44px touch targets, keyboard accessibility, and visual cues for menu state. Use Tailwind for responsive visibility and transitions.",
-            "status": "done",
-            "testStrategy": "Snapshot mobile menu closed/open; verify aria-expanded toggles; keyboard: Enter/Space opens, Escape closes; focus trap works."
-          },
-          {
-            "id": 4,
-            "title": "Create Footer Component with Responsive Design",
-            "description": "Build a simple server-side footer in components/Footer.tsx with links and copyright, styled responsively for mobile and desktop.",
-            "dependencies": ["2.1"],
-            "details": "Ensure footer remains at the bottom of the page and adapts to screen size using Tailwind. Include semantic markup and accessibility considerations.",
-            "status": "done",
-            "testStrategy": "Render footer and verify correct links, responsive layout, and accessibility attributes."
-          },
-          {
-            "id": 5,
-            "title": "Integrate Skip Link and Toast System for Accessibility and Feedback",
-            "description": "Implement components/SkipLink.tsx (visually hidden until focus) and components/ToastProvider.tsx with useToast hook for status messages.",
-            "dependencies": ["2.1"],
-            "details": "Ensure SkipLink moves focus to #content and ToastProvider renders region role='status' aria-live='polite'.",
-            "status": "done",
-            "testStrategy": "Verify SkipLink moves focus to main content; ToastProvider smoke test: firing addToast renders message and auto-dismisses."
-          }
-        ]
+        "status": "pending",
+        "subtasks": []
       },
       {
         "id": 3,
@@ -141,54 +95,8 @@
         "testStrategy": "- MSW handlers for /api/me, /api/auth/login, /api/auth/logout.\n- Login happy path: submit form -> redirects and header shows Logout/My Bookings.\n- Login invalid creds: shows error toast; no redirect.\n- Logout: triggers session invalidation and redirects.\n- Accessibility: form inputs have labels and describe errors; can submit with Enter.",
         "priority": "high",
         "dependencies": [1, 2],
-        "status": "done",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "Implement Session Retrieval via /api/me",
-            "description": "Create a React Query hook to fetch and cache the current session user from the backend endpoint /api/me, using the imported SessionUser type.",
-            "dependencies": [],
-            "details": "Develop hooks/useSessionQuery.ts using useQuery from @tanstack/react-query to call apiFetch<SessionUser>('/api/me'). Ensure session is persisted via httpOnly cookies managed by the backend.",
-            "status": "done",
-            "testStrategy": "Mock /api/me with MSW; verify hook returns session data when authenticated and null/unauthorized otherwise."
-          },
-          {
-            "id": 2,
-            "title": "Build Login Form with Client-side Validation",
-            "description": "Develop a login page with email and password fields, enforcing HTML5 validation and minimal client-side checks. Use React Query's useMutation to POST credentials to /api/auth/login.",
-            "dependencies": ["3.1"],
-            "details": "Implement app/login/page.tsx with required email and password inputs. Disable submit while pending. On success, invalidate ['session'] and redirect to /events; on error, show toast.",
-            "status": "done",
-            "testStrategy": "Simulate valid and invalid submissions; assert correct redirects, error toasts, and disabled states during mutation."
-          },
-          {
-            "id": 3,
-            "title": "Implement Logout Action",
-            "description": "Create a LogoutButton component that triggers a POST to /api/auth/logout using useMutation, invalidates the session, and redirects to /events.",
-            "dependencies": ["3.1"],
-            "details": "Develop components/LogoutButton.tsx to POST /api/auth/logout. Disable button while pending. On success, invalidate ['session'] and redirect.",
-            "status": "done",
-            "testStrategy": "Mock /api/auth/logout with MSW; verify session invalidation and redirect on logout, and button disabled state during mutation."
-          },
-          {
-            "id": 4,
-            "title": "Integrate Session State into Header for Conditional Rendering",
-            "description": "Update the Header component to consume useSessionQuery, conditionally rendering Login/Logout and My Bookings links based on session state.",
-            "dependencies": ["3.1", "3.2", "3.3"],
-            "details": "Modify components/Header.tsx to show Login when unauthenticated, Logout and My Bookings when authenticated, using session data from useSessionQuery.",
-            "status": "done",
-            "testStrategy": "Render Header in various auth states; assert correct links are shown and navigation works as expected."
-          },
-          {
-            "id": 5,
-            "title": "Ensure Accessibility and Error Handling for Auth Flows",
-            "description": "Add accessible labels to form inputs and buttons, provide clear error messages via toasts, and ensure all interactive elements are keyboard navigable.",
-            "dependencies": ["3.2", "3.3"],
-            "details": "Audit login and logout flows for accessibility, including ARIA attributes and focus management. Implement toast notifications for errors and success.",
-            "status": "done",
-            "testStrategy": "Run accessibility tests (e.g., axe); verify labels, keyboard navigation, and toast visibility for error/success scenarios."
-          }
-        ]
+        "status": "pending",
+        "subtasks": []
       },
       {
         "id": 4,
@@ -198,54 +106,8 @@
         "testStrategy": "- MSW handler for GET /api/events?page=&category=.\n- Renders 12 cards with proper data; displays empty state when none.\n- Changing category updates URL and refetches list.\n- Pagination navigates and fetches new data; maintains ARIA current page indicator.\n- Prefetch called on hover (spy queryClient.prefetchQuery).",
         "priority": "high",
         "dependencies": [1, 2, 3],
-        "status": "in-progress",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "Implement Server-Side Prefetching and Dehydration for Events Listing",
-            "description": "Set up the /events route to parse searchParams (page, category), prefetch event data using TanStack Query's prefetchQuery, and dehydrate the query state for client hydration.",
-            "dependencies": [],
-            "details": "Use getServerQueryClient and dehydrate to prefetch and serialize event data for the requested page and category. Ensure the server returns the dehydrated state to the client component for hydration.",
-            "status": "in-progress",
-            "testStrategy": "Verify that the server correctly prefetches and serializes event data for various page and category combinations. Use MSW to mock /api/events and assert the dehydrated state contains the expected data."
-          },
-          {
-            "id": 2,
-            "title": "Build Client-Side Hydration and Event List Rendering",
-            "description": "Create EventsPageClient to hydrate the prefetched state, use useQuery with the same key, and render a paginated list of EventCards with badges for remainingSeats.",
-            "dependencies": ["4.1"],
-            "details": "Wrap the client component in HydrationBoundary with the provided state. Use useQuery to fetch and render events, displaying badges for remainingSeats. Handle loading skeletons and empty states.",
-            "status": "pending",
-            "testStrategy": "Assert that 12 EventCards render with correct data, badges display remainingSeats, and loading/empty states appear as appropriate. Use MSW to simulate empty and loading responses."
-          },
-          {
-            "id": 3,
-            "title": "Implement Category Filter with URL Synchronization",
-            "description": "Develop a CategoryFilter component that updates the querystring using useRouter/useSearchParams and triggers refetching of the event list.",
-            "dependencies": ["4.2"],
-            "details": "Ensure the filter updates the URL's category parameter and causes the event list to refetch. Maintain accessibility and keyboard navigation for the filter controls.",
-            "status": "pending",
-            "testStrategy": "Test that selecting a category updates the URL, triggers a refetch, and displays the correct filtered events. Verify ARIA attributes and keyboard accessibility."
-          },
-          {
-            "id": 4,
-            "title": "Add Pagination Controls and Scroll Behavior",
-            "description": "Implement Prev/Next pagination links that update the page parameter, disable appropriately, and manage scroll position on page change.",
-            "dependencies": ["4.2"],
-            "details": "Ensure pagination controls update the page parameter in the URL, disable when on the first or last page, and scroll to top on page change. Maintain ARIA current page indicators.",
-            "status": "pending",
-            "testStrategy": "Verify pagination updates the event list and URL, disables controls at boundaries, and scrolls to top on navigation. Assert ARIA attributes for accessibility."
-          },
-          {
-            "id": 5,
-            "title": "Enable EventCard Prefetching and Navigation",
-            "description": "Enhance EventCard to use next/image for posters, link to /events/[id], and prefetch event detail data on hover using queryClient.prefetchQuery.",
-            "dependencies": ["4.2"],
-            "details": "Configure EventCard to prefetch event detail queries on hover for faster navigation. Use next/image for poster display and Next.js Link for navigation.",
-            "status": "pending",
-            "testStrategy": "Spy on queryClient.prefetchQuery to confirm it is called on hover. Assert that navigation to /events/[id] uses prefetched data when available."
-          }
-        ]
+        "status": "pending",
+        "subtasks": []
       },
       {
         "id": 5,
@@ -334,68 +196,11 @@
         "dependencies": [8, 9, 11],
         "status": "pending",
         "subtasks": []
-      },
-      {
-        "id": 13,
-        "title": "Implement Concert Seat Selection UI with Responsive and Accessible Design",
-        "description": "Develop an interactive seat selection interface that visually displays a seat map/grid, allows users to select seats, and clearly distinguishes between available, reserved, and selected seats, including seat numbers and pricing. Ensure responsive layout and accessibility compliance.",
-        "details": "Design the seat map using a grid-based layout (CSS Flexbox or CSS Grid) to visually represent seats, grouping by rows and sections as needed. Each seat should be a clickable button or element, with distinct styles for available, reserved, and selected states (e.g., color, border, icon). Use React state management (useState or context) to track selection and update UI in real time. Display seat numbers and price info on each seat, and show a summary of selected seats and total price. Implement hover and focus effects for better usability. Ensure keyboard navigation (tab, arrow keys) and ARIA roles (e.g., role=\"grid\", role=\"button\", aria-selected, aria-disabled) for accessibility. Make the layout responsive using media queries or utility frameworks (e.g., Tailwind CSS), adapting to mobile and desktop. Consider headless component patterns for composability and testability. Validate color contrast and focus indicators for WCAG AA compliance. Optionally, use a modal or drawer for seat details on mobile.",
-        "testStrategy": "Verify seat map renders correctly across devices and screen sizes. Test seat selection via mouse, touch, and keyboard (tab, arrow keys, enter/space). Confirm correct visual distinction between available, reserved, and selected seats. Check that seat numbers and prices are displayed and update as seats are selected/deselected. Use automated accessibility tools (e.g., jest-axe, Lighthouse) to check ARIA roles, keyboard operability, and color contrast. Manually test with screen readers for correct announcements. Validate responsiveness by resizing browser and testing on mobile emulators.",
-        "status": "pending",
-        "dependencies": [8, 9, 11],
-        "priority": "high",
-        "subtasks": [
-          {
-            "id": 1,
-            "title": "Design Responsive Seat Map Layout",
-            "description": "Create a visually clear, grid-based seat map using CSS Grid or Flexbox, grouping seats by rows and sections as needed, and ensuring the layout adapts seamlessly to mobile and desktop devices.",
-            "dependencies": [],
-            "details": "Implement a seat map that visually represents the venue's seating arrangement, with clear grouping and spacing. Use media queries or a utility framework (e.g., Tailwind CSS) to ensure responsiveness across devices.",
-            "status": "pending",
-            "testStrategy": "Verify the seat map renders correctly on various screen sizes and orientations. Test resizing and device emulation to confirm layout adaptability."
-          },
-          {
-            "id": 2,
-            "title": "Implement Interactive Seat States and Selection Logic",
-            "description": "Develop interactive seat elements (buttons or similar) with distinct visual styles for available, reserved, and selected states, and manage seat selection state using React (useState or context).",
-            "dependencies": ["13.1"],
-            "details": "Each seat should be clickable, updating its state and appearance in real time. Use color, border, or icons to differentiate states. Ensure seat numbers and prices are displayed on each seat.",
-            "status": "pending",
-            "testStrategy": "Test seat selection and deselection via mouse and touch. Confirm visual distinction between seat states and real-time UI updates."
-          },
-          {
-            "id": 3,
-            "title": "Display Seat Details and Selection Summary",
-            "description": "Show seat numbers and pricing on each seat, and provide a summary section displaying selected seats and the total price. Optionally, implement a modal or drawer for seat details on mobile.",
-            "dependencies": ["13.2"],
-            "details": "Ensure seat details are visible and easy to read. The summary should update dynamically as seats are selected or deselected. For mobile, use a modal or drawer to show detailed seat info if space is limited.",
-            "status": "pending",
-            "testStrategy": "Verify seat numbers and prices are visible and accurate. Confirm the summary updates correctly as selections change. Test modal/drawer behavior on mobile devices."
-          },
-          {
-            "id": 4,
-            "title": "Ensure Accessibility and Keyboard Navigation",
-            "description": "Implement ARIA roles (e.g., role=\"grid\", role=\"button\", aria-selected, aria-disabled), keyboard navigation (tab, arrow keys), and focus indicators to meet accessibility standards (WCAG AA).",
-            "dependencies": ["13.2"],
-            "details": "Enable users to navigate and select seats using only the keyboard. Apply appropriate ARIA attributes and ensure color contrast and focus indicators meet accessibility guidelines.",
-            "status": "pending",
-            "testStrategy": "Test keyboard navigation (tab, arrow keys, enter/space) for all seat elements. Use accessibility tools to validate ARIA roles, color contrast, and focus visibility."
-          },
-          {
-            "id": 5,
-            "title": "Validate Component Structure and Testability",
-            "description": "Refactor seat selection logic and UI into composable, headless components to maximize reusability and test coverage.",
-            "dependencies": ["13.2", "13.3", "13.4"],
-            "details": "Separate logic from presentation using headless component patterns. Write unit and integration tests to cover seat selection, state updates, and accessibility features.",
-            "status": "pending",
-            "testStrategy": "Run automated tests for all components. Confirm logic is decoupled from UI and components are easily testable in isolation."
-          }
-        ]
       }
     ],
     "metadata": {
       "created": "2025-08-16T12:16:34.191Z",
-      "updated": "2025-08-16T16:45:00.313Z",
+      "updated": "2025-08-16T12:29:58.274Z",
       "description": "Tasks for master context"
     }
   }
