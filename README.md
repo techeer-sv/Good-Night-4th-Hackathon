@@ -110,3 +110,165 @@
 - 시연 영상 또는 GIF
 
 ---
+
+
+## 기술 스택 & 선택 이유
+- Frontend: Next.js (App Router) + TypeScript + Tailwind CSS
+
+Next.js(App Router): 파일/페이지 기반 라우팅으로 예약 흐름 단순화, 초기 로딩 UX 우수
+
+TypeScript: 컴파일 타임 타입 체크로 런타임 오류 예방, 리팩터링 안정성↑
+
+Tailwind CSS: 유틸리티 클래스 기반, 반응형 UI를 빠르게 구현
+
+- Backend: Node.js + Express
+
+Express: 러닝커브 낮고 REST API 구현 용이
+
+Node.js: 프론트/백 모두 JS/TS로 통일 → 생산성↑
+
+## 프로젝트 구조
+```
+Good-Night-4th-Hackathon/
+├── backend/                  # Express API 서버
+│   ├── server.js
+│   └── __tests__/            # API 테스트
+├── frontend/                 # Next.js 프론트엔드
+│   ├── src/
+│   └── src/app/__tests__/    # 컴포넌트/UX 테스트
+└── README.md
+```
+
+## 실행 방법
+1) 의존성 설치
+```
+프론트
+cd frontend && npm install
+```
+```
+백엔드
+cd ../backend && npm install
+```
+
+2) 개발 서버 실행
+```
+백엔드
+cd backend
+node server.js
+```
+```
+프론트
+cd frontend
+npm run dev
+```
+
+## 테스트 & 품질
+- Frontend
+```
+cd frontend
+npm run lint          # ESLint
+npm run typecheck     # TypeScript 타입 체크
+npm test              # Jest + React Testing Library
+```
+
+- Backend
+```
+cd backend
+npm test              # Jest + Supertest
+```
+
+## 요구사항 체크리스트
+✅ 최소 요구사항
+
+ - [x] 3x3 격자 형태로 총 9개의 좌석 표시
+ - [x] 각 좌석의 예약 가능/불가능 상태를 시각적으로 구분
+ - [x] 사용자가 빈 좌석을 클릭하여 선택
+ - [x] 페이지를 이동하여 예약자 정보 입력
+ - [x] 99% 성공 / 1% 실패 처리 + 명확한 피드백
+ - [x] 좌석 목록 조회 API 
+ - [x] 좌석 예약 API
+ - [x] HTTP 통신을 통한 데이터 교환
+ - [x] 테스트 코드
+ - [x] 타입 체크
+ - [x] 린팅
+
+✅ 기본 요구사항
+ - [x] 사용자 경험 개선(사용자가 서비스를 이용할 때 발생할 수 있는 불편함 최소화)
+ - [x] 안정적인 운영(예상치 못한 상황에서도 서비스가 안정적으로 동작)
+
+✅ 심화 요구사항 (필요 시 진행 & README에 검증 방법 추가)
+
+  - [ ] 동시성 제어: 동일 좌석 동시 경쟁 시 단 한 명만 성공 보장
+
+  - [ ] 실시간 좌석 동기화: WebSocket/SSE로 상태 브로드캐스트
+
+  - [ ] 우선순위 제공: 좌석 선택 후 입력 중 우선권 부여(홀드/타임아웃)
+
+
+
+## 요구사항별 해결 방법
+
+### 최소요구사항
+1. 좌석현황표시
+SeatGrid가 3×3 그리드로 렌더링, 좌석 상태에 따라 스타일을 명확히 구분(예약됨=회색, 선택됨=파랑, 선택 가능=초록)
+
+2. 좌석 예약 기능
+좌석 클릭 시 이미 예약된 좌석은 차단하고, 선택 좌석을 /reservation로 전달해 폼 페이지로 이동.
+백엔드에서는 Math.random() > 0.01 조건으로 99% 성공·1% 실패를 시뮬레이션하며, 실패 시 예외를 던지지 않고 좌석 상태를 변경하지 않은 채 201과 status: "failed" 응답을 반환합니다. (검증/장애 재현을 위해 ?force=fail, ?force500=1 및 x-force-fail, x-force-500 헤더를 지원합니다.)
+
+3. API
+- GET /seats : 모든 좌석의 현재 상태를 JSON 배열로 반환합니다.
+
+- GET /seats/:id :특정 좌석의 상태를 반환합니다.
+잘못된/없는 ID는 400 Bad Request로 응답합니다.
+
+- POST /seats/reserve : 예약자 정보를 받아 좌석을 예약 처리합니다.
+
+4. 코드 품질 보장
+SeatGrid.test.tsx: 3×3 그리드 렌더링, 로딩 문구, 클릭 이벤트 전달 등 UI 기본 동작 검증
+ReservationForm.test.tsx: 폼 렌더·검증(필수값/형식), 제출 시 payload(좌석 정보 포함) 생성, 제출 중 버튼 비활성화/스피너 노출 검증
+
+app/__tests__/reservation.test.tsx(페이지 테스트):
+
+즉시 피드백: 제출 직후 “요청 중…”/스피너/버튼 비활성화
+지연 알림: 1.5초 이상 지연 시 “조금만 기다려 주세요.” 배지 노출
+요청 취소: AbortController로 취소 시나리오(취소 메시지 확인)
+폼 보존: localStorage 저장/복원 및 성공 시 삭제
+낙관적 업데이트 금지: 성공 확정 전까지 좌석 상태 변화 없음(간접 검증)
+에러 처리/재시도: 서버 오류/실패 응답 시 메시지 노출, “다시 시도/다른 좌석 보기” 동작 확인
+
+모든 테스트 통과
+로컬 최신 실행 기준 테스트 스위트가 통과함.
+
+### 기본 요구 사항
+
+1. 사용자 경험 개선
+- UX 개선
+직관적 좌석 UI(3×3) / 상태별 색상(예약됨/선택됨/가능)
+지연 대응: 제출 즉시 로딩, 1.5초 후 “조금만 기다려 주세요.” 배지, 요청 취소(AbortController)
+실패 대응: 명확한 원인 메시지 + “다시 시도/다른 좌석 보기” CTA
+폼 보존: localStorage로 입력값 자동 저장/복원
+낙관적 업데이트 금지: 성공 확정 전까지 좌석 상태 미변경
+모바일 반응형 최적화(Tailwind)
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/515c444e-2e27-4c5b-bfb5-0e27e2d8d486" alt="screenshot-1" width="45%" />
+  <img src="https://github.com/user-attachments/assets/a4201003-1ce6-4d6a-89c7-4f69fcfe6367" alt="screenshot-2" width="45%" />
+</p>
+
+
+2. 안정적인 서비스 운영
+
+- 입력 가드 & 에러 코드 표준화
+필수 필드/형식 오류 → 400
+에러 응답 포맷 통일:
+{"error": true, "code": "<에러코드>", "message": "<설명>"}
+
+- 데이터 정합성 보장
+성공일 때만 seat.isReserved = true로 상태 전이
+실패/서버 오류 시 좌석 상태 변경 없음
+이미 예약된 좌석 재요청 시 409로 차단
+
+- 서버 장애/오류 대비
+중앙 에러 핸들러로 예기치 못한 예외를 500으로 통일 응답
+
+- 헬스체크 제공
