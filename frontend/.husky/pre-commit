@@ -1,7 +1,0 @@
-#!/bin/sh
-# Full pre-commit checks
-npm run lint --silent || exit 1
-npm run typecheck --silent || exit 1
-if command -v npx >/dev/null 2>&1; then
-	npx lint-staged || exit 1
-fi

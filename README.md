@@ -152,7 +152,7 @@ docker-compose.yml (redis 등 서비스 정의)
             curl -X POST http://localhost:5800/api/v1/seats/reservation/fcfs \
                 -H 'Content-Type: application/json' \
                 -H 'X-User-Id: user-123' \
-                -d '{"userName":"Alice","phone":"010-1234-5678"}'
+                -d '{"user_name":"Alice","phone":"010-1234-5678"}'
             ```
             성공 응답 예:
             ```json
@@ -190,7 +190,7 @@ docker-compose.yml (redis 등 서비스 정의)
 | Method | POST |
 | Path | /api/v1/seats/reservation/fcfs |
 | Header | X-User-Id (또는 FCFS_USER_HEADER) |
-| Body | { "userName": string, "phone": string } |
+| Body | { "user_name": string, "phone": string } |
 | Success | { "success": true, "seat": { "id": number, "status": true } } |
 | Error reason | sold_out | duplicate | contention | already_reserved |
 

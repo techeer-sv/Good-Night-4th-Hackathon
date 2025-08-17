@@ -43,7 +43,7 @@ Headers:
 
 Request Body:
 ```jsonc
-{ "userName": "Alice", "phone": "010-1234-5678" }
+{ "user_name": "Alice", "phone": "010-1234-5678" }
 ```
 
 성공 200:
@@ -128,7 +128,7 @@ curl -s http://localhost:5800/api/v1/seats
 curl -s -X POST http://localhost:5800/fcfs/join \
   -H 'X-User-Id: user-123' \
   -H 'Content-Type: application/json' \
-  -d '{"userName":"Alice","phone":"010-1234-5678"}'
+  -d '{"user_name":"Alice","phone":"010-1234-5678"}'
 ```
 
 ### 10. OpenAPI Migration Plan
