@@ -31,48 +31,7 @@ public class SeatService {
     private static final Random random = new Random();
 
     @Transactional(readOnly = true)
-    public List<Seat> getAllSeats() {
-        return seatRepository.findAll();
-    }
-
-    @Transactional(readOnly = true)
-    public Seat getSeatById(Long id) {
-        return seatRepository.findById(id).orElse(null);
-    }
-
-    @Transactional
-    public Seat createSeat(Seat seat) {
-        return seatRepository.save(seat);
-    }
-
-    @Transactional
-    public Seat updateSeat(Long id, Seat seatDetails) {
-        Seat seat = seatRepository.findById(id).orElse(null);
-        if (seat == null) {
-            return null;
-        }
-        
-        seat.setSeatNumber(seatDetails.getSeatNumber());
-        seat.setReserved(seatDetails.isReserved());
-        seat.setUser(seatDetails.getUser());
-        seat.setLockedBy(seatDetails.getLockedBy());
-        
-        return seatRepository.save(seat);
-    }
-
-    @Transactional
-    public boolean deleteSeat(Long id) {
-        Seat seat = seatRepository.findById(id).orElse(null);
-        if (seat == null) {
-            return false;
-        }
-        
-        seatRepository.delete(seat);
-        return true;
-    }
-
-    @Transactional(readOnly = true)
-    public List<SeatResponseDto> getAllSeatsAsDto() {
+    public List<SeatResponseDto> getAllSeats() {
         return seatRepository.findAll().stream()
                 .map(seat -> SeatResponseDto.builder()
                         .seatId(seat.getId())
