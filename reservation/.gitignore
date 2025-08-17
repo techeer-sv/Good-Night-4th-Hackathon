@@ -1,0 +1,28 @@
+### Java ###
+*.class
+*.jar
+*.war
+*.ear
+
+### Build ###
+/target/
+/build/
+
+### IDE ###
+*.iml
+.idea/
+*.ipr
+*.iws
+
+### Logs ###
+*.log
+
+### OS Files ###
+.DS_Store
+
+### Test Output ###
+/test-output/
+/out/
+
+### Others ###
+*.swp
