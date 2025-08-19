@@ -1,0 +1,40 @@
+spring:
+  config:
+    import: file:./dev.env[.properties]
+    
+  data:
+    redis:
+      host: localhost
+      port: 6379
+    hikari:
+      maximum-pool-size: 50
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: true
+
+  redis:
+    host: localhost
+    port: 6379
+
+server:
+  tomcat:
+    threads:
+      max: 50
+
+logging:
+  #level:
+    #root: INFO
+    #hello.hackathonapi: INFO
+    #org.springframework.transaction: INFO
+    #org.hibernate.SQL: INFO
