@@ -66,7 +66,7 @@ class SeatServiceTest {
         when(userRepository.save(any())).thenAnswer(invocation -> invocation.getArgument(0));
         when(seatRepository.save(any())).thenReturn(mockSeat);
 
-        ReservationResponseDto response = seatService.reserveSeat(requestDto);
+        ReservationResponseDto response = seatService.reserveSeat(1L, requestDto); // ✅ 변경됨
 
         assertThat(response).isNotNull();
         assertThat(response.getSeatId()).isEqualTo(1L);
@@ -77,7 +77,7 @@ class SeatServiceTest {
     void 좌석예약_권한없음_예외() {
         when(redisService.getValue("seat:1")).thenReturn("다른세션");
 
-        assertThatThrownBy(() -> seatService.reserveSeat(requestDto))
+        assertThatThrownBy(() -> seatService.reserveSeat(1L, requestDto))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("예약 권한이 없습니다");
     }
@@ -89,7 +89,7 @@ class SeatServiceTest {
         when(redisService.getValue("seat:1")).thenReturn("s1");
         when(seatRepository.findById(1L)).thenReturn(Optional.of(mockSeat));
 
-        assertThatThrownBy(() -> seatService.reserveSeat(requestDto))
+        assertThatThrownBy(() -> seatService.reserveSeat(1L, requestDto))
                 .isInstanceOf(IllegalStateException.class)
                 .hasMessageContaining("이미 예약된 좌석입니다");
     }

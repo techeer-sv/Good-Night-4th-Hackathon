@@ -44,8 +44,7 @@ public class SeatService {
     }
 
     @Transactional
-    public ReservationResponseDto reserveSeat(ReservationRequestDto requestDto) {
-        Long seatId = requestDto.getSeatId();
+    public ReservationResponseDto reserveSeat(Long seatId, ReservationRequestDto requestDto) {
         String sessionId = requestDto.getSessionId();
 
         String lockedBy = redisService.getValue("seat:" + seatId);

@@ -24,12 +24,9 @@ public class SeatController {
     }
 
     @PostMapping("/{seatId}/reserve")
-    public ResponseEntity<ReservationResponseDto> reserveSeat(@PathVariable Long seatId, @RequestBody ReservationRequestDto requestDto) {
-        if (!seatId.equals(requestDto.getSeatId())) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        ReservationResponseDto response = seatService.reserveSeat(requestDto);
+    public ResponseEntity<ReservationResponseDto> reserveSeat(@PathVariable Long seatId,
+                                                              @RequestBody ReservationRequestDto requestDto) {
+        ReservationResponseDto response = seatService.reserveSeat(seatId, requestDto);
         return ResponseEntity.ok(response);
     }
 
