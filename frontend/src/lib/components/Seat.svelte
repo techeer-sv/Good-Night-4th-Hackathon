@@ -24,11 +24,11 @@
   tabindex={isBooked ? -1 : 0}
   aria-disabled={isBooked}
   aria-label={`Seat ${id} ${isBooked ? '(booked)' : isSelected ? '(selected)' : '(available)'}`}
-  class={`aspect-square select-none rounded-2xl transition-all flex items-center justify-center
+  class={`aspect-square flex items-center justify-center select-none rounded-2xl transition-all duration-300 transform
     ${isBooked
-      ? 'bg-gray-200/70 text-gray-500 cursor-not-allowed shadow-inner'
-      : `glassy cursor-pointer hover:scale-105 hover:shadow-xl
-         ${isSelected ? 'bg-[var(--color-primary)] text-white shadow-2xl' : 'text-gray-800'}`
+      ? 'bg-gray-200/70 text-gray-500 opacity-70 cursor-not-allowed shadow-inner backdrop-blur-sm'
+      : `glassy rounded-2xl hover:scale-105 hover:shadow-xl transition-all duration-300 transform
+         ${isSelected ? 'bg-primary text-on-primary shadow-glass-lg' : 'text-on-surface'}`
     }`}
   on:click={handleClick}
   on:keydown={handleKeydown}

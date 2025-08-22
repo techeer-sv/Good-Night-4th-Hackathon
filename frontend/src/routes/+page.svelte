@@ -37,15 +37,15 @@
         <h1 class="text-xl font-medium tracking-tight text-[var(--md-sys-color-on-surface)]">SeatFinder</h1>
       </div>
       <nav class="hidden md:flex items-center gap-6">
-        <a class="text-sm font-medium text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-primary)] transition-colors" href="#">Home</a>
-        <a class="text-sm font-medium text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-primary)] transition-colors" href="#">Performances</a>
-        <a class="text-sm font-medium text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-primary)] transition-colors" href="#">Venues</a>
+        <a class="text-sm font-medium text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-primary)] transition-colors" href="/">Home</a>
+        <a class="text-sm font-medium text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-primary)] transition-colors" href="/events">Performances</a>
+        <a class="text-sm font-medium text-[var(--md-sys-color-on-surface-variant)] hover:text-[var(--md-sys-color-primary)] transition-colors" href="/venues">Venues</a>
       </nav>
       <div class="flex items-center gap-2">
-        <button class="p-2 rounded-full text-[var(--md-sys-color-on-surface-variant)] hover:bg-[var(--md-sys-color-surface-variant)]/50 transition-colors">
+        <button class="p-2 rounded-full text-[var(--md-sys-color-on-surface-variant)] hover:bg-[var(--md-sys-color-surface-variant)]/50 transition-colors" aria-label="Search">
           <span class="material-icons">search</span>
         </button>
-        <button class="p-2 rounded-full text-[var(--md-sys-color-on-surface-variant)] hover:bg-[var(--md-sys-color-surface-variant)]/50 transition-colors">
+        <button class="p-2 rounded-full text-[var(--md-sys-color-on-surface-variant)] hover:bg-[var(--md-sys-color-surface-variant)]/50 transition-colors" aria-label="Account">
           <span class="material-icons">account_circle</span>
         </button>
       </div>
@@ -120,7 +120,7 @@
             <span>Booked</span>
           </div>
           <div class="flex items-center gap-2">
-            <div class="w-4 h-4 rounded-full bg-[var(--md-sys-color-primary)]"></div>
+            <div class="w-4 h-4 rounded-full bg-[var(--md-sys-color-primary]"></div>
             <span>Selected</span>
           </div>
         </div>

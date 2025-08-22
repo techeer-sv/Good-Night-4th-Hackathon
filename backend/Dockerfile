@@ -21,7 +21,7 @@ COPY . ./
 RUN cargo build --release --manifest-path Cargo.toml --bin tickettock \
  || (echo "Binary name mismatch. Adjust in Dockerfile." && ls target/release && exit 1)
 
-FROM alpine:3.19 AS runtime
+FROM alpine:3.20 AS runtime
 WORKDIR /app
 RUN apk add --no-cache ca-certificates openssl sqlite-libs \
     && addgroup -S app && adduser -S app -G app

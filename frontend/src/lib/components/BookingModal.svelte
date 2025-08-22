@@ -2,20 +2,16 @@
   import { onMount } from 'svelte';
   import { createEventDispatcher } from 'svelte';
 
-  // 외부에서 선택된 좌석 라벨 전달 (없을 수도 있음)
   export let selectedSeat: string | null = null;
 
-  // 이벤트 타입 안전하게 선언
   const dispatch = createEventDispatcher<{
     submit: { name: string; contact: string };
     close: void;
   }>();
 
-  // 폼 상태
   let name = '';
   let contact = '';
 
-  // 포커스 트랩용 참조들
   let dialogEl: HTMLDivElement | null = null;
   let focusables: HTMLElement[] = [];
   let firstEl: HTMLElement | null = null;
@@ -52,12 +48,10 @@
 
   onMount(() => {
     collectFocusables();
-    // 첫 포커스
     firstEl?.focus();
   });
 
   function handleOverlayClick(e: MouseEvent) {
-    // 오버레이 영역(바깥) 클릭 시에만 닫기
     if (e.target === e.currentTarget) dispatch('close');
   }
 
@@ -84,72 +78,43 @@
     aria-labelledby="booking-modal-title"
     aria-describedby="booking-modal-desc"
     tabindex="-1"
-    class="w-full max-w-md rounded-2xl border border-white/20 bg-white/20 p-6 text-white shadow-2xl backdrop-blur-md"
+    class="w-full max-w-sm rounded-3xl p-6 text-[var(--md-sys-color-on-surface)] shadow-2xl popup-glassmorphism"
     on:keydown={onKeydown}
   >
     <div class="mb-4 flex items-start justify-between gap-4">
       <div>
-        <h2 id="booking-modal-title" class="text-lg font-semibold">Booking Information</h2>
-        <p id="booking-modal-desc" class="sr-only">Fill in your booking information and continue.</p>
+        <h2 id="booking-modal-title" class="text-xl font-medium text-[var(--md-sys-color-on-surface)]">Booking Details</h2>
+        <p id="booking-modal-desc" class="text-sm text-[var(--md-sys-color-on-surface-variant)]">Enter your information</p>
         {#if selectedSeat}
-          <p class="mt-1 text-sm text-white/80">
+          <p class="mt-2 text-sm text-[var(--md-sys-color-on-surface-variant)]">
             Selected seat: <span class="font-medium">{selectedSeat}</span>
           </p>
         {/if}
       </div>
       <button
-        class="rounded-md px-2 py-1 text-sm text-white/80 hover:bg-white/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+        class="cursor-pointer p-2 rounded-full hover:bg-black/10"
         aria-label="Close booking modal"
         on:click={() => dispatch('close')}
         type="button"
       >
-        ✕
+        <span class="material-icons text-[var(--md-sys-color-on-surface-variant)]">close</span>
       </button>
     </div>
 
-    <form class="space-y-4" on:submit={handleSubmit}>
+    <form class="space-y-6" on:submit={handleSubmit}>
       <div>
-        <label for="name" class="mb-1 block text-sm text-white/90">Name</label>
-        <input
-          id="name"
-          name="name"
-          type="text"
-          class="w-full rounded-lg border border-white/25 bg-white/10 px-3 py-2 text-white placeholder-white/60 outline-none focus:ring-2 focus:ring-white/70"
-          placeholder="Your name"
-          bind:value={name}
-          required
-        />
+        <label class="block text-sm font-medium text-[var(--md-sys-color-on-surface-variant)] mb-1" for="name">Name</label>
+        <input class="block w-full px-3 py-2 border border-[var(--md-sys-color-outline)] rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent sm:text-sm bg-white/50 text-[var(--md-sys-color-on-surface)] material-input" id="name" name="name" type="text" bind:value={name} required />
       </div>
 
       <div>
-        <label for="contact" class="mb-1 block text-sm text-white/90">Contact Number</label>
-        <input
-          id="contact"
-          name="contact"
-          type="tel"
-          class="w-full rounded-lg border border-white/25 bg-white/10 px-3 py-2 text-white placeholder-white/60 outline-none focus:ring-2 focus:ring-white/70"
-          placeholder="010-0000-0000"
-          bind:value={contact}
-          required
-        />
+        <label class="block text-sm font-medium text-[var(--md-sys-color-on-surface-variant)] mb-1" for="contact">Contact Number</label>
+        <input class="block w-full px-3 py-2 border border-[var(--md-sys-color-outline)] rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent sm:text-sm bg-white/50 text-[var(--md-sys-color-on-surface)] material-input" id="contact" name="contact" type="tel" bind:value={contact} required />
       </div>
 
       <div class="mt-6 flex items-center justify-end gap-3">
-        <button
-          type="button"
-          class="rounded-xl border border-white/25 bg-white/10 px-4 py-2 text-sm text-white/90 shadow hover:bg-white/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
-          on:click={() => dispatch('close')}
-          aria-label="Cancel"
-        >
-          Cancel
-        </button>
-        <button
-          type="submit"
-          class="rounded-xl border border-white/25 bg-white/20 px-4 py-2 text-sm font-medium text-white shadow-lg hover:bg-white/30 focus:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
-          aria-label="Submit booking form"
-        >
-          Continue
-        </button>
+        <button type="button" class="cursor-pointer rounded-full p-3 hover:bg-white/10" on:click={() => dispatch('close')}>Cancel</button>
+        <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-full shadow-lg text-sm font-medium text-white bg-[var(--md-sys-color-primary)] hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white/50 focus:ring-[var(--md-sys-color-primary)] transition-transform transform hover:scale-105">Book Now</button>
       </div>
     </form>
   </div>

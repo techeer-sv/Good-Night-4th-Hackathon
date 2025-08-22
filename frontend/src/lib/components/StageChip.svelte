@@ -5,7 +5,7 @@
 <div
   role="img"
   aria-label="Stage indicator"
-  class="inline-flex items-center justify-center rounded-full border border-white/20 bg-white/15 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-white/90 shadow-md backdrop-blur-md"
+  class="inline-flex items-center justify-center rounded-full border border-white/20 bg-[var(--md-sys-color-surface-variant)] px-8 py-2 text-sm font-medium uppercase tracking-widest text-[var(--md-sys-color-on-surface-variant)] shadow-inner"
 >
   {label}
 </div>

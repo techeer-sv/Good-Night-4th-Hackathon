@@ -1,73 +1,57 @@
 <script lang="ts">
-  import Header from '$lib/components/Header.svelte';
-  import GlassCard from '$lib/components/GlassCard.svelte';
-  import GlassButton from '$lib/components/GlassButton.svelte';
-  import SeatGrid from '$lib/components/SeatGrid.svelte';
-  import { onMount } from 'svelte';
-  import { seats } from '$lib/stores/booking';
   import { goto } from '$app/navigation';
-  import { page } from '$app/stores';
+  import { seats } from '$lib/stores/booking';
+  import GlassButton from '$lib/components/GlassButton.svelte';
+  import GlassCard from '$lib/components/GlassCard.svelte';
+  import Header from '$lib/components/Header.svelte';
+  import SeatGrid from '$lib/components/SeatGrid.svelte';
 
-  // URL 쿼리에서 실패한 seatId 표시
-  const seatId = $page.url.searchParams.get('seatId') || 'N/A';
-
-  async function refreshSeats() {
-    try {
-      const res = await fetch('/api/seats', { method: 'GET' });
-      if (res.ok) {
-        const data = await res.json();
-        seats.set(data);
-      }
-    } catch (e) {
-      console.error('Failed to refresh seats', e);
-    }
-  }
-
-  function retry() {
+  function handleRetry() {
     goto('/select');
   }
 
-  onMount(() => {
-    // 페이지 진입 시 최신 좌석 상태로 동기화
-    refreshSeats();
-  });
+  function handleViewUpdatedSeats() {
+    // In a real app, you might fetch the latest seat data here
+    // For now, we'll just re-render the existing store data
+    seats.set([...$seats]);
+  }
 </script>
 
-<div class="min-h-screen flex flex-col items-center p-4 text-white">
-  <Header brand="StageSeat" />
+<div class="min-h-screen bg-gray-900 text-white flex flex-col items-center p-4 sm:p-8">
+  <Header brand="StageSeats" />
 
-  <main class="flex-grow flex w-full items-center justify-center">
-    <div class="grid gap-8 md:grid-cols-[28rem,1fr] w-full max-w-6xl">
-      <GlassCard>
-        <div class="w-[28rem] max-w-full">
-          <div class="mb-4 flex items-center gap-3">
-            <div class="grid h-10 w-10 place-items-center rounded-full bg-red-500/90 text-white shadow" aria-hidden="true">
-              !
-            </div>
-            <h2 class="text-2xl font-semibold">Booking Failed</h2>
-          </div>
-          <p class="text-white/90">
-            The seat you selected (<span class="font-semibold">{seatId}</span>) is no longer available.
-          </p>
-          <p class="mt-1 text-white/80">
-            Please try again or view the updated seat map below.
-          </p>
-
-          <div class="mt-6 flex items-center justify-end gap-3">
-            <GlassButton type="button" ariaLabel="Retry" on:click={retry}>
-              Retry
-            </GlassButton>
-            <GlassButton type="button" ariaLabel="View updated seats" on:click={refreshSeats}>
-              View Updated Seats
-            </GlassButton>
-          </div>
+  <main class="flex flex-col items-center gap-4 sm:gap-8 w-full max-w-md mt-8">
+    <GlassCard>
+      <div class="text-center">
+        <div class="text-red-500 mb-4">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-12 w-12 mx-auto"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v4a1 1 0 102 0V7zm-1 8a1 1 0 100-2 1 1 0 000 2z"
+              clip-rule="evenodd"
+            />
+          </svg>
         </div>
-      </GlassCard>
+        <h1 class="text-2xl font-bold mb-2">Booking Failed</h1>
+        <p class="text-gray-400 mb-6">
+          Unfortunately, the seat you selected was just taken.
+        </p>
 
-      <div class="rounded-2xl border border-white/20 bg-white/10 p-6 backdrop-blur-md shadow-xl">
-        <h3 class="mb-4 text-lg font-semibold">Updated Seats</h3>
-        <SeatGrid />
+        <div class="mt-6 flex gap-4">
+          <GlassButton on:click={handleRetry} className="w-full">Retry</GlassButton>
+          <GlassButton on:click={handleViewUpdatedSeats} className="w-full">View Updated Seats</GlassButton>
+        </div>
       </div>
+    </GlassCard>
+
+    <div class="w-full mt-8">
+      <h2 class="text-xl font-semibold mb-4 text-center">Current Seat Availability</h2>
+      <SeatGrid />
     </div>
   </main>
 </div>

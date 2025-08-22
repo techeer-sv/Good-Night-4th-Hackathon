@@ -3,46 +3,103 @@
 @tailwind utilities;
 
 :root {
-  --md-sys-color-primary: #6750A4;
+  /* swap primary to purple used in book_detail (closer match across examples) */
+  --md-sys-color-primary: #6750A4; /* adjusted from #3f51b5 */
   --md-sys-color-on-primary: #FFFFFF;
   --md-sys-color-primary-container: #EADDFF;
   --md-sys-color-on-primary-container: #21005D;
+
+  /* subtle surface tweaks */
   --md-sys-color-surface: #FFFBFE;
   --md-sys-color-on-surface: #1C1B1F;
-  --md-sys-color-surface-variant: #E7E0EC;
-  --md-sys-color-on-surface-variant: #49454F;
-  --md-sys-color-outline: #79747E;
-  --md-sys-color-shadow: #000000;
-  --md-sys-color-inverse-surface: #313033;
-  --md-sys-color-inverse-on-surface: #F4EFF4;
-  
-  /* Old variables for reference, can be removed if not used elsewhere */
-  --color-primary: #6750a4;
-  --glass-bg: rgba(255, 255, 255, 0.18);
-  --glass-border: rgba(255, 255, 255, 0.28);
+  --md-sys-color-surface-variant: #F1EAF8;
+  --md-sys-color-on-surface-variant: #605B66;
+  --md-sys-color-outline: #7A7480;
+  --md-sys-color-shadow: rgba(16,24,40,0.06);
+
+  --background-color: #ffffff;
+  --form-bg-color: rgba(255, 255, 255, 0.88);
+  --form-border-color: rgba(15, 11, 29, 0.04);
+  --text-primary: #121212;
+  --text-secondary: #5f6368;
+
+  /* Background / soft primary gradient */
+  --primary-gradient-start: #e8eefc; /* softer per stitch/book_detail */
+  --primary-gradient-end: #f3e8ff;
+  /* CTA gradient shifted slightly more purple to match examples */
+  --button-gradient-start: #7c3aed; /* deep purple */
+  --button-gradient-end: #a855f7; /* vivid purple */
+
+  /* Stage pill colors to match example STAGE styling */
+  --stage-bg: #EADDFF; /* primary container */
+  --stage-text: #21005D; /* on-primary-container */
+
+  --input-bg-color: rgba(233, 213, 255, 0.45);
+  --input-focus-border: #7c3aed;
+  --input-focus-shadow: rgba(124,58,237,0.16);
+
+  --popup-bg: rgba(255, 255, 255, 0.92);
+  --glass-button-bg: rgba(255,255,255,0.6);
+  --glass-button-border: rgba(231,224,236,0.6);
+  --stage-bg: var(--md-sys-color-surface-variant);
+  --stage-text: var(--md-sys-color-on-surface-variant);
+
+  --card-radius: 1.5rem;
+  --pill-radius: 9999px;
 }
 
-body {
-  font-family: 'Roboto', sans-serif;
-  background-color: var(--md-sys-color-surface);
-  color: var(--md-sys-color-on-surface);
+/* Typography - moved out of @layer to avoid Tailwind @layer/base conflict */
+html { font-family: 'Roboto', 'Noto Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; }
+h1,h2,h3 { color: var(--md-sys-color-on-surface); }
+p, label, input, button { color: var(--md-sys-color-on-surface); }
+
+/* Components */
+.glassy { background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.18); }
+
+.glassmorphism-form { background: var(--form-bg-color); backdrop-filter: blur(12px); border: 1px solid var(--form-border-color); border-radius: var(--card-radius); box-shadow: 0 10px 30px 0 rgba(16,24,40,0.06); }
+
+.material-input { background-color: var(--input-bg-color); border-radius: 0.5rem; border: 1px solid rgba(0, 0, 0, 0.05); transition: all 0.2s ease; box-shadow: 0 4px 6px rgba(0,0,0,0.04); }
+.material-input:focus { border-color: var(--input-focus-border); box-shadow: 0 0 0 6px var(--input-focus-shadow); background-color: rgba(233,213,255,0.65); }
+
+.shadow-glass-lg { box-shadow: 0 10px 30px 0 rgba(16,24,40,0.06); }
+/* stronger purple-tinted glow for primary actions */
+.shadow-glow-primary { box-shadow: 0 10px 36px rgba(124,58,237,0.16); }
+
+/* slightly deeper card shadow */
+.shadow-card { box-shadow: 0 10px 28px rgba(16,24,40,0.09); }
+
+/* Buttons */
+.btn-primary {
+  background-image: linear-gradient(90deg, var(--button-gradient-start), var(--button-gradient-end));
+  color: white;
+  font-weight: 700;
+  border-radius: var(--pill-radius);
+  padding: 0.9rem 1.6rem;
+  box-shadow: 0 14px 48px rgba(124,58,237,0.16);
 }
 
-.glassy {
-  background: rgba(255, 255, 255, 0.4);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+/* Popup */
+.popup-glassmorphism { background: var(--popup-bg); backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px); border: 1px solid rgba(231,224,236,0.66); border-radius: 1.25rem; box-shadow: 0 24px 48px rgba(16,24,40,0.10); }
+
+/* Glass button used in example confirmation/stitch */
+.glass-button { background: var(--glass-button-bg); border: 1px solid var(--glass-button-border); border-radius: 0.75rem; padding: 0.65rem 1.2rem; box-shadow: 0 6px 18px rgba(16,24,40,0.04); }
+
+/* Stage pill helper */
+.stage-pill { background: var(--stage-bg); color: var(--stage-text); padding: 0.5rem 3rem; border-radius: 9999px; font-weight: 700; box-shadow: inset 0 -2px 0 rgba(0,0,0,0.02); }
+
+/* Utility aliases to match examples */
+.rounded-card { border-radius: var(--card-radius); }
+.rounded-pill { border-radius: var(--pill-radius); }
+
+/* Accessibility helpers */
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+
+/* Minor responsive tweaks */
+@media (min-width: 768px) {
+  .container { max-width: 80rem; }
 }
 
-.popup-glassmorphism {
-    background: rgba(255, 251, 254, 0.8);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(231, 224, 236, 0.5);
-}
-
-/* Optional gradient body background toggle */
-body.gradient-background {
-  background: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);
+/* Ensure .btn-primary uses more contrast on small screens */
+@media (max-width: 640px) {
+  .btn-primary { padding: 0.85rem 1.25rem; }
 }

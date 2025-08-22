@@ -2,7 +2,11 @@
 	"mcpServers": {
 		"task-master-ai": {
 			"command": "npx",
-			"args": ["-y", "--package=task-master-ai", "task-master-ai"],
+			"args": [
+				"-y",
+				"--package=task-master-ai",
+				"task-master-ai"
+			],
 			"env": {
 				"ANTHROPIC_API_KEY": "YOUR_ANTHROPIC_API_KEY_HERE",
 				"PERPLEXITY_API_KEY": "YOUR_PERPLEXITY_API_KEY_HERE",
@@ -37,6 +41,15 @@
 			"args": [
 				"-y",
 				"@upstash/context7-mcp"
+			]
+		},
+		"serena": {
+			"command": "uvx",
+			"args": [
+				"--from",
+				"git+https://github.com/oraios/serena",
+				"serena",
+				"start-mcp-server"
 			]
 		}
 	}

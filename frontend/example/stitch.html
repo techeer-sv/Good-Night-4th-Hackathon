@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Stitch Design</title>
+<link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style type="text/tailwindcss">
+      :root {
+        --primary-color: #3f51b5;
+        --background-color: #f5f5f5;
+        --surface-color: #ffffff;
+        --error-color: #f44336;
+        --on-primary: #ffffff;
+        --on-background: #000000;
+        --on-surface: #000000;
+        --on-error: #ffffff;
+        --glass-bg: rgba(255, 255, 255, 0.7);
+        --glass-border: rgba(0, 0, 0, 0.1);
+        --error-bg-translucent: rgba(244, 67, 54, 0.1);
+      }
+      body {
+        font-family: "Roboto", sans-serif;
+        background-color: var(--background-color);
+        color: var(--on-background);
+      }
+      .glass-card {
+        @apply bg-[var(--glass-bg)] border border-solid border-[var(--glass-border)] rounded-2xl shadow-lg backdrop-blur-lg;
+      }
+      .glass-button {
+        @apply bg-white/50 border border-solid border-white/70 rounded-lg shadow-sm backdrop-blur-md;
+      }
+    </style>
+</head>
+<body class="text-gray-800">
+<div class="relative flex size-full min-h-screen flex-col bg-cover bg-center bg-fixed" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDFUoA9-FkKkXb7x9QYjK2WkQG4R_4eH4k_F0r_Z3N_sB_yK0aE-p1LwG9qXz8Z9jY8a9WlPj8I_k_o9f7eR8N_l_tG_hG_i_j_k_l_m_n_o_p_q_r_s_t_u_v_w_x_y_z_a_b_c_d_e_f_g_h_i_j_k_l_m_n_o_p_q_r_s_t_u_v_w_x_y_z_a_b_c_d_e_f_g_h_i_j_k_l_m_n_o_p_q_r_s_t_u_v_w_x_y_z_a_b_c_d_e_f_g_h_i_j_k_l_m_n_o_p_q_r_s_t_u_v_w_x_y_z_a_b_c_d_e_f_g_h_i_j_k_l_m_n_o_p_q_r_s_t_u_v_w_x_y_z_a_b_c_d_e_f_g_h_i_j_k_l_m_n_o_p_q_r_s_t_u_v_w_x_y_z_a_b_c_d_e_f_g_h_i_j_k_l_m_n_o_p_q_r_s_t_u_v_w_x_y_z"); background-image: linear-gradient(to bottom, #e3f2fd, #f1f8e9);'>
+<div class="relative flex h-full grow flex-col">
+<header class="flex items-center justify-between whitespace-nowrap px-6 py-3 bg-white/80 backdrop-blur-md shadow-sm border-b border-gray-200">
+<div class="flex items-center gap-3">
+<div class="text-[var(--primary-color)]">
+<span class="material-icons text-3xl">theaters</span>
+</div>
+<h2 class="text-xl font-medium tracking-tight text-gray-800">StageSeat</h2>
+</div>
+<nav class="hidden md:flex items-center gap-6 text-sm font-medium text-gray-600">
+<a class="hover:text-[var(--primary-color)] transition-colors" href="#">Home</a>
+<a class="hover:text-[var(--primary-color)] transition-colors" href="#">Performances</a>
+<a class="hover:text-[var(--primary-color)] transition-colors" href="#">My Bookings</a>
+</nav>
+<div class="flex items-center gap-4">
+<button class="relative rounded-full p-2 text-gray-500 hover:text-gray-800 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] focus:ring-offset-2">
+<span class="sr-only">View notifications</span>
+<span class="material-icons">notifications</span>
+</button>
+<div class="flex-shrink-0">
+<img alt="User profile" class="h-10 w-10 rounded-full border-2 border-white shadow-sm" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCH7KzXvUZCc6ewHSu5R2NB77t2RQIvIkHfintjZp9-PjGAuOpv5r7xXsa8D5lKQ-xYNfXM6ThI4aQxttwrlwfI8vQBqpoYFIcGuQTmc5lMeQXDjXiso0HqSClhKv24rlzX-Z8SvYexr3M5pOpYd4LKrKyGHTuAAIyyO7Huf3iBjnoGlsVlgVb3f1KbXOOGj_ZNIaPTIzDwNTCCKjbLuus1MtgYOLIAmyM0wheyPhWLI1peQ2RX9o6zWnY7X52dV1mprNXMlpqN-0c"/>
+</div>
+</div>
+</header>
+<main class="flex flex-1 items-center justify-center p-4 sm:p-6 lg:p-8">
+<div class="w-full max-w-lg text-center bg-white/70 backdrop-blur-xl p-8 rounded-2xl shadow-lg border border-gray-200/50">
+<div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-[var(--error-color)]/10 mb-5">
+<span class="material-icons text-4xl text-[var(--error-color)]">error_outline</span>
+</div>
+<h1 class="text-3xl font-medium text-gray-800 mb-2">Booking Failed</h1>
+<div class="bg-[var(--error-bg-translucent)] rounded-lg p-4 my-6 inline-block">
+<p class="text-base text-[var(--error-color)]">The seat you selected is no longer available.</p>
+</div>
+<div>
+<h3 class="text-lg font-normal text-gray-600 mb-4">Please see updated seat availability</h3>
+<div class="grid grid-cols-3 gap-3 max-w-xs mx-auto">
+<div class="aspect-square rounded-lg bg-gray-200/50 flex items-center justify-center font-medium text-gray-700 cursor-pointer hover:bg-gray-300/70 transition-colors">A1</div>
+<div class="aspect-square rounded-lg bg-gray-200/50 flex items-center justify-center font-medium text-gray-700 cursor-pointer hover:bg-gray-300/70 transition-colors">A2</div>
+<div class="aspect-square rounded-lg bg-gray-400/50 flex items-center justify-center font-medium text-white/80 cursor-not-allowed relative">
+                            A3
+                            <span class="material-icons absolute text-white/60" style="font-size: 4rem;">close</span>
+</div>
+<div class="aspect-square rounded-lg bg-gray-200/50 flex items-center justify-center font-medium text-gray-700 cursor-pointer hover:bg-gray-300/70 transition-colors">B1</div>
+<div class="aspect-square rounded-lg bg-gray-200/50 flex items-center justify-center font-medium text-gray-700 cursor-pointer hover:bg-gray-300/70 transition-colors">B2</div>
+<div class="aspect-square rounded-lg bg-gray-200/50 flex items-center justify-center font-medium text-gray-700 cursor-pointer hover:bg-gray-300/70 transition-colors">B3</div>
+<div class="aspect-square rounded-lg bg-gray-200/50 flex items-center justify-center font-medium text-gray-700 cursor-pointer hover:bg-gray-300/70 transition-colors">C1</div>
+<div class="aspect-square rounded-lg bg-gray-400/50 flex items-center justify-center font-medium text-white/80 cursor-not-allowed relative">
+                            C2
+                            <span class="material-icons absolute text-white/60" style="font-size: 4rem;">close</span>
+</div>
+<div class="aspect-square rounded-lg bg-gray-200/50 flex items-center justify-center font-medium text-gray-700 cursor-pointer hover:bg-gray-300/70 transition-colors">C3</div>
+</div>
+</div>
+<div class="flex justify-center gap-4 mt-8">
+<button class="glass-button flex items-center justify-center rounded-lg h-11 px-6 text-gray-700 text-sm font-medium hover:bg-white/80 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2">
+<span class="material-icons mr-2">arrow_back</span>
+                        Retry
+                    </button>
+<button class="flex items-center justify-center rounded-lg h-11 px-6 bg-[var(--primary-color)] text-white text-sm font-medium hover:bg-indigo-700 transition-all shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] focus:ring-offset-2">
+                        View Updated Seats
+                        <span class="material-icons ml-2">event_seat</span>
+</button>
+</div>
+</div>
+</main>
+</div>
+</div>
+
+</body></html>

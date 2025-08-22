@@ -1,125 +1,89 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import Header from '$lib/components/Header.svelte';
-  import GlassCard from '$lib/components/GlassCard.svelte';
-  import GlassButton from '$lib/components/GlassButton.svelte';
   import { goto } from '$app/navigation';
-  import { get } from 'svelte/store';
   import { booking } from '$lib/stores/booking';
+  import GlassButton from '$lib/components/GlassButton.svelte';
+  import GlassCard from '$lib/components/GlassCard.svelte';
+  import Header from '$lib/components/Header.svelte';
 
-  let name = '';
-  let contact = '';
-  let seatId: string | null = null;
+  let name = $booking?.name ?? '';
+  let contact = $booking?.contact ?? '';
+  let seatId = $booking?.seatId ?? null;
   let isLoading = false;
-  let formElement: HTMLFormElement;
-  let errorMessage: string | null = null;
-  let userId: string | null = null;
 
   async function handleSubmit() {
-    if (!formElement.checkValidity() || !seatId) return;
+    if (!name || !contact || !seatId) {
+      return;
+    }
 
     isLoading = true;
-    errorMessage = null;
 
-    try {
-      const response = await fetch('/api/v1/seats/reservation/fcfs', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-User-Id': userId ?? 'guest'
-        },
-        body: JSON.stringify({ user_name: name, phone: contact })
-      });
+    // A real app would have a more robust user ID system
+    const userId = `user-${Math.random().toString(36).substring(2, 15)}`;
 
-      if (response.ok) {
-        const data = await response.json().catch(() => null);
-        const bookedSeatId = data?.seat?.id ?? seatId ?? 'N/A';
-        goto(`/confirm?seatId=${bookedSeatId}`);
-      } else if (response.status === 409) {
-        // sold_out/duplicate/contention 등
-        goto(`/failed`);
-      } else if (response.status === 400) {
-        errorMessage = 'Missing or invalid data. Please check your inputs.';
-      } else {
-        errorMessage = 'An unexpected error occurred. Please try again.';
+    const response = await fetch('/api/v1/seats/reservation/fcfs', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-User-Id': userId,
+      },
+      body: JSON.stringify({ user_name: name, phone: contact, seat_id: seatId }),
+    });
+
+    isLoading = false;
+
+    if (response.ok) {
+      goto('/confirm');
+    } else {
+      const errorData = await response.json();
+      switch (errorData.reason) {
+        case 'sold_out':
+        case 'duplicate':
+        case 'contention':
+          goto('/failed');
+          break;
+        default:
+          alert(`An error occurred: ${errorData.reason}`);
       }
-    } catch (error) {
-      console.error(error);
-      errorMessage = 'Could not connect to the server. Please check your connection and try again.';
-    } finally {
-      isLoading = false;
     }
   }
-
-  onMount(() => {
-    // booking 스토어에서 프리필
-    const b = get(booking);
-    if (b) {
-      name = b.name ?? '';
-      contact = b.contact ?? '';
-      seatId = b.seatId ?? null;
-    }
-
-    // Tickettock: 사용자 ID를 로컬에 저장/재사용 (TTL 중복 방지 시뮬레이션)
-    try {
-      const key = 'tt_user_id';
-      const existing = localStorage.getItem(key);
-      if (existing) {
-        userId = existing;
-      } else {
-        userId = (crypto?.randomUUID?.() as string) ?? Math.random().toString(36).slice(2);
-        localStorage.setItem(key, userId);
-      }
-    } catch {
-      userId = 'guest';
-    }
-
-    document.body.classList.add('gradient-background');
-    return () => {
-      document.body.classList.remove('gradient-background');
-    };
-  });
 </script>
 
-<div class="min-h-screen flex flex-col items-center p-4">
+<div class="min-h-screen bg-gray-900 text-white flex flex-col items-center p-4 sm:p-8">
   <Header brand="StageSeats" />
-  <main class="flex-grow flex flex-col items-center justify-center w-full">
+
+  <main class="flex flex-col items-center gap-4 sm:gap-8 w-full max-w-md mt-8">
     <GlassCard>
-      <form bind:this={formElement} on:submit|preventDefault={handleSubmit} class="w-80">
-        <h2 class="text-2xl font-bold text-center mb-6">Booking Information</h2>
-        <div class="mb-4">
-          <p>Seat: <span class="font-bold">{seatId ?? 'N/A'}</span></p>
-        </div>
-        <div class="mb-4">
-          <label for="name" class="block mb-1">Name</label>
+      <h1 class="text-2xl font-bold mb-4">Confirm Your Details</h1>
+      <form on:submit|preventDefault={handleSubmit} class="space-y-4">
+        <div>
+          <label for="name" class="block text-sm font-medium text-gray-400">Name</label>
           <input
             type="text"
             id="name"
             bind:value={name}
             required
-            class="w-full p-2 rounded bg-white/50 border border-white/50 focus:outline-none focus:ring-2 focus:ring-white/80"
-            aria-label="Your name"
-            disabled={isLoading}
-          >
+            class="mt-1 block w-full px-3 py-2 bg-white/10 border border-gray-600 rounded-md shadow-sm placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          />
         </div>
-        <div class="mb-6">
-          <label for="contact" class="block mb-1">Contact Number</label>
+        <div>
+          <label for="contact" class="block text-sm font-medium text-gray-400">Contact Number</label>
           <input
             type="tel"
             id="contact"
             bind:value={contact}
             required
-            class="w-full p-2 rounded bg-white/50 border border-white/50 focus:outline-none focus:ring-2 focus:ring-white/80"
-            aria-label="Your contact number"
-            disabled={isLoading}
-          >
+            class="mt-1 block w-full px-3 py-2 bg-white/10 border border-gray-600 rounded-md shadow-sm placeholder-gray-500 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          />
         </div>
-        {#if errorMessage}
-          <div class="text-red-500 text-center mb-4" role="alert" aria-live="assertive">{errorMessage}</div>
-        {/if}
-        <GlassButton type="submit" loading={isLoading} class="w-full" ariaLabel="Confirm booking">
-          Confirm Booking
-        </GlassButton>
+        <div class="pt-4">
+          <GlassButton type="submit" disabled={isLoading}>
+            {#if isLoading}
+              Booking...
+            {:else}
+              Confirm Booking
+            {/if}
+          </GlassButton>
+        </div>
       </form>
     </GlassCard>
   </main>
