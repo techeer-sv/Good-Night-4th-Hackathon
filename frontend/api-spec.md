@@ -1,156 +1,374 @@
-# Tickettock Seat Reservation API Spec
+openapi: 3.1.0
+info:
+  title: Tickettock 공연 예약 시스템 API (Gateway + Backend)
+  version: 1.0.0
+  description: |
+    - 기본 베이스 URL: `http://localhost:8080`
+    - **흐름**: `/fcfs/join`(게이트웨이에서 FCFS 시퀀스 발급) → `/api/v1/seats/reservation/fcfs`(백엔드에서 좌석 배정)
+    - **중요 헤더**
+      - `X-User-Id` (필수: 조인/예약 모두)
+      - `X-Fcfs-Seq` (필수: 예약 시)
+      - `X-Admin-Token` (필수: 관리자 리셋)
+    - **주의**
+      - 예약 호출은 **빈 바디(무내용)** 전송을 권장합니다. JSON 바디를 보낼 경우에만 `Content-Type: application/json`을 사용하세요.
+      - 브라우저에서 시퀀스 헤더를 읽으려면 CORS에서 `Access-Control-Expose-Headers: X-Fcfs-Seq`가 설정되어 있어야 합니다.
+servers:
+  - url: http://localhost:8080
+tags:
+  - name: fcfs
+    description: 게이트웨이 선착순(FCFS) 조인
+  - name: seats
+    description: 좌석 조회/배정/상태 변경
+  - name: admin
+    description: 관리자 기능
 
-버전: 1.1.2 (Gateway 포트/경로 정정)
+components:
+  parameters:
+    XUserId:
+      name: X-User-Id
+      in: header
+      required: true
+      description: 클라이언트 식별자(선착순/예약 흐름 전반)
+      schema: { type: string, minLength: 1 }
+    XFcfsSeq:
+      name: X-Fcfs-Seq
+      in: header
+      required: true
+      description: 게이트웨이가 발급한 FCFS 시퀀스(`/fcfs/join` 응답 헤더)
+      schema: { type: string, pattern: '^\d+$' }
+    XAdminToken:
+      name: X-Admin-Token
+      in: header
+      required: true
+      description: 관리자 리셋 토큰(환경변수 `ADMIN_RESET_TOKEN`와 일치)
+      schema: { type: string, minLength: 1 }
 
-## 1. Overview
-- 좌석 목록/단건 조회  
-- FCFS(선착순) 예약  
-- Gateway(OpenResty)에서 **중복 차단 & 시퀀스 할당** → Salvo 백엔드가 **좌석 DB 원자적 예약** 수행
+  headers:
+    XFcfsSeqHeader:
+      description: 게이트웨이가 발급한 FCFS 시퀀스 값
+      schema: { type: string, pattern: '^\d+$' }
 
-## 2. Base URL (via Gateway)
-```http
-http://localhost:8080
-```
+  schemas:
+    StatusError:
+      type: object
+      required: [code, name, brief, detail]
+      properties:
+        code: { type: integer, format: uint16, minimum: 0 }
+        name: { type: string }
+        brief: { type: string }
+        detail: { type: string }
+        cause: { type: string, nullable: true }
 
-## 3. Global JSON Envelope
-| 구분 | 형태 |
-|---|---|
-| 성공 | `{ "success": true, ... }` |
-| 실패 | `{ "success": false, "reason": <code>, "message"?: <string> }` |
+    PublicSeatInfo:
+      type: object
+      description: |
+        공개 좌석 정보(개인정보 제외). 좌석 목록 조회 시 사용.
+      required: [id, status]
+      properties:
+        id:
+          type: integer
+          format: int32
+          description: 좌석 고유 ID
+        status:
+          type: boolean
+          description: true=예약됨, false=사용가능
 
-### 공통 Reason 코드
-`sold_out`, `duplicate`, `contention`, `already_reserved`,  
-`validation`, `internal_error`, `service_unavailable`,  
-`redis_error`, `missing_user`, `sequence_unavailable`,  
-`not_found`
+    SeatModel:
+      type: object
+      required: [status]
+      properties:
+        status: { type: boolean }
+        reserved_by: { type: string, nullable: true }
+        phone: { type: string, nullable: true }
 
-## 4. Endpoints
+    SeatUpdatePayload:
+      type: object
+      description: |
+        좌석 상태 업데이트 요청(관리/테스트 용도).
+      required: [status]
+      properties:
+        status:
+          type: boolean
+          description: true=예약됨, false=사용가능
 
-### 4.1 GET `/api/v1/seats`
-모든 좌석 목록 조회  
-- **200 OK**
-```json
-{ "success": true, "seats": [ { "id": 1, "status": true }, { "id": 2, "status": false } ] }
-```
+    ReservationResponse:
+      type: object
+      required: [success]
+      properties:
+        success: { type: boolean }
+        reason:  { type: string, nullable: true }
+        seat:
+          oneOf:
+            - { type: 'null' }
+            - { $ref: '#/components/schemas/PublicSeatInfo' }
+        remainingSeats:
+          type: integer
+          format: int64
+          nullable: true
+          description: 남은 미예약 좌석 수(참고용)
+        sequence:
+          type: integer
+          format: int64
+          nullable: true
+          description: 게이트웨이 할당 FCFS 시퀀스(헤더와 동일)
+        userTtlRemaining:
+          type: integer
+          format: int64
+          nullable: true
+          description: 사용자 키 TTL 잔여(초)
 
-### 4.2 GET `/api/v1/seats/{id}`
-단일 좌석 조회  
-- **200 OK**
-```json
-{ "success": true, "seat": { "id": 3, "status": true } }
-```
-- **404 Not Found**
-```json
-{ "success": false, "reason": "not_found" }
-```
+    ResetResponse:
+      type: object
+      description: 관리자 리셋 결과
+      required: [seatCount, sequence]
+      properties:
+        seatCount: { type: integer, format: int32 }
+        sequence:  { type: integer, format: int64 }
 
-### 4.3 POST `/fcfs/join`
-글로벌 FCFS 좌석 예약 (※ `/api/v1/seats/reservation/fcfs` **없음**)  
+paths:
+  /health:
+    get:
+      tags: [fcfs]
+      summary: 게이트웨이 헬스 체크
+      responses:
+        '200':
+          description: ok
+          content:
+            text/plain:
+              schema: { type: string, example: "ok\n" }
 
-#### Headers
-| Name | Required | Description |
-|---|---|---|
-| `X-User-Id` (= `FCFS_USER_HEADER`) | Yes | 사용자 식별(중복/순서) |
-| `X-Fcfs-Seq` | Gateway → Backend | Gateway가 Redis `INCR`로 채움 |
+  /healthz:
+    get:
+      tags: [fcfs]
+      summary: 게이트웨이 헬스 체크(z)
+      responses:
+        '200':
+          description: ok
+          content:
+            text/plain:
+              schema: { type: string, example: "ok\n" }
 
-#### Request Body
-```json
-{ "user_name": "Alice", "phone": "010-1234-5678" }
-```
+  /fcfs/join:
+    post:
+      tags: [fcfs]
+      summary: FCFS 조인(게이트웨이에서 시퀀스 발급)
+      description: |
+        - Redis 전역 시퀀스를 증가시켜 FCFS 순번을 발급합니다.
+        - **헤더**: `X-User-Id` 필수
+        - **응답 헤더**: `X-Fcfs-Seq` 포함(브라우저에서 읽으려면 CORS Expose 필요)
+        - **레이트리밋**: IP 기준 5r/s (burst 30)
+      parameters:
+        - $ref: '#/components/parameters/XUserId'
+      requestBody:
+        description: 선택 JSON(예: 사용자 이름/전화). 서버는 내용 없이도 처리 가능.
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+            examples:
+              minimal:
+                value: { }
+              withUserInfo:
+                value: { "user_name": "kim", "phone": "010-0000-0000" }
+      responses:
+        '200':
+          description: 시퀀스 발급 성공
+          headers:
+            X-Fcfs-Seq:
+              $ref: '#/components/headers/XFcfsSeqHeader'
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [success, sequence]
+                properties:
+                  success: { type: boolean, enum: [true] }
+                  sequence: { type: integer, format: int64 }
+                  userTtlRemaining: { type: integer, format: int64 }
+              examples:
+                ok:
+                  value: { success: true, sequence: 12, userTtlRemaining: 600 }
+        '409':
+          description: 이미 조인/예약된 사용자
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [success, reason]
+                properties:
+                  success: { type: boolean, enum: [false] }
+                  reason:  { type: string, enum: [already_reserved] }
+              examples:
+                dup:
+                  value: { success: false, reason: "already_reserved" }
+        '400':
+          description: 사용자 헤더 누락 등 요청 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusError'
+        '5XX':
+          description: 게이트웨이/Redis 오류
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusError'
 
-#### Success (200)
-```json
-{
-  "success": true,
-  "seat": { "id": 5, "status": true },
-  "remainingSeats": 3,
-  "userTtlRemaining": 870,
-  "sequence": 42
-}
-```
+  /api/v1/seats:
+    get:
+      tags: [seats]
+      summary: 좌석 목록 조회
+      responses:
+        '200':
+          description: 좌석 목록
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/PublicSeatInfo' }
+        '4XX':
+          description: 클라이언트 오류
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/StatusError' }
+        '5XX':
+          description: 서버 오류
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/StatusError' }
 
-#### 주요 실패
-| HTTP | reason | 의미 |
-|---|---|---|
-| 409 | sold_out | 남은 좌석 없음 |
-| 409 | duplicate | TTL 내 동일 사용자/IP 재시도 |
-| 409 | contention | 좌석 경합 재시도 한계 / 충돌 |
-| 409 | already_reserved | 동일 사용자 이전 성공 기록(멱등) |
-| 400 | validation | 본문 파싱/필수값 오류 |
-| 400 | missing_user | 헤더 미존재 |
-| 503 | service_unavailable | Gateway Redis 연결 실패 |
-| 503 | redis_error | Gateway Lua Redis 실행 오류 |
-| 503 | sequence_unavailable | 시퀀스 `INCR` 실패 |
-| 500 | internal_error | 백엔드 내부 예외 |
+  /api/v1/seats/{id}:
+    get:
+      tags: [seats]
+      summary: 좌석 상세 조회
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer, format: int32 }
+      responses:
+        '200':
+          description: 좌석 정보
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SeatModel' }
+        '404':
+          description: 미존재 좌석
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/StatusError' }
+    put:
+      tags: [seats]
+      summary: 좌석 상태 직접 변경
+      description: 테스트/관리 목적. 일반 사용자 시나리오에서는 사용하지 않습니다.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer, format: int32 }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SeatUpdatePayload' }
+            examples:
+              reserve: { value: { status: true } }
+              release: { value: { status: false } }
+      responses:
+        '200':
+          description: 변경된 좌석 모델
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/SeatModel' }
+        '4XX':
+          description: 요청 오류
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/StatusError' }
 
-## 5. Response Schemas (TypeScript)
-```ts
-interface Seat { id: number; status: boolean }
+  /api/v1/seats/reservation/fcfs:
+    post:
+      tags: [seats]
+      summary: FCFS 좌석 예약 확정(백엔드)
+      description: |
+        - **헤더 필수**: `X-User-Id`, `X-Fcfs-Seq`
+        - **요청 바디**: 기본은 **빈 바디** 권장. JSON 바디를 보낼 경우에만 `Content-Type: application/json` 사용.
+      parameters:
+        - $ref: '#/components/parameters/XUserId'
+        - $ref: '#/components/parameters/XFcfsSeq'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: true
+            examples:
+              emptyObject:
+                summary: (권장 아님) 빈 JSON 객체
+                value: {}
+      responses:
+        '200':
+          description: 예약 성공
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ReservationResponse' }
+              examples:
+                ok:
+                  value:
+                    success: true
+                    seat: { id: 17, status: true }
+                    remainingSeats: 83
+                    sequence: 12
+        '409':
+          description: 중복/경합으로 예약 불가
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ReservationResponse' }
+              examples:
+                dup:
+                  value:
+                    success: false
+                    reason: "already_reserved"
+                    remainingSeats: 82
+        '400':
+          description: 잘못된 요청(헤더 누락, 잘못된 Content-Type/바디 등)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/StatusError' }
+        '5XX':
+          description: 서버 오류
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/StatusError' }
 
-interface SeatsListResponse { success: true; seats: Seat[] }
-interface SeatDetailResponse { success: true; seat: Seat }
-
-type Reason =
-  | 'sold_out' | 'duplicate' | 'contention' | 'already_reserved'
-  | 'validation' | 'internal_error' | 'service_unavailable'
-  | 'redis_error' | 'missing_user' | 'sequence_unavailable'
-  | 'not_found'
-
-interface FcfsSuccessResponse {
-  success: true;
-  seat: Seat;
-  remainingSeats?: number;
-  userTtlRemaining?: number;
-  sequence: number; // Gateway 할당
-}
-interface ErrorResponse { success: false; reason: Reason; message?: string }
-```
-
-## 6. Gateway Behavior
-| 기능 | 설명 | 구현 |
-|---|---|---|
-| 중복 방지 | SHA Lua 스크립트(user+ip key) | 완료 |
-| 시퀀스 할당 | `INCR fcfs:seq` → `X-Fcfs-Seq` 헤더 | 완료 |
-| 에러 표준화 | 모든 실패 `{success:false,reason}` | 완료 |
-| 래핑 옵션 | `?wrap=1` → gatewayWrapped JSON | 덤프용 |
-
-## 7. Environment Variables
-| Env | 용도 | 기본 | 참고 |
-|---|---|---|---|
-| FCFS_USER_HEADER | 사용자 헤더명 | `X-User-Id` | Gateway/Backend 공유 |
-| FCFS_USER_TTL | 사용자 중복 TTL(sec) | 900 | 0=만료없음 |
-| REDIS_HOST / REDIS_PORT | Redis 주소 | `redis` / `6379` | docker-compose 기준 |
-| REDIS_PASSWORD | Redis 비밀번호 | `redis_pass` | 필요시 변경 |
-| APP_PORT | 백엔드 포트 | `5800` | Backend 내부 |
-| GATEWAY_EXTERNAL_PORT | Gateway 외부 포트 | `8080` | **Base URL과 연동** |
-| RUST_LOG | 로그 레벨 | `info` | `debug` 상세 |
-
-## 8. Error Semantics & Retry
-| reason | 재시도 전략 | 비고 |
-|---|---|---|
-| duplicate | TTL 후 재시도 | 사용자/IP key 만료 필요 |
-| contention | 즉시 또는 백오프 | 좌석 경합 상황 |
-| sold_out | 불필요 | 재고 0 |
-| already_reserved | 불필요 | 멱등 성공 |
-| validation | 수정 후 재시도 | 입력 검증 |
-| missing_user | 헤더 추가 후 재시도 | 클라이언트 오류 |
-| service_unavailable | 백오프 후 재시도 | 인프라 장애 |
-| redis_error | 백오프 후 재시도 | Gateway Redis Lua 실패 |
-| sequence_unavailable | 짧은 백오프 재시도 | INCR 실패 |
-| internal_error | 모니터링 후 조건부 재시도 | 서버 오류 |
-
-## 9. cURL Examples
-```bash
-# 좌석 목록 조회 (via Gateway 8080)
-curl -s http://localhost:8080/api/v1/seats
-
-# 단일 좌석 조회
-curl -s http://localhost:8080/api/v1/seats/1
-
-# FCFS 예약
-curl -s -X POST http://localhost:8080/fcfs/join \
-  -H 'X-User-Id: user-123' \
-  -H 'Content-Type: application/json' \
-  -d '{"user_name":"Alice","phone":"010-1234-5678"}'
-```
-
+  /api/v1/seats/reset:
+    post:
+      tags: [admin]
+      summary: 좌석/시퀀스 초기화(관리자)
+      description: |
+        - 모든 좌석을 비우고 재생성, Redis FCFS 시퀀스를 0으로 초기화
+        - **헤더 필수**: `X-Admin-Token`
+      parameters:
+        - $ref: '#/components/parameters/XAdminToken'
+      responses:
+        '200':
+          description: 리셋 성공
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ResetResponse' }
+              examples:
+                ok:
+                  value: { seatCount: 100, sequence: 0 }
+        '401':
+          description: 토큰 불일치/권한 없음
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/StatusError' }
+        '5XX':
+          description: 서버 오류
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/StatusError' }

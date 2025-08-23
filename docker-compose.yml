@@ -20,8 +20,8 @@ services:
     container_name: redis
     environment:
       - REDIS_PASSWORD=${REDIS_PASSWORD}
-    command: >
-      sh -c 'exec redis-server /usr/local/etc/redis/redis.conf --requirepass "$${REDIS_PASSWORD}"'
+    command: 
+      sh -c 'exec redis-server /usr/local/etc/redis/redis.conf --requirepass "${REDIS_PASSWORD}"'
     ports:
       - "${REDIS_EXTERNAL_PORT}:6379"
     volumes:
@@ -61,8 +61,8 @@ services:
       - REDIS_HOST=${REDIS_HOST}
       - REDIS_PORT=${REDIS_PORT}
       - REDIS_PASSWORD=${REDIS_PASSWORD}
-      - DEFAULT_DUP_TTL=${DEFAULT_DUP_TTL}
-      - FCFS_USER_HEADER=${FCFS_USER_HEADER}
+      - FCFS_REDIS_PREFIX=fcfs
+      - FCFS_USER_TTL=600
     depends_on:
       - backend
       - redis
