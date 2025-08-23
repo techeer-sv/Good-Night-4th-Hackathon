@@ -18,14 +18,14 @@ export const actions: Actions = {
   default: async ({ request }) => {
     const formData = await request.formData();
     const seatId = formData.get('seatId');
-    const name = formData.get('name');
-    const contact = formData.get('contact');
+    const name = formData.get('name') as string;
+    const contact = formData.get('contact') as string;
 
     if (!seatId) {
       return fail(400, { message: 'No seat ID provided.' });
     }
 
-    // Simple validation for name and contact
+    // Validation for name and contact
     if (!name || !contact) {
       return fail(400, { message: 'Name and contact are required.', name, contact });
     }
@@ -34,18 +34,9 @@ export const actions: Actions = {
     const result = bookSeat(id);
 
     if (!result.success) {
-      // Standardize all error messages to use the `message` property
       return fail(409, { message: result.error || 'Failed to book seat.' });
     }
 
-    // On success, return the UPDATED list of all seats.
-    const updatedApiSeats = getSeats();
-    initializeSeats(updatedApiSeats);
-    const updatedSeatData = get(seats);
-
-    return {
-      success: true,
-      seats: updatedSeatData
-    };
+    return { success: true };
   }
 };

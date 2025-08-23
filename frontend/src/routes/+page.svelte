@@ -9,30 +9,39 @@
 <script lang="ts">
   import { selectedSeatId } from '$lib/stores/booking';
   import { enhance } from '$app/forms';
+  import { invalidateAll } from '$app/navigation';
   export let data;
+  export let form; // This prop receives data from form actions
 
   // This reactive statement ensures that our local `seats` variable
   // always stays in sync with the data passed from the `load` function.
   $: seats = data.seats;
 
   let showPopup = false;
-  let errorMessage: string | null = null;
 
-  // When a seat radio button is changed, update the store and show the popup.
   function handleSeatChange(event: Event) {
     const input = event.target as HTMLInputElement;
     const seatId = parseInt(input.value, 10);
     selectedSeatId.set(seatId);
-    errorMessage = null; // Clear previous errors
     showPopup = true;
   }
 
-  // When closing the popup, reset the selected seat in the store.
   function closePopup() {
     showPopup = false;
     selectedSeatId.set(null);
-    errorMessage = null;
   }
+
+  const handleSubmit = () => {
+    return async ({ result, update }) => {
+      if (result.type === 'success') {
+        await invalidateAll(); // Re-run all load functions
+        closePopup();
+      }
+      // Let SvelteKit handle form updates (e.g., showing errors)
+      // `reset: false` prevents form fields from being cleared on validation error
+      await update({ reset: false });
+    };
+  };
 </script>
 
 <div class="relative min-h-screen flex flex-col">
@@ -71,11 +80,19 @@
         <div class="grid grid-cols-3 gap-5">
           {#each seats as seat (seat.id)}
             {#if seat.state === 'booked'}
-              <div class="aspect-square flex items-center justify-center bg-gray-200/70 rounded-2xl cursor-not-allowed shadow-inner backdrop-blur-sm">
+              <div
+                data-seat-id={seat.id}
+                data-state="booked"
+                class="aspect-square flex items-center justify-center bg-gray-200/70 rounded-2xl cursor-not-allowed shadow-inner backdrop-blur-sm"
+              >
                 <span class="text-lg font-medium text-gray-500 opacity-70">{seat.id}</span>
               </div>
             {:else}
-              <label class="group cursor-pointer">
+              <label
+                data-seat-id={seat.id}
+                data-state="available"
+                class="group cursor-pointer"
+              >
                 <input
                   class="peer sr-only"
                   name="seat"
@@ -122,34 +139,22 @@
           </div>
           <form
             method="POST"
-            use:enhance={({ form, data, action, cancel }) => {
-              errorMessage = null; // Clear previous errors on new submission
-              return async ({ result }) => {
-                if (result.type === 'failure') {
-                  errorMessage = result.data?.message || 'An unknown error occurred.';
-                }
-                if (result.type === 'success' && result.data?.seats) {
-                  // @ts-ignore
-                  seats = result.data.seats;
-                  closePopup();
-                }
-              };
-            }}
+            use:enhance={handleSubmit}
             class="space-y-6"
           >
             <input type="hidden" name="seatId" value={$selectedSeatId} />
             <div>
               <label class="block text-sm font-medium text-[var(--md-sys-color-on-surface-variant)] mb-1" for="name">Name</label>
-              <input class="block w-full px-3 py-2 border border-[var(--md-sys-color-outline)] rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent sm:text-sm bg-white/50" id="name" name="name" required type="text" />
+              <input class="block w-full px-3 py-2 border border-[var(--md-sys-color-outline)] rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent sm:text-sm bg-white/50" id="name" name="name" required type="text" value={form?.name ?? ''} />
             </div>
             <div>
               <label class="block text-sm font-medium text-[var(--md-sys-color-on-surface-variant)] mb-1" for="contact">Contact Number</label>
-              <input class="block w-full px-3 py-2 border border-[var(--md-sys-color-outline)] rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent sm:text-sm bg-white/50" id="contact" name="contact" required type="tel" />
+              <input class="block w-full px-3 py-2 border border-[var(--md-sys-color-outline)] rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent sm:text-sm bg-white/50" id="contact" name="contact" required type="tel" value={form?.contact ?? ''} />
             </div>
 
-            {#if errorMessage}
+            {#if form?.message}
               <div class="text-red-600 text-sm bg-red-100 p-3 rounded-lg text-center">
-                {errorMessage}
+                {form.message}
               </div>
             {/if}
 
