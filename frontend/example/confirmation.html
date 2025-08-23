@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Showtix - Confirmation</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<style type="text/tailwindcss">
+      :root {
+        --primary-color: #6200EE;
+        --background-color: #F5F5F5;
+        --surface-color: #FFFFFF;
+        --on-primary: #FFFFFF;
+        --on-surface: #000000;
+        --on-surface-variant: #616161;
+        --glass-bg: rgba(255, 255, 255, 0.7);
+        --glass-border: rgba(0, 0, 0, 0.1);
+      }
+      body {
+        font-family: 'Roboto', sans-serif;
+        background-color: var(--background-color);
+        color: var(--on-surface);
+      }
+      .surface-card {
+        @apply bg-[var(--surface-color)] rounded-lg shadow-md;
+      }
+      .glass-button {
+        @apply bg-[var(--glass-bg)] backdrop-blur-sm border border-[var(--glass-border)] rounded-full shadow-sm transition-all duration-300;
+      }
+    </style>
+</head>
+<body class="text-[var(--on-surface)]">
+<div class="min-h-screen">
+<header class="p-4 md:px-10 flex justify-between items-center bg-[var(--surface-color)] shadow-sm">
+<div class="flex items-center gap-3">
+<svg class="h-8 w-8 text-[var(--primary-color)]" fill="none" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+<path d="M36.7273 44C33.9891 44 31.6043 39.8386 30.3636 33.69C29.123 39.8386 26.7382 44 24 44C21.2618 44 18.877 39.8386 17.6364 33.69C16.3957 39.8386 14.0109 44 11.2727 44C7.25611 44 4 35.0457 4 24C4 12.9543 7.25611 4 11.2727 4C14.0109 4 16.3957 8.16144 17.6364 14.31C18.877 8.16144 21.2618 4 24 4C26.7382 4 29.123 8.16144 30.3636 14.31C31.6043 8.16144 33.9891 4 36.7273 4C40.7439 4 44 12.9543 44 24C44 35.0457 40.7439 44 36.7273 44Z" fill="currentColor"></path>
+</svg>
+<h1 class="text-2xl font-bold text-[var(--on-surface)]">Showtix</h1>
+</div>
+<nav class="hidden md:flex items-center gap-8">
+<a class="text-sm font-medium text-gray-600 hover:text-[var(--primary-color)] transition-colors" href="#">Home</a>
+<a class="text-sm font-medium text-gray-600 hover:text-[var(--primary-color)] transition-colors" href="#">My Tickets</a>
+<a class="text-sm font-medium text-gray-600 hover:text-[var(--primary-color)] transition-colors" href="#">Explore</a>
+</nav>
+<div class="flex items-center gap-4">
+<button class="p-2 rounded-full hover:bg-gray-100 transition-colors">
+<svg class="text-gray-600" fill="currentColor" height="24px" viewBox="0 0 24 24" width="24px" xmlns="http://www.w3.org/2000/svg">
+<path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z" fill-opacity="0.7"></path>
+</svg>
+</button>
+<div class="w-10 h-10 rounded-full bg-cover bg-center" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuBai6F6YhVnr_BpJRYdv319OfExcIdKmyzfHDdKzZgTrYZUfP9quUYolEvI7cY7CurxcyFpesljjBlE9WlBDYA8kR-lQSHZyzNrzM1Gr8fPy0mI70FPNWQVeVfipZuR1I7t6GyvCF4JnRuotqs3ANm4b1QeCyiOiPDc_HEdZRi_oQEcx5vGtuYsz9kz2-kOJq5tgiLJFlatcAg1Ktw2I4v-Sj30NKhI3Q3JvF36JXGLFphnexBoqXPmnv9DcbfIVDXx-Sq9i84OZQA");'></div>
+</div>
+</header>
+<main class="flex flex-col items-center justify-center p-4 py-10 md:py-20">
+<div class="surface-card w-full max-w-2xl p-6 md:p-10">
+<div class="text-center">
+<h2 class="text-3xl md:text-4xl font-medium text-[var(--on-surface)]">Confirm Your Booking</h2>
+<p class="text-gray-500 mt-2">Please review your booking details before confirming.</p>
+</div>
+<div class="mt-8 space-y-8">
+<div>
+<h3 class="text-lg font-medium text-[var(--primary-color)] border-b border-gray-200 pb-3 mb-4">Performance Details</h3>
+<div class="space-y-4 text-sm">
+<div class="flex justify-between">
+<span class="text-gray-500">Performance</span>
+<span class="font-medium text-[var(--on-surface)]">The Enchanted Forest</span>
+</div>
+<div class="flex justify-between">
+<span class="text-gray-500">Date</span>
+<span class="font-medium text-[var(--on-surface)]">July 15, 2024</span>
+</div>
+<div class="flex justify-between">
+<span class="text-gray-500">Time</span>
+<span class="font-medium text-[var(--on-surface)]">7:00 PM</span>
+</div>
+<div class="flex justify-between">
+<span class="text-gray-500">Venue</span>
+<span class="font-medium text-[var(--on-surface)]">The Grand Theater</span>
+</div>
+</div>
+</div>
+<div>
+<h3 class="text-lg font-medium text-[var(--primary-color)] border-b border-gray-200 pb-3 mb-4">Seat Selection</h3>
+<div class="space-y-4 text-sm">
+<div class="flex justify-between">
+<span class="text-gray-500">Seat</span>
+<span class="font-medium text-[var(--on-surface)]">Row B, Seat 2</span>
+</div>
+<div class="flex justify-between">
+<span class="text-gray-500">Price</span>
+<span class="font-medium text-[var(--on-surface)]">$50.00</span>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-12 flex flex-col sm:flex-row gap-4">
+<button class="w-full sm:w-auto flex-1 py-3 px-6 glass-button text-gray-700 font-medium hover:bg-gray-200/50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-gray-400">
+                Back
+              </button>
+<button class="w-full sm:w-auto flex-1 py-3 px-6 rounded-full bg-[var(--primary-color)] text-[var(--on-primary)] font-medium shadow-md hover:bg-purple-700 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-[var(--primary-color)]">
+                Confirm Booking
+              </button>
+</div>
+</div>
+</main>
+</div>
+
+</body></html>

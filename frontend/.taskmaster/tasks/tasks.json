@@ -1,0 +1,479 @@
+{
+  "0": {
+    "id": 1,
+    "tag": "master",
+    "title": "README 개선: Taskmaster + Context7 사용 문서화",
+    "description": "프로젝트에 Taskmaster로 태스크를 관리하는 방법과 Context7 기반 연구 흐름을 소개하는 문서를 추가한다.",
+    "status": "in-progress",
+    "priority": "medium",
+    "dependencies": [],
+    "details": "DocsRef:\n- source: /sveltejs/kit (topic: packaging)\n- note: 라이브러리 패키징/배포 흐름과 개발 서버 사용법을 문서 맥락에 반영. Taskmaster 워크플로우(목록 → 다음 → 세부 → 확장 → 구현 → 로그 → 상태)를 README에 추가.\nImplementation:\n- README에 Taskmaster와 MCP(Context7) 사용법을 명확히 안내하는 섹션을 추가한다.\n- 예시 명령어: list/next/show/expand/analyze/generate.\n- Context7 연구 사용 지침을 간단히 안내하고, 연구 결과는 update-subtask로 타임스탬프 로그를 남기도록 권장.",
+    "testStrategy": "- README에 신규 섹션이 존재하고, 명령 예시가 올바르게 표시되는지 확인\n- Taskmaster list/next 등의 명령이 실행 가능한지(환경 설정 후) 수동 점검",
+    "subtasks": [
+      {
+        "id": "1.1",
+        "title": "README에 'Taskmaster: Tasks and Research (Context7)' 섹션 추가",
+        "status": "done",
+        "details": "Taskmaster 기본 루프, MCP 우선 사용, Context7 문서 기반 인용 워크플로우와 명령 예시를 README에 추가.",
+        "dependencies": []
+      },
+      {
+        "id": "1.2",
+        "title": "CONTRIBUTING.md에 태스크 기반 개발 가이드 추가",
+        "status": "pending",
+        "details": "브랜치 전략, 태그(tag) 활용, 태스크/서브태스크 작업 흐름을 기여 가이드로 정리.",
+        "dependencies": []
+      },
+      {
+        "id": "1.3",
+        "title": "샘플 PRD 작성 및 parse-prd 안내",
+        "status": "pending",
+        "details": ".taskmaster/templates/example_prd.txt를 기반으로 PRD 템플릿을 복사 작성하고 parse-prd 사용 예시를 문서화.",
+        "dependencies": []
+      }
+    ]
+  },
+  "1": {
+    "id": 2,
+    "tag": "master",
+    "title": "기여 가이드(선택): CONTRIBUTING.md 생성",
+    "description": "협업자를 위한 개발, 커밋 메시지, 테스트, 릴리스 절차 안내서를 생성한다.",
+    "status": "pending",
+    "priority": "low",
+    "dependencies": [],
+    "details": "Taskmaster 태그 전략(브랜치 연계), 태스크 이동/의존성 관리(add/remove-dependency), expand/clear-subtasks 사용 예시 포함.",
+    "testStrategy": "문서 가독성 점검 및 팀 합의 반영"
+  },
+  "2": {
+    "id": 3,
+    "tag": "master",
+    "title": "PRD 구현: 좌석 예약 플로우 (Select → Details → Confirm/Failed) 전 기능",
+    "description": "PRD 명세에 따라 SvelteKit + Tailwind 기반 좌석 선택, 예약, 확인/실패 흐름과 공유 컴포넌트/스토어/API/테스트를 구현한다.",
+    "status": "pending",
+    "priority": "high",
+    "dependencies": [],
+    "details": "Acceptance: 모든 페이지가 반응형/접근성 요구사항을 충족하며, API 단위 테스트(성공/경합 케이스)가 통과해야 함.",
+    "testStrategy": "E2E 수동 검증(좌석 선택→모달→상세→확인/실패 라우팅) + API 유닛테스트(성공/409 seat_unavailable)",
+    "subtasks": [
+      {
+        "id": "3.1",
+        "title": "스토어/타입 정의: src/lib/stores/booking.ts",
+        "status": "done",
+        "dependencies": [],
+        "details": "Plan:\n- 타입 정의: SeatState('available'|'booked'|'selected'), Seat{id,state}, BookingInfo{name,contact,seatId}\n- 스토어 생성: seats(초기 3x3 상태 반영: A2/B2/C2=booked), booking(null)\n- 내보내기: seats, booking 및 타입들 export\nOutcome:\n- src/lib/stores/booking.ts 파일 생성 및 위 요건 반영 완료"
+      },
+      {
+        "id": "3.2",
+        "title": "공유 컴포넌트 구현(1): Header, StageChip",
+        "status": "done",
+        "dependencies": [
+          "3.1"
+        ],
+        "details": "Plan: brand/nav를 받는 Header와 STAGE pill StageChip을 Tailwind로 접근성 고려해 구현.\nOutcome: src/lib/components/Header.svelte, StageChip.svelte 생성 및 Tailwind 기반 스타일/포커스/반응형 적용 완료."
+      },
+      {
+        "id": "3.3",
+        "title": "공유 컴포넌트 구현(2): Seat, SeatGrid",
+        "status": "done",
+        "dependencies": [
+          "3.1"
+        ],
+        "details": "Plan: Seat(키보드/스크린리더 대응, 클릭/키다운 선택 처리), SeatGrid(스토어 구독, 3x3 렌더, select 이벤트 디스패치) 구현.\nOutcome: src/lib/components/Seat.svelte, SeatGrid.svelte 생성 완료. 상태별 스타일(available/booked/selected), 접근성 속성(role, tabindex, aria-disabled) 적용."
+      },
+      {
+        "id": "3.4",
+        "title": "공유 컴포넌트 구현(3): BookingModal, GlassButton, GlassCard",
+        "status": "done",
+        "dependencies": [
+          "3.1"
+        ],
+        "details": "Plan: BookingModal(ESC/탭 포커스 트랩, submit/close 이벤트), GlassButton/GlassCard(글래시 스타일 래퍼) 구현.\nOutcome: src/lib/components/BookingModal.svelte, GlassButton.svelte, GlassCard.svelte 생성 및 접근성/스타일 적용 완료."
+      },
+      {
+        "id": "3.5",
+        "title": "/select 페이지 구현(+page.svelte)",
+        "status": "done",
+        "dependencies": [
+          "3.2",
+          "3.3",
+          "3.4"
+        ],
+        "details": "Plan: SeatGrid select → 모달 open/close → booking 저장 → /details 이동 흐름 구성. 헤더/그라데이션/StageChip/범례 반영.\nOutcome: src/routes/select/+page.svelte 구현 완료. on:select로 좌석 선택, BookingModal에서 submit 시 booking 스토어 세팅 후 /details로 이동."
+      },
+      {
+        "id": "3.6",
+        "title": "/details 페이지 구현(+page.svelte)",
+        "status": "done",
+        "dependencies": [
+          "3.1",
+          "3.7"
+        ],
+        "details": "Plan: booking 스토어 프리필, 전송 중 비활성화, /api/book 호출 후 200→/confirm, 409→/failed 라우팅.\nOutcome: src/routes/details/+page.svelte 리팩터 완료(스토어 기반 프리필 및 라우팅 처리). GlassButton에 loading/disabled 지원 추가."
+      },
+      {
+        "id": "3.7",
+        "title": "API 엔드포인트: POST /api/book, (옵션) GET /api/seats",
+        "status": "done",
+        "dependencies": [
+          "3.1"
+        ],
+        "details": "Plan: 인메모리 스토어(seats) 기반으로 예약 처리(이미 예약 시 409 seat_unavailable, 성공 시 200 ok) 및 현재 좌석 배열 조회 엔드포인트 구현.\nOutcome: POST /api/book, GET /api/seats를 스토어 기반으로 수정 완료."
+      },
+      {
+        "id": "3.8",
+        "title": "/confirm 페이지 구현(+page.svelte)",
+        "status": "done",
+        "dependencies": [
+          "3.6"
+        ],
+        "details": "Plan: 선택 좌석과 모킹된 공연 정보 표시, 뒤로가기/확인 버튼 구성.\nOutcome: src/routes/confirm/+page.svelte 구현 완료. seatId를 URL 또는 booking 스토어에서 가져오고, 확인 시 성공 로그 출력."
+      },
+      {
+        "id": "3.9",
+        "title": "/failed 페이지 구현(+page.svelte)",
+        "status": "done",
+        "dependencies": [
+          "3.6"
+        ],
+        "details": "Plan: 실패 안내 UI, 최신 좌석 그리드 표시, 재시도(/select)와 'View Updated Seats'(좌석 새로고침) 구현.\nOutcome: src/routes/failed/+page.svelte 구현 완료. 최초 마운트 및 버튼 클릭 시 /api/seats를 호출해 seats 스토어를 동기화."
+      },
+      {
+        "id": "3.10",
+        "title": "스타일/아이콘 통합",
+        "status": "done",
+        "dependencies": [
+          "3.2",
+          "3.3",
+          "3.4",
+          "3.5",
+          "3.6",
+          "3.8",
+          "3.9"
+        ],
+        "details": "Plan: 전역 토큰(--color-primary 등)과 .glassy 유틸 추가, Material Icons preconnect 설정, Seat 컴포넌트 중복 제거 및 glassy 적용.\nOutcome: app.css에 토큰/유틸 추가, app.html preconnect 추가, Seat.svelte 중복 스크립트/마크업 정리 및 스타일 일관성 확보."
+      },
+      {
+        "id": "3.11",
+        "title": "접근성 정비",
+        "status": "done",
+        "dependencies": [
+          "3.4",
+          "3.5"
+        ],
+        "details": "Plan: 모달에 tabindex/aria-labelledby/aria-describedby 추가, 에러 메시지 라이브 리전, 장식 아이콘 aria-hidden 처리.\nOutcome: BookingModal에 포커스 트랩 라벨링 보강, details 오류 메시지에 role='alert'와 aria-live 적용, failed 아이콘 aria-hidden 적용 완료."
+      },
+      {
+        "id": "3.12",
+        "title": "API 단위 테스트 추가",
+        "status": "pending",
+        "dependencies": [
+          "3.7"
+        ],
+        "details": "성공 케이스(200)와 좌석 충돌(409) 테스트 작성 및 통과."
+      }
+    ]
+  },
+  "3": {
+    "id": 4,
+    "tag": "master",
+    "title": "Tickettock API(Mock) 구현",
+    "description": "PRD의 Tickettock 좌석 예약 API 스펙(JSON Envelope, reason 코드, FCFS, TTL, 시퀀스) 기반 로컬 모의 엔드포인트 구현",
+    "status": "in-progress",
+    "priority": "high",
+    "dependencies": [],
+    "details": "Base: /api/v1; Endpoints: GET /seats, GET /seats/{id}, POST /seats/reservation/fcfs. Envelope { success: true|false, ... }, 실패 시 reason 코드를 명세에 맞춰 반환.",
+    "testStrategy": "수동 호출로 성공/에러(status code) 확인 후, 4.5에서 유닛 테스트 추가",
+    "subtasks": [
+      {
+        "id": "4.1",
+        "title": "GET /api/v1/seats 구현",
+        "status": "done",
+        "dependencies": [],
+        "details": "응답: { success: true, seats: { id:number, status:boolean }[] }"
+      },
+      {
+        "id": "4.2",
+        "title": "GET /api/v1/seats/{id} 구현",
+        "status": "done",
+        "dependencies": [],
+        "details": "성공: { success: true, seat }, 실패: 404 { success:false, reason:'not_found' }"
+      },
+      {
+        "id": "4.3",
+        "title": "POST /api/v1/seats/reservation/fcfs 구현",
+        "status": "done",
+        "dependencies": [],
+        "details": "헤더 X-User-Id 필수(missing_user=400), 본문 검증(validation=400), sold_out/duplicate=409, 성공 시 { success:true, seat, remainingSeats, userTtlRemaining, sequence }"
+      },
+      {
+        "id": "4.4",
+        "title": "UI 연동(선택): /details에서 fcfs API 사용",
+        "status": "done",
+        "dependencies": [
+          "4.3"
+        ],
+        "details": "details 페이지가 /api/v1/seats/reservation/fcfs를 호출하도록 전환하고, X-User-Id를 localStorage 기반으로 추가. 성공 시 반환된 seat.id로 /confirm 이동, 409 계열은 /failed 이동."
+      },
+      {
+        "id": "4.5",
+        "title": "Tickettock API 유닛 테스트 추가",
+        "status": "pending",
+        "dependencies": [
+          "4.1",
+          "4.2",
+          "4.3"
+        ],
+        "details": "성공/중복/품절/검증 실패/미싱 유저 헤더 등 케이스"
+      }
+    ]
+  },
+  "prd": {
+    "tasks": [
+      {
+        "id": 1,
+        "title": "Initialize SvelteKit Project with TailwindCSS and Bun",
+        "description": "Set up the basic project structure using SvelteKit, configure TailwindCSS for styling, and ensure the project runs with the `bun` package manager. Enable TypeScript.",
+        "details": "Create a new SvelteKit project using `bun create svelte@latest my-app`. Select the 'Skeleton project' option with TypeScript, ESLint, and Prettier. Add TailwindCSS using `npx svelte-add@latest tailwindcss`. Configure `tailwind.config.cjs` and `postcss.config.cjs`. Add the Material Icons webfont link to `src/app.html`.",
+        "testStrategy": "The SvelteKit development server starts successfully using `bun run dev`. A sample component with a TailwindCSS class (e.g., `bg-blue-500`) renders correctly in the browser.",
+        "priority": "high",
+        "dependencies": [],
+        "status": "done",
+        "subtasks": []
+      },
+      {
+        "id": 2,
+        "title": "Create Booking Stores and TypeScript Types",
+        "description": "Implement the central state management file containing Svelte stores and TypeScript interfaces for booking data, as specified in the PRD.",
+        "details": "Create the file `src/lib/stores/booking.ts`. Define and export the types `SeatState`, `Seat`, and `BookingInfo`. Create and export the `seats` writable store with the initial 3x3 grid data. Create and export the `booking` writable store, initialized to `null`.",
+        "testStrategy": "The file `src/lib/stores/booking.ts` must exist and export the specified types and stores without any TypeScript errors. The stores should be importable and usable in other components.",
+        "priority": "high",
+        "dependencies": [
+          1
+        ],
+        "status": "done",
+        "subtasks": []
+      },
+      {
+        "id": 3,
+        "title": "Build Glassmorphism Utility Components",
+        "description": "Create reusable utility components `GlassButton.svelte` and `GlassCard.svelte` to provide a consistent glassmorphism style.",
+        "details": "Create `src/lib/components/GlassButton.svelte` and `src/lib/components/GlassCard.svelte`. Implement the glassy background, rounded corners (`rounded-2xl`), and shadow styles using TailwindCSS as described in the PRD's style parity section. These components will act as styled wrappers using `<slot>`.",
+        "testStrategy": "Components render correctly on a test page. They accept content via `<slot>` and apply the expected CSS classes for the glass effect.",
+        "priority": "medium",
+        "dependencies": [
+          1
+        ],
+        "status": "done",
+        "subtasks": []
+      },
+      {
+        "id": 4,
+        "title": "Build Reusable Header Component",
+        "description": "Create a shared `Header.svelte` component that can display different brand titles across various pages.",
+        "details": "Create `src/lib/components/Header.svelte`. It must accept a `brand` string prop to display titles like 'SeatFinder', 'StageSeats', and 'Showtix'. It should also support an optional `nav` prop for navigation links.",
+        "testStrategy": "Render the component with different `brand` props (e.g., `<Header brand=\"SeatFinder\" />`) and verify the output title is correct and styled according to the mockups.",
+        "priority": "medium",
+        "dependencies": [
+          1
+        ],
+        "status": "done",
+        "subtasks": []
+      },
+      {
+        "id": 5,
+        "title": "Build StageChip Component",
+        "description": "Create the simple, reusable 'STAGE' pill component.",
+        "details": "Create `src/lib/components/StageChip.svelte`. Style it as a pill-shaped chip with the text 'STAGE' inside, matching the mockup's gradient background and styling.",
+        "testStrategy": "Render the component on a test page and verify its appearance matches the design specifications from the PRD.",
+        "priority": "low",
+        "dependencies": [
+          1
+        ],
+        "status": "done",
+        "subtasks": []
+      },
+      {
+        "id": 6,
+        "title": "Build Interactive Seat Component",
+        "description": "Create the component for a single seat, handling its different visual states and user interactions.",
+        "details": "Create `src/lib/components/Seat.svelte`. It must accept props: `id` (string), `state` ('available'|'booked'|'selected'), and an `onSelect` click handler. Implement conditional styling for each state. For accessibility, use `role='button'`, set `tabindex` to -1 for booked seats, and `aria-disabled='true'` for booked seats.",
+        "testStrategy": "Render the component in all three states ('available', 'booked', 'selected') to verify visual appearance and ARIA attributes. Clicking an 'available' seat must trigger the `onSelect` handler. Clicking a 'booked' seat must do nothing.",
+        "priority": "high",
+        "dependencies": [
+          1
+        ],
+        "status": "done",
+        "subtasks": []
+      },
+      {
+        "id": 7,
+        "title": "Build SeatGrid Component",
+        "description": "Create a component to render the 3x3 grid of seats and handle seat selection events.",
+        "details": "Create `src/lib/components/SeatGrid.svelte`. It should read the `seats` array from the `booking.ts` store and render a `Seat.svelte` component for each item. When a seat is clicked, it must emit a `select` event with the `seatId`. The component should also include the legend for 'Available / Booked / Selected' states.",
+        "testStrategy": "The component should render a 3x3 grid where the state of each seat matches the data from the `seats` store. Clicking an available seat must fire the `select` event with the correct seat ID.",
+        "priority": "high",
+        "dependencies": [
+          2,
+          6
+        ],
+        "status": "done",
+        "subtasks": []
+      },
+      {
+        "id": 8,
+        "title": "Build BookingModal Component",
+        "description": "Create the glassmorphism modal for collecting user booking information.",
+        "details": "Create `src/lib/components/BookingModal.svelte`. Use `GlassCard` for styling. The modal must contain a form with 'Name' and 'Contact Number' fields. It must emit a `submit` event with form data and a `close` event. For accessibility, the modal must trap focus and be closable with the Escape key.",
+        "testStrategy": "Verify the modal opens and traps focus. Verify the `close` event is fired on Escape key or close button click. Verify the `submit` event is fired with correct data when the form is submitted.",
+        "priority": "high",
+        "dependencies": [
+          3
+        ],
+        "status": "done",
+        "subtasks": []
+      },
+      {
+        "id": 9,
+        "title": "Implement Seat Selection Page (/select)",
+        "description": "Create the main `/select` page, integrating the header, seat grid, and booking modal to handle the primary user flow.",
+        "details": "Create `src/routes/select/+page.svelte`. Use `Header`, `StageChip`, and `SeatGrid` components. On seat selection, open the `BookingModal`. On modal submission, save the booking info to the `booking` store and navigate to `/details` using `goto`. On modal close, reset any temporary selection state.",
+        "testStrategy": "The page must render correctly. Clicking an available seat must open the modal. Submitting the modal form must update the `booking` store and trigger navigation to `/details`.",
+        "priority": "high",
+        "dependencies": [
+          4,
+          5,
+          7,
+          8
+        ],
+        "status": "done",
+        "subtasks": []
+      },
+      {
+        "id": 10,
+        "title": "Implement Mock Booking API Endpoint",
+        "description": "Create a SvelteKit server route at `POST /api/book` to simulate the booking process.",
+        "details": "Create `src/routes/api/book/+server.ts`. Implement a `POST` handler that reads `{ name, contact, seatId }` from the request. It should check the seat's state in the `seats` store. If booked, return a 409 response with `{ error: 'seat_unavailable' }`. If available, update the seat's state to 'booked' and return a 200 response with `{ ok: true }`. Add a small artificial delay.",
+        "testStrategy": "Use an API client to send a POST request for an available seat; expect a 200 response and a store update. A subsequent request for the same seat should return 409.",
+        "priority": "high",
+        "dependencies": [
+          2
+        ],
+        "status": "done",
+        "subtasks": []
+      },
+      {
+        "id": 11,
+        "title": "Implement Booking Details Page (/details)",
+        "description": "Create the `/details` page where users confirm their details and trigger the final booking API call.",
+        "details": "Create `src/routes/details/+page.svelte`. The form should be pre-filled from the `booking` store but remain editable. Implement required field validation. On submit, call `POST /api/book`. On 200 OK, navigate to `/confirm`. On 409 Conflict, navigate to `/failed`. Disable the submit button during the API call.",
+        "testStrategy": "Page loads with data from the store. Successful API call navigates to `/confirm`. A failed API call (for a pre-booked seat) navigates to `/failed`.",
+        "priority": "high",
+        "dependencies": [
+          9,
+          10
+        ],
+        "status": "done",
+        "subtasks": []
+      },
+      {
+        "id": 12,
+        "title": "Implement Confirmation Page (/confirm)",
+        "description": "Create the `/confirm` page to display successful booking confirmation details.",
+        "details": "Create `src/routes/confirm/+page.svelte`. Use the 'Showtix' header. Display mock performance details and the selected seat information from the `booking` store. Implement a 'Back' button (`history.go(-1)`) and a 'Confirm Booking' button (can `console.log` for now).",
+        "testStrategy": "Navigate to this page after a successful booking. Verify that the correct seat ID and user details are displayed. The 'Back' button must navigate to the previous page.",
+        "priority": "medium",
+        "dependencies": [
+          11
+        ],
+        "status": "done",
+        "subtasks": []
+      },
+      {
+        "id": 13,
+        "title": "Implement Booking Failed Page (/failed)",
+        "description": "Create the `/failed` page to inform the user that their selected seat was taken.",
+        "details": "Create `src/routes/failed/+page.svelte`. Display an error card with a red icon and the specified message. Render an updated `SeatGrid` showing the new state of booked seats from the `seats` store. Implement a 'Retry' button to navigate to `/select` and a 'View Updated Seats' button.",
+        "testStrategy": "Navigate to this page after a failed booking. Verify the error message and updated seat grid are shown. The 'Retry' button must navigate to `/select`.",
+        "priority": "medium",
+        "dependencies": [
+          7,
+          11
+        ],
+        "status": "done",
+        "subtasks": []
+      },
+      {
+        "id": 14,
+        "title": "Final Styling and Responsiveness Polish",
+        "description": "Review all implemented pages and components to ensure visual parity with the mockups and proper responsiveness on mobile devices.",
+        "details": "Check typography, spacing, colors, shadows, and gradients against the original HTML designs. Test the layout on various screen sizes (desktop, tablet, mobile) to ensure layouts stack correctly and content is readable.",
+        "testStrategy": "Visual inspection on different browsers and device emulators. Compare side-by-side with the provided HTML mockups to ensure a 1:1 match.",
+        "priority": "medium",
+        "dependencies": [
+          12,
+          13
+        ],
+        "status": "done",
+        "subtasks": []
+      },
+      {
+        "id": 15,
+        "title": "Full Application Accessibility Review",
+        "description": "Perform a comprehensive accessibility audit of the application to ensure it meets all specified requirements.",
+        "details": "Verify all interactive elements are keyboard-navigable. Check that icon-only buttons have `aria-label`s. Confirm the booking modal traps focus and closes on Escape. Ensure disabled seats are not focusable. Use an automated tool like Axe for a baseline audit.",
+        "testStrategy": "Manual keyboard navigation testing through the entire user flow. Use a screen reader to test the flow. Run an automated accessibility audit and address all reported issues.",
+        "priority": "medium",
+        "dependencies": [
+          14
+        ],
+        "status": "done",
+        "subtasks": []
+      },
+      {
+        "id": 16,
+        "title": "Write Unit Tests for Booking API",
+        "description": "Create unit tests for the mock booking API endpoint to verify its core logic.",
+        "details": "Using a testing framework like Vitest, create a test file for `src/routes/api/book/+server.ts`. Test the happy path (booking an available seat returns 200) and the conflict path (booking a taken seat returns 409).",
+        "testStrategy": "Run the test suite via `bun test` and ensure all tests pass.",
+        "priority": "medium",
+        "dependencies": [
+          10
+        ],
+        "status": "done",
+        "subtasks": []
+      },
+      {
+        "id": 17,
+        "title": "Integrate with Tickettock API - GET /api/v1/seats",
+        "description": "Replace the initial hardcoded seat data in the Svelte store with data fetched from the live Tickettock API.",
+        "details": "In a SvelteKit load function for the `/select` route, fetch data from `GET http://localhost:5800/api/v1/seats`. Map the response `[{ id: number, status: boolean }]` to the Svelte store's format `[{ id: string, state: 'available'|'booked' }]`. Populate the `seats` store with this fetched data.",
+        "testStrategy": "The seat grid on the `/select` page should reflect the data returned by the live API endpoint, not the initial hardcoded data in `booking.ts`.",
+        "priority": "low",
+        "dependencies": [
+          9
+        ],
+        "status": "done",
+        "subtasks": []
+      },
+      {
+        "id": 18,
+        "title": "Integrate with Tickettock API - POST /api/v1/seats/reservation/fcfs",
+        "description": "Replace the mock SvelteKit API endpoint with calls to the live Tickettock FCFS reservation endpoint.",
+        "details": "Modify the form submission logic in `src/routes/details/+page.svelte`. It should now make a `POST` request to `http://localhost:5800/api/v1/seats/reservation/fcfs` with the body `{ user_name, phone }` and a `X-User-Id` header. Handle the various success and error responses (`sold_out`, `duplicate`, `contention`, etc.) as described in the API spec. The mock `/api/book` endpoint can be removed.",
+        "testStrategy": "A successful booking submission on the `/details` page results in a successful call to the FCFS API and navigation to `/confirm`. Error responses from the API are handled gracefully.",
+        "priority": "low",
+        "dependencies": [
+          11,
+          17
+        ],
+        "status": "done",
+        "subtasks": []
+      }
+    ],
+    "metadata": {
+      "created": "2025-08-18T04:02:16.223Z",
+      "updated": "2025-08-22T09:53:21.554Z",
+      "description": "Tasks for prd context"
+    }
+  }
+}

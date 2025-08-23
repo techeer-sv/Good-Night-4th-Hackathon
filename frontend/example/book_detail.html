@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Booking Details</title>
+<link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
+<link as="style" href="https://fonts.googleapis.com/css2?display=swap&amp;family=Roboto:wght@400;500;700&amp;family=Noto+Sans:wght@400;500;700;900" onload="this.rel='stylesheet'" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style type="text/tailwindcss">
+        :root {
+            --background-color: #ffffff;
+            --form-bg-color: rgba(255, 255, 255, 0.8);
+            --form-border-color: rgba(0, 0, 0, 0.1);
+            --text-primary: #121212;
+            --text-secondary: #5f6368;
+            --primary-gradient-start: #f3e8ff;--primary-gradient-end: #fce4ec;--button-gradient-start: #a855f7;--button-gradient-end: #ec4899;--input-bg-color: rgba(233, 213, 255, 0.5);--input-focus-border: #a855f7;
+            --input-focus-shadow: rgba(168, 85, 247, 0.25);
+        }
+        body {
+            font-family: 'Roboto', 'Noto Sans', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-primary);
+        }
+        .glassmorphism-form {
+            background: var(--form-bg-color);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--form-border-color);
+            border-radius: 1.5rem;
+            box-shadow: 0 8px 32px 0 rgba(168, 85, 247, 0.1);
+        }
+        .material-input {
+            background-color: var(--input-bg-color);
+            border-radius: 0.5rem;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        .material-input:focus {
+            border-color: var(--input-focus-border);
+            box-shadow: 0 0 0 3px var(--input-focus-shadow);
+            background-color: rgba(233, 213, 255, 0.7);
+        }
+    </style>
+</head>
+<body>
+<div class="relative flex size-full min-h-screen flex-col bg-white">
+<div class="relative flex h-full grow flex-col">
+<header class="flex items-center justify-between whitespace-nowrap border-b border-solid border-b-gray-200 px-10 py-4 shadow-sm bg-white">
+<div class="flex items-center gap-4 text-purple-600">
+<div class="size-8">
+<svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M16 16.4V4.53a2.25 2.25 0 0 0-2.05-2.24l-6 .5a2.25 2.25 0 0 0-2.2 2.24v11.94a2.75 2.75 0 0 0 2.75 2.75h5a2.75 2.75 0 0 0 2.5-2.75Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.5"></path>
+<path d="M8 16.4V4.53a2.25 2.25 0 0 1 2.05-2.24l6 .5a2.25 2.25 0 0 1 2.2 2.24v11.94A2.75 2.75 0 0 1 15.5 22h-5A2.75 2.75 0 0 1 8 19.15v0Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="1.5"></path>
+</svg>
+</div>
+<h2 class="text-xl font-bold leading-tight tracking-[-0.015em]">StageSeats</h2>
+</div>
+<div class="hidden md:flex items-center gap-8">
+<a class="text-gray-600 hover:text-purple-600 text-sm font-medium transition-colors" href="#">Home</a>
+<a class="text-gray-600 hover:text-purple-600 text-sm font-medium transition-colors" href="#">Performances</a>
+<a class="text-gray-600 hover:text-purple-600 text-sm font-medium transition-colors" href="#">My Bookings</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-gray-500 hover:bg-purple-100 hover:text-purple-600 transition-colors">
+<svg fill="currentColor" height="24" viewBox="0 0 256 256" width="24" xmlns="http://www.w3.org/2000/svg">
+<path d="M221.8,175.94C216.25,166.38,208,139.33,208,104a80,80,0,1,0-160,0c0,35.34-8.26,62.38-13.81,71.94A16,16,0,0,0,48,200H88.81a40,40,0,0,0,78.38,0H208a16,16,0,0,0,13.8-24.06ZM128,216a24,24,0,0,1-22.62-16h45.24A24,24,0,0,1,128,216ZM48,184c7.7-13.24,16-43.92,16-80a64,64,0,1,1,128,0c0,36.05,8.28,66.73,16,80Z"></path>
+</svg>
+</button>
+<div class="size-10 rounded-full bg-cover bg-center shadow-inner ring-2 ring-purple-200" style='background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuDX3AF4L8YUxWdY0Zy1CGeD28wCTNGeLy2Q3muQx3l-5seMNUbS7UcZHb8ejIBRJ7y1Ng8jepZBTqINN9hW2FSvPDQ6EtXzZog22ubP5W0gAxS0SJbslFDH_w2nTC-i3e_LG9gHx3AqLr7mnJrv-Qb6lpSJVNGN0C2Rl8twCsuyWBUn9cRgEOpsHo_sid9ZTwER37mseOPdu5mzDclu3qkSIUKOS8_lJJ9zHZ92MCcGu-MdPrFengL1A3vtYSe7B2F37gPXhcOvw2w");'></div>
+</div>
+</header>
+<main class="flex flex-1 items-center justify-center p-4 bg-gradient-to-br from-[var(--primary-gradient-start)] to-[var(--primary-gradient-end)]">
+<div class="w-full max-w-md">
+<div class="glassmorphism-form p-8 space-y-8">
+<div class="text-center">
+<h2 class="text-3xl font-bold text-[var(--text-primary)]">Booking Information</h2>
+<p class="text-sm text-[var(--text-secondary)] mt-2">Please fill in your details to complete the booking.</p>
+</div>
+<form class="space-y-6">
+<div>
+<label class="block text-sm font-medium text-[var(--text-secondary)] mb-2" for="name">Name</label>
+<input class="form-input w-full p-4 text-[var(--text-primary)] placeholder:text-gray-500 material-input" id="name" placeholder="Enter your full name" type="text"/>
+</div>
+<div>
+<label class="block text-sm font-medium text-[var(--text-secondary)] mb-2" for="contact">Contact Number</label>
+<input class="form-input w-full p-4 text-[var(--text-primary)] placeholder:text-gray-500 material-input" id="contact" placeholder="Enter your contact number" type="tel"/>
+</div>
+<button class="w-full rounded-lg bg-gradient-to-r from-[var(--button-gradient-start)] to-[var(--button-gradient-end)] py-3 text-center text-base font-bold text-white shadow-lg transition-all duration-300 ease-in-out hover:shadow-xl hover:-translate-y-1 focus:outline-none focus:ring-4 focus:ring-purple-300" type="submit">
+                            Book Now
+                        </button>
+</form>
+</div>
+</div>
+</main>
+</div>
+</div>
+
+</body></html>

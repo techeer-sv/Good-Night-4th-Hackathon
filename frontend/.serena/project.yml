@@ -1,0 +1,30 @@
+# .serena/project.yml
+project_name: ticketock
+project_root: /Users/gim-yungi/RustroverProjects/tickettock/frontend
+language: typescript            # Windows에서 TS LSP 문제가 있으면 'typescript_vts'로 교체 권장
+read_only: false
+
+# GitIgnore 기반 무시 + 추가 무시 경로
+ignore_all_files_in_gitignore: true
+ignored_paths:
+  - .git
+  - node_modules
+  - dist
+  - build
+  - coverage
+  - .next                # (넥스트가 아니더라도 남겨둬도 무방)
+  - .svelte-kit          # SvelteKit 빌드 출력/캐시
+  - .playwright          # Playwright 실행 아티팩트
+  - playwright-report
+  - test-results
+  - .vercel
+  - .netlify
+  - .turbo
+  - .pnpm-store
+  - .yarn
+  - .vite
+  - .cache
+  - .eslintcache
+  - .DS_Store
+  - .idea
+  - .vscode

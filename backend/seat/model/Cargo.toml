@@ -1,0 +1,15 @@
+[package]
+name = "seat_model"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+publish = false
+
+[lib]
+name = "seat_model"
+path = "src/lib.rs"
+
+[dependencies]
+sea-orm = { version = "1.1", features = ["macros"] }
+serde = { version = "1", features = ["derive"] }
+salvo.workspace = true

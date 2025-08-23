@@ -1,0 +1,16 @@
+[package]
+name = "test"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[lib]
+name = "test_lib"
+path = "src/lib.rs"
+
+[dependencies]
+once_cell.workspace = true
+serde.workspace = true
+salvo.workspace = true
+
+seat-controller = { path = "../seat/controller" }

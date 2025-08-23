@@ -1,0 +1,109 @@
+{
+	"meta": {
+		"generatedAt": "2025-08-16T13:31:49.486Z",
+		"tasksAnalyzed": 12,
+		"totalTasks": 12,
+		"analysisCount": 12,
+		"thresholdScore": 7,
+		"projectName": "Taskmaster",
+		"usedResearch": false
+	},
+	"complexityAnalysis": [
+		{
+			"taskId": 1,
+			"taskTitle": "Configure OpenResty with Lua Access Control",
+			"complexityScore": 7,
+			"recommendedSubtasks": 6,
+			"expansionPrompt": "Break down the installation, nginx.conf configuration, Lua script integration, Redis connectivity setup, buffer tuning, and proxy_pass preparation into individual subtasks.",
+			"reasoning": "This task involves multiple system-level configurations, Lua scripting, and integration with Redis, requiring careful setup and validation for high concurrency."
+		},
+		{
+			"taskId": 2,
+			"taskTitle": "Implement Redis Lua Script for Atomic Duplicate Request Filtering",
+			"complexityScore": 6,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Expand into subtasks for script design, atomicity validation, TTL handling, integration with OpenResty, and unit testing.",
+			"reasoning": "Requires atomic operations, correct TTL logic, and integration with OpenResty, plus thorough testing for concurrency."
+		},
+		{
+			"taskId": 3,
+			"taskTitle": "Setup Redis for Sequence Management and Duplicate Keys",
+			"complexityScore": 5,
+			"recommendedSubtasks": 4,
+			"expansionPrompt": "Divide into Redis provisioning, persistence/configuration, sequence key creation/testing, and key expiration/cleanup validation.",
+			"reasoning": "Standard Redis setup with some additional requirements for high QPS and key management, but less complex than scripting."
+		},
+		{
+			"taskId": 4,
+			"taskTitle": "Design and Migrate PostgreSQL Seats Table Schema",
+			"complexityScore": 4,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Separate into schema design, migration script creation, and constraint/index validation.",
+			"reasoning": "Schema design and migration are straightforward but require attention to constraints and performance."
+		},
+		{
+			"taskId": 5,
+			"taskTitle": "Develop Salvo Reservation API Handler",
+			"complexityScore": 8,
+			"recommendedSubtasks": 7,
+			"expansionPrompt": "Expand into request parsing, Redis interaction, seat query logic, conditional update, error handling, response formatting, and integration testing.",
+			"reasoning": "Complex API handler with multi-system interactions, conditional logic, and comprehensive error handling."
+		},
+		{
+			"taskId": 6,
+			"taskTitle": "Implement Conditional Seat Reservation in PostgreSQL",
+			"complexityScore": 6,
+			"recommendedSubtasks": 5,
+			"expansionPrompt": "Break down into SQL statement design, transaction management, concurrency simulation, error handling, and result validation.",
+			"reasoning": "Requires atomic SQL operations and concurrency handling, but is focused on a single database operation."
+		},
+		{
+			"taskId": 7,
+			"taskTitle": "Build Salvo Seats Status Query API",
+			"complexityScore": 4,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Expand into query logic, JSON serialization, and cache-control header implementation.",
+			"reasoning": "A read-only API with simple query and serialization, plus optional caching."
+		},
+		{
+			"taskId": 8,
+			"taskTitle": "Integrate OpenResty Proxy to Salvo Backend",
+			"complexityScore": 5,
+			"recommendedSubtasks": 4,
+			"expansionPrompt": "Divide into proxy_pass configuration, header forwarding, connectivity testing, and error handling validation.",
+			"reasoning": "Proxy integration is standard but requires careful header management and error propagation."
+		},
+		{
+			"taskId": 9,
+			"taskTitle": "Implement Error Handling and JSON Response Formatting",
+			"complexityScore": 5,
+			"recommendedSubtasks": 4,
+			"expansionPrompt": "Break down into error scenario identification, JSON schema enforcement, logging implementation, and response validation.",
+			"reasoning": "Standardizes error handling and response formatting across APIs, requiring consistency and thorough testing."
+		},
+		{
+			"taskId": 10,
+			"taskTitle": "Automate Redis Key Cleanup on Request Completion",
+			"complexityScore": 5,
+			"recommendedSubtasks": 4,
+			"expansionPrompt": "Expand into log_by_lua_block implementation, DEL command integration, success/failure handling, and edge case testing.",
+			"reasoning": "Requires reliable cleanup logic and handling of edge cases, but is limited in scope."
+		},
+		{
+			"taskId": 11,
+			"taskTitle": "Write Integration and Load Tests for Reservation Workflow",
+			"complexityScore": 8,
+			"recommendedSubtasks": 7,
+			"expansionPrompt": "Divide into test scenario design, concurrent user simulation, duplicate filtering validation, seat assignment checks, DB consistency verification, load tool setup, and result analysis.",
+			"reasoning": "Comprehensive testing across multiple systems under load, requiring complex scenario coverage and tooling."
+		},
+		{
+			"taskId": 12,
+			"taskTitle": "Document API Endpoints and System Architecture",
+			"complexityScore": 3,
+			"recommendedSubtasks": 3,
+			"expansionPrompt": "Separate into endpoint documentation, request/response format specification, and architecture diagram creation.",
+			"reasoning": "Documentation is straightforward but must be thorough and accurate, with some effort for diagrams."
+		}
+	]
+}
