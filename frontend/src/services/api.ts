@@ -1,34 +1,47 @@
 import { initializeSeats } from '$lib/stores/booking';
 
-const BASE_URL = 'http://localhost:5800'; // From api-spec.md
+// All API calls are now relative and rely on the Vite proxy or server routes.
+const API_BASE = '';
 
-export async function getSeats() {
-  try {
-    const response = await fetch(`${BASE_URL}/api/v1/seats`);
-    if (!response.ok) {
-      throw new Error('Failed to fetch seats');
-    }
-    const data = await response.json();
-    if (data.success) {
-      initializeSeats(data.seats);
-    } else {
-      throw new Error(data.message || 'Failed to process seat data');
-    }
-  } catch (error) {
-    console.error('Error fetching seats:', error);
-    // Handle error appropriately in the UI
-  }
+export async function getSeats(fetchFn: typeof fetch = fetch) {
+	try {
+		const response = await fetchFn(`${API_BASE}/api/v1/seats`);
+		if (!response.ok) {
+			throw new Error(`Failed to fetch seats: ${response.statusText}`);
+		}
+		const data = await response.json();
+		if (data.success) {
+			initializeSeats(data.seats);
+			return data.seats;
+		} else {
+			throw new Error(data.message || 'Failed to process seat data');
+		}
+	} catch (error) {
+		console.error('Error fetching seats:', error);
+		return [];
+	}
 }
 
-export async function reserveSeat(payload: { seatId: number; userName: string; phone: string; userId: string }) {
-    const { seatId, userName, phone, userId } = payload;
-    const response = await fetch(`${BASE_URL}/api/v1/seats/reservation/fcfs`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-User-Id': userId,
-        },
-        body: JSON.stringify({ user_name: userName, phone }),
-    });
-    return response;
+export async function reserveSeat(
+	bookingDetails: {
+		seatId: number;
+		userName: string;
+		phone: string;
+		userId: string;
+	},
+	fetchFn: typeof fetch = fetch
+) {
+	try {
+		const response = await fetchFn(`${API_BASE}/api/v1/reserve`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(bookingDetails)
+		});
+		return response.json();
+	} catch (error) {
+		console.error('Error reserving seat:', error);
+		throw error;
+	}
 }

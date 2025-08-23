@@ -1,62 +1,30 @@
-/// <reference types="vitest" />
-import { defineConfig } from 'vite'
-import { sveltekit } from '@sveltejs/kit/vite'
-import { svelte } from '@sveltejs/vite-plugin-svelte'
-import tailwindcss from '@tailwindcss/vite'
-import { paraglideVitePlugin } from '@inlang/paraglide-js'
-import devtoolsJson from 'vite-plugin-devtools-json'
-import path from 'path'
+// vite.config.ts
+import { sveltekit } from '@sveltejs/kit/vite';
+import { defineConfig } from 'vitest/config';
+import path from 'node:path';
 
-export default defineConfig(({ mode }) => {
-  const isTest = mode === 'test' || !!process.env.VITEST
-
-  return {
-    plugins: [
-      tailwindcss(),
-
-      // 테스트에는 sveltekit 대신 가벼운 svelte 플러그인 사용
-      isTest ? svelte() : sveltekit(),
-
-      !isTest && devtoolsJson(),
-      !isTest &&
-        paraglideVitePlugin({
-          project: './project.inlang',
-          outdir: './src/lib/paraglide'
-        })
-    ].filter(Boolean),
-
-    server: {
-      proxy: {
-        '/api': {
-          target: 'http://localhost:5800',
-          changeOrigin: true,
-        },
-      },
+export default defineConfig({
+  plugins: [sveltekit()],
+  resolve: {
+    alias: {
+      // TS 경로 인식 + Vitest 번들에서 $lib를 실제 폴더로 매핑
+      $lib: path.resolve('./src/lib'),
     },
-
-    test: {
-      globals: true,
-      include: ['src/**/*.spec.ts'],
-      exclude: ['e2e/**', 'tests/e2e/**'],
-      setupFiles: ['./vitest-setup-client.ts'],
-      browser: {
-        enabled: true,
-        name: 'chromium',
-        provider: 'playwright',
-      },
-
-      // 멈춤 진단에 유용
-      reporters: ['default', 'hanging-process'],
-      testTimeout: 30000,
-      hookTimeout: 30000,
-      // 문제 재현/고립용 (원인 파악 끝나면 제거 OK)
-      poolOptions: { threads: { singleThread: true } }
-    },
-
-    resolve: {
-      alias: {
-        $lib: path.resolve(__dirname, './src/lib')
-      }
-    }
-  }
-})
+  },
+  test: {
+    // ✅ Vitest가 E2E(Playwright) 폴더/산출물을 건드리지 않도록 명시
+    include: ['src/**/*.{test,spec}.{js,ts}'],
+    exclude: [
+      'e2e/**',
+      'playwright-report/**',
+      'test-results/**',
+      'node_modules/**',
+      'dist/**',
+      '.svelte-kit/**',
+    ],
+    environment: 'jsdom',         // Svelte 컴포넌트 DOM 테스트용
+    setupFiles: ['./src/vitest-setup.ts'],
+    globals: true,                // @testing-library/jest-dom 등 글로벌 매칭
+    css: true,                    // 스타일 임포트 허용(필요 시)
+  },
+});

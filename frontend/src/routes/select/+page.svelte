@@ -1,74 +1,54 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
-  import { booking, seats, setSeatState } from '$lib/stores/booking';
-  import BookingModal from '$lib/components/BookingModal.svelte';
-  import GlassButton from '$lib/components/GlassButton.svelte';
   import Header from '$lib/components/Header.svelte';
-  import SeatGrid from '$lib/components/SeatGrid.svelte';
   import StageChip from '$lib/components/StageChip.svelte';
-  import { derived } from 'svelte/store';
+  import SeatGrid from '$lib/components/SeatGrid.svelte';
+  import BookingModal from '$lib/components/BookingModal.svelte';
+  import { booking, selectedSeatId } from '$lib/stores/booking';
+  import type { CustomEvent } from 'svelte';
+  import { reserveSeat } from '../../services/api';
+  import { onMount, tick } from 'svelte';
+  import { browser } from '$app/environment';
 
-  let showModal = false;
-
-  const selectedSeat = derived(seats, ($seats) => $seats.find((s) => s.state === 'selected'));
-
-  function handleSeatSelect(event: CustomEvent) {
-    const seatId = event.detail;
-    seats.update((currentSeats) =>
-      currentSeats.map((seat) => {
-        if (seat.id === seatId) {
-          return { ...seat, state: 'selected' };
-        } else if (seat.state === 'selected') {
-          return { ...seat, state: 'available' };
-        }
-        return seat;
-      })
-    );
-  }
-
-  function handleOpenModal() {
-    if ($selectedSeat) {
-      showModal = true;
-    }
+  if (browser) {
+    onMount(() => {
+      (window as any).svelte = { tick };
+    });
   }
 
   function handleCloseModal() {
-    showModal = false;
+    selectedSeatId.set(null);
   }
 
-  function handleBook(event: CustomEvent) {
+  async function handleBook(event: CustomEvent<{ name: string; contact: string }>) {
     const { name, contact } = event.detail;
-    const seatId = $selectedSeat?.id;
+    const currentSeatId = $selectedSeatId;
+    if (!currentSeatId) return;
 
-    if (seatId) {
-      booking.set({ name, contact, seatId });
+    const userId = `user-${Math.random().toString(36).slice(2, 11)}`;
+    const result = await reserveSeat({ userName: name, phone: contact, userId });
+
+    if (result.success) {
+      booking.set({ name, contact, seatId: result.seat.id });
       goto('/details');
+    } else {
+      goto(`/failed?reason=${result.reason || 'unknown'}`);
     }
-
-    handleCloseModal();
   }
 </script>
 
 <div class="min-h-screen bg-gray-900 text-white flex flex-col items-center p-4 sm:p-8">
   <Header brand="SeatFinder" />
-
   <main class="flex flex-col items-center gap-4 sm:gap-8 w-full max-w-md mt-8">
     <StageChip />
-    <SeatGrid on:select={handleSeatSelect} />
-
-    <div class="mt-4">
-      <GlassButton on:click={handleOpenModal} disabled={!$selectedSeat}>
-        Book Selected Seat
-      </GlassButton>
-    </div>
+    <SeatGrid />
   </main>
 
-  {#if showModal && $selectedSeat}
-    <BookingModal
-      selectedSeat={$selectedSeat.id}
-      on:close={handleCloseModal}
-      on:submit={handleBook}
-    />
-  {/if}
+  <!-- 항상 마운트, show로만 토글 -->
+  <BookingModal
+    show={$selectedSeatId !== null}
+    selectedSeat={$selectedSeatId}
+    on:close={handleCloseModal}
+    on:submit={handleBook}
+  />
 </div>
-

@@ -32,20 +32,10 @@ This document contains guides for various tools and workflows available in this 
 
 Serena is a dual-layer coding agent toolkit that provides a unified interface over multiple Language Server Protocols (LSPs). It allows for precise, symbol-based code editing, finding references, and other language-aware operations, which are essential for complex refactoring and implementation tasks.
 
-### Development Commands
-
-**Essential Commands (use these exact commands):**
-- `uv run poe format`: Format code (BLACK + RUFF).
-- `uv run poe type-check`: Run mypy type checking.
-- `uv run poe test`: Run tests with default markers.
-- `uv run poe lint`: Check code style without fixing.
-
 ### Project Management
 
-- `uv run serena-mcp-server`: Start the Serena MCP server from the project root.
-- `uv run index-project`: Index the project for faster tool performance.
-
-**Always run format, type-check, and test before completing any task.**
+- `uvx --from git+https://github.com/oraios/serena serena start-mcp-server`: Start the Serena MCP server from the project root.
+- `uvx --from git+https://github.com/oraios/serena serena project index`: Index the project for faster tool performance.
 
 ### Core Serena Tools
 
@@ -86,3 +76,111 @@ Serena is a dual-layer coding agent toolkit that provides a unified interface ov
 - **Task-Driven Workflow**: Use the `list` -> `next` -> `show` -> `expand` -> `implement` -> `update-subtask` -> `set-status` loop.
 - **VS Code Rules**: Follow the specified structure for creating and maintaining rules.
 - **Continuous Improvement**: Update rules and patterns as the codebase evolves.
+
+
+---
+
+## 3. Sequential Thinking MCP Usage Server Guide
+
+This server provides structured, step-by-step planning utilities ("sequential_thinking" tools) for breaking down complex tasks.
+
+> If you expose it over HTTP/SSE instead, run the server locally with `--transport sse --port 9122` and set `{ "url": "http://localhost:9122/sse" }` instead of `command/args`.
+
+### Verify inside Gemini
+```bash
+cd /Users/gim-yungi/RustroverProjects/tickettock/frontend
+gemini
+/mcp           # see 'sequential-thinking'
+/tools         # tools merged; look for sequential_thinking.*
+```
+
+### Common tools & inputs
+- `sequential_thinking.plan`  — inputs: `thought`, `nextThoughtNeeded` (bool), `thoughtNumber` (int)
+- `sequential_thinking.reflect` — inputs: `thought`, `issues`
+
+### Notes
+- Keep this server stdio-based for lowest latency with Gemini CLI.
+- Commit any reusable prompts to `.serena/memories/` or project docs for reuse.
+
+---
+
+## 4. Context7 Usage Server Guide
+
+`context7` helps fetch **official documentation** of libraries/APIs for grounded implementation.
+
+### Typical workflow
+```text
+resolve-library-id(libraryName="sveltekit-superforms")
+get-library-docs(context7CompatibleLibraryID="/svelte-superforms/sveltekit-superforms", topic="usage")
+```
+
+### Notes
+- Prefer remote SSE when multiple team members share the same doc index.
+- Cache window and rate limits are enforced by the server; retry with a smaller topic if needed.
+
+---
+
+## 5. Playwright Usage Server Guide
+
+E2E testing for this SvelteKit + TypeScript project.
+
+### Install & scaffold (once)
+```bash
+cd /Users/gim-yungi/RustroverProjects/tickettock/frontend
+npx sv add playwright
+```
+This adds Playwright config, scripts, and a demo test.
+
+### Run tests
+```bash
+# Headless (CI default)
+npx playwright test
+
+# Headed (debug visually)
+npx playwright test --headed
+
+# Choose browser
+npx playwright test --browser=chromium
+
+# Reporter
+npx playwright test --reporter=list
+
+# Debug UI
+PWDEBUG=1 npx playwright test
+```
+> Note: `--headed` is a Playwright flag, **not** a Vitest flag. Using it with Vitest will error.
+
+### Useful files
+- `playwright.config.ts`: tweak `use.baseURL`, timeouts, retries, and projects.
+- `e2e/*.test.ts`: put your tests here.
+
+---
+
+## 6. Taskmaster ai Usage Server Guide
+
+Taskmaster AI is used for project/task orchestration from the terminal.
+
+### Core workflow
+```bash
+# Initialize in current repo (one time)
+task-master init
+
+# PRD → tasks
+task-master parse-prd .taskmaster/docs/prd.txt
+
+# Daily loop
+task-master list
+task-master next
+task-master show 1.2
+task-master expand 1.2
+task-master set-status --id=1.2 --status=done
+```
+
+### SvelteKit-friendly tips
+- Keep tasks tied to app routes (`src/routes/**/+page.svelte`, `+page.ts`, `+server.ts`).
+- Add CI step to fail when open `critical` tasks exist.
+- Attach E2E IDs (e.g., `data-testid`) early so Playwright scenarios are stable.
+
+### Troubleshooting
+- If tasks don't appear, re-parse PRD after structure changes.
+- Keep `project_name` in `.serena/project.yml` aligned with your Taskmaster project label.

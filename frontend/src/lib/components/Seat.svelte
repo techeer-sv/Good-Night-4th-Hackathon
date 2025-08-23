@@ -1,37 +1,31 @@
 <script lang="ts">
-  export let id: string;
-  export let state: 'available' | 'booked' | 'selected' = 'available';
-  export let onSelect: (id: string) => void = () => {};
+  import { selectedSeatId } from '$lib/stores/booking';
+  import type { SeatState } from '$lib/stores/booking';
 
-  const isBooked = state === 'booked';
-  const isSelected = state === 'selected';
+  export let id: number;
+  export let state: SeatState = 'available';
+
+  $: isBooked = state === 'booked';
+  $: isSelected = $selectedSeatId === id;
 
   function handleClick() {
-    if (!isBooked) onSelect(id);
-  }
-
-  function handleKeydown(e: KeyboardEvent) {
     if (isBooked) return;
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      onSelect(id);
-    }
+    selectedSeatId.update(cur => (cur === id ? null : id));
   }
 </script>
 
-<div
-  role="button"
-  tabindex={isBooked ? -1 : 0}
-  aria-disabled={isBooked}
-  aria-label={`Seat ${id} ${isBooked ? '(booked)' : isSelected ? '(selected)' : '(available)'}`}
-  class={`aspect-square flex items-center justify-center select-none rounded-2xl transition-all duration-300 transform
-    ${isBooked
-      ? 'bg-gray-200/70 text-gray-500 opacity-70 cursor-not-allowed shadow-inner backdrop-blur-sm'
-      : `glassy rounded-2xl hover:scale-105 hover:shadow-xl transition-all duration-300 transform
-         ${isSelected ? 'bg-primary text-on-primary shadow-glass-lg' : 'text-on-surface'}`
-    }`}
+<button
+  data-testid="seat"
+  type="button"
+  disabled={isBooked}
+  aria-pressed={isSelected}
+  class="aspect-square flex items-center justify-center select-none rounded-2xl
+         transition-all duration-300 transform
+         disabled:cursor-not-allowed disabled:opacity-70 disabled:shadow-inner
+         disabled:bg-gray-200/70 disabled:text-gray-500
+         enabled:hover:scale-105 enabled:hover:shadow-xl
+         motion-reduce:transition-none motion-reduce:transform-none"
   on:click={handleClick}
-  on:keydown={handleKeydown}
 >
   <span class="text-lg font-medium">{id}</span>
-</div>
+</button>

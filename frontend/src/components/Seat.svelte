@@ -37,6 +37,7 @@
     w-12 h-12 sm:w-16 sm:h-16 rounded-lg flex items-center justify-center
     font-bold text-white text-base sm:text-lg
     transition-all duration-200 ease-in-out
+    motion-reduce:transition-none motion-reduce:transform-none
     focus:outline-none
     {seatClasses[seat.state]}
   "
