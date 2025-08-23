@@ -7,24 +7,31 @@
 </svelte:head>
 
 <script lang="ts">
-  let showPopup = false;
-  let selectedSeat: string | null = null;
+  import { selectedSeatId } from '$lib/stores/booking';
+  import { enhance } from '$app/forms';
+  export let data;
 
-  function handleSeatSelect(event: Event) {
+  // This reactive statement ensures that our local `seats` variable
+  // always stays in sync with the data passed from the `load` function.
+  $: seats = data.seats;
+
+  let showPopup = false;
+  let errorMessage: string | null = null;
+
+  // When a seat radio button is changed, update the store and show the popup.
+  function handleSeatChange(event: Event) {
     const input = event.target as HTMLInputElement;
-    selectedSeat = input.value;
+    const seatId = parseInt(input.value, 10);
+    selectedSeatId.set(seatId);
+    errorMessage = null; // Clear previous errors
     showPopup = true;
   }
 
+  // When closing the popup, reset the selected seat in the store.
   function closePopup() {
     showPopup = false;
-    if (selectedSeat) {
-      const radio = document.querySelector(`input[name="seat"][value="${selectedSeat}"]`) as HTMLInputElement;
-      if (radio) {
-        radio.checked = false;
-      }
-      selectedSeat = null;
-    }
+    selectedSeatId.set(null);
+    errorMessage = null;
   }
 </script>
 
@@ -62,51 +69,27 @@
           <div class="bg-[var(--md-sys-color-surface-variant)] text-[var(--md-sys-color-on-surface-variant)] text-sm font-medium py-2 px-16 rounded-full shadow-inner">STAGE</div>
         </div>
         <div class="grid grid-cols-3 gap-5">
-          <label class="group cursor-pointer">
-            <input class="peer sr-only" name="seat" type="radio" value="A1" on:change={handleSeatSelect} />
-            <div class="aspect-square flex items-center justify-center glassy rounded-2xl transition-all duration-300 transform peer-hover:scale-105 peer-hover:shadow-xl peer-checked:bg-[var(--md-sys-color-primary)] peer-checked:shadow-2xl peer-checked:shadow-purple-300">
-              <span class="text-lg font-medium text-[var(--md-sys-color-on-surface)] peer-checked:text-[var(--md-sys-color-on-primary)]">A1</span>
-            </div>
-          </label>
-          <div class="aspect-square flex items-center justify-center bg-gray-200/70 rounded-2xl cursor-not-allowed shadow-inner backdrop-blur-sm">
-            <span class="text-lg font-medium text-gray-500 opacity-70">A2</span>
-          </div>
-          <label class="group cursor-pointer">
-            <input class="peer sr-only" name="seat" type="radio" value="A3" on:change={handleSeatSelect} />
-            <div class="aspect-square flex items-center justify-center glassy rounded-2xl transition-all duration-300 transform peer-hover:scale-105 peer-hover:shadow-xl peer-checked:bg-[var(--md-sys-color-primary)] peer-checked:shadow-2xl peer-checked:shadow-purple-300">
-              <span class="text-lg font-medium text-[var(--md-sys-color-on-surface)] peer-checked:text-[var(--md-sys-color-on-primary)]">A3</span>
-            </div>
-          </label>
-          <label class="group cursor-pointer">
-            <input class="peer sr-only" name="seat" type="radio" value="B1" on:change={handleSeatSelect} />
-            <div class="aspect-square flex items-center justify-center glassy rounded-2xl transition-all duration-300 transform peer-hover:scale-105 peer-hover:shadow-xl peer-checked:bg-[var(--md-sys-color-primary)] peer-checked:shadow-2xl peer-checked:shadow-purple-300">
-              <span class="text-lg font-medium text-[var(--md-sys-color-on-surface)] peer-checked:text-[var(--md-sys-color-on-primary)]">B1</span>
-            </div>
-          </label>
-          <div class="aspect-square flex items-center justify-center bg-gray-200/70 rounded-2xl cursor-not-allowed shadow-inner backdrop-blur-sm">
-            <span class="text-lg font-medium text-gray-500 opacity-70">B2</span>
-          </div>
-          <label class="group cursor-pointer">
-            <input class="peer sr-only" name="seat" type="radio" value="B3" on:change={handleSeatSelect} />
-            <div class="aspect-square flex items-center justify-center glassy rounded-2xl transition-all duration-300 transform peer-hover:scale-105 peer-hover:shadow-xl peer-checked:bg-[var(--md-sys-color-primary)] peer-checked:shadow-2xl peer-checked:shadow-purple-300">
-              <span class="text-lg font-medium text-[var(--md-sys-color-on-surface)] peer-checked:text-[var(--md-sys-color-on-primary)]">B3</span>
-            </div>
-          </label>
-          <label class="group cursor-pointer">
-            <input class="peer sr-only" name="seat" type="radio" value="C1" on:change={handleSeatSelect} />
-            <div class="aspect-square flex items-center justify-center glassy rounded-2xl transition-all duration-300 transform peer-hover:scale-105 peer-hover:shadow-xl peer-checked:bg-[var(--md-sys-color-primary)] peer-checked:shadow-2xl peer-checked:shadow-purple-300">
-              <span class="text-lg font-medium text-[var(--md-sys-color-on-surface)] peer-checked:text-[var(--md-sys-color-on-primary)]">C1</span>
-            </div>
-          </label>
-          <div class="aspect-square flex items-center justify-center bg-gray-200/70 rounded-2xl cursor-not-allowed shadow-inner backdrop-blur-sm">
-            <span class="text-lg font-medium text-gray-500 opacity-70">C2</span>
-          </div>
-          <label class="group cursor-pointer">
-            <input class="peer sr-only" name="seat" type="radio" value="C3" on:change={handleSeatSelect} />
-            <div class="aspect-square flex items-center justify-center glassy rounded-2xl transition-all duration-300 transform peer-hover:scale-105 peer-hover:shadow-xl peer-checked:bg-[var(--md-sys-color-primary)] peer-checked:shadow-2xl peer-checked:shadow-purple-300">
-              <span class="text-lg font-medium text-[var(--md-sys-color-on-surface)] peer-checked:text-[var(--md-sys-color-on-primary)]">C3</span>
-            </div>
-          </label>
+          {#each seats as seat (seat.id)}
+            {#if seat.state === 'booked'}
+              <div class="aspect-square flex items-center justify-center bg-gray-200/70 rounded-2xl cursor-not-allowed shadow-inner backdrop-blur-sm">
+                <span class="text-lg font-medium text-gray-500 opacity-70">{seat.id}</span>
+              </div>
+            {:else}
+              <label class="group cursor-pointer">
+                <input
+                  class="peer sr-only"
+                  name="seat"
+                  type="radio"
+                  value={seat.id}
+                  on:change={handleSeatChange}
+                  checked={$selectedSeatId === seat.id}
+                />
+                <div class="aspect-square flex items-center justify-center glassy rounded-2xl transition-all duration-300 transform peer-hover:scale-105 peer-hover:shadow-xl peer-checked:bg-[var(--md-sys-color-primary)] peer-checked:shadow-2xl peer-checked:shadow-purple-300">
+                  <span class="text-lg font-medium text-[var(--md-sys-color-on-surface)] peer-checked:text-[var(--md-sys-color-on-primary)]">{seat.id}</span>
+                </div>
+              </label>
+            {/if}
+          {/each}
         </div>
       </div>
       <div class="flex flex-col items-center space-y-4 pt-4">
@@ -120,7 +103,7 @@
             <span>Booked</span>
           </div>
           <div class="flex items-center gap-2">
-            <div class="w-4 h-4 rounded-full bg-[var(--md-sys-color-primary]"></div>
+            <div class="w-4 h-4 rounded-full bg-[var(--md-sys-color-primary)]"></div>
             <span>Selected</span>
           </div>
         </div>
@@ -130,14 +113,31 @@
         <div class="popup-glassmorphism p-6 rounded-3xl shadow-2xl w-full max-w-sm mx-auto">
           <div class="flex justify-between items-start mb-4">
             <div class="flex flex-col">
-              <h3 class="text-xl font-medium text-[var(--md-sys-color-on-surface)]">Booking Details for {selectedSeat}</h3>
+              <h3 class="text-xl font-medium text-[var(--md-sys-color-on-surface)]">Booking Details for {$selectedSeatId}</h3>
               <p class="text-sm text-[var(--md-sys-color-on-surface-variant)]">Enter your information</p>
             </div>
             <button class="cursor-pointer p-2 rounded-full hover:bg-black/10" on:click={closePopup}>
               <span class="material-icons text-[var(--md-sys-color-on-surface-variant)]">close</span>
             </button>
           </div>
-          <form class="space-y-6">
+          <form
+            method="POST"
+            use:enhance={({ form, data, action, cancel }) => {
+              errorMessage = null; // Clear previous errors on new submission
+              return async ({ result }) => {
+                if (result.type === 'failure') {
+                  errorMessage = result.data?.message || 'An unknown error occurred.';
+                }
+                if (result.type === 'success' && result.data?.seats) {
+                  // @ts-ignore
+                  seats = result.data.seats;
+                  closePopup();
+                }
+              };
+            }}
+            class="space-y-6"
+          >
+            <input type="hidden" name="seatId" value={$selectedSeatId} />
             <div>
               <label class="block text-sm font-medium text-[var(--md-sys-color-on-surface-variant)] mb-1" for="name">Name</label>
               <input class="block w-full px-3 py-2 border border-[var(--md-sys-color-outline)] rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent sm:text-sm bg-white/50" id="name" name="name" required type="text" />
@@ -146,6 +146,13 @@
               <label class="block text-sm font-medium text-[var(--md-sys-color-on-surface-variant)] mb-1" for="contact">Contact Number</label>
               <input class="block w-full px-3 py-2 border border-[var(--md-sys-color-outline)] rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--md-sys-color-primary)] focus:border-transparent sm:text-sm bg-white/50" id="contact" name="contact" required type="tel" />
             </div>
+
+            {#if errorMessage}
+              <div class="text-red-600 text-sm bg-red-100 p-3 rounded-lg text-center">
+                {errorMessage}
+              </div>
+            {/if}
+
             <div>
               <button class="w-full flex justify-center py-3 px-4 border border-transparent rounded-full shadow-lg text-sm font-medium text-white bg-[var(--md-sys-color-primary)] hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white/50 focus:ring-[var(--md-sys-color-primary)] transition-transform transform hover:scale-105" type="submit">
                 Book Now

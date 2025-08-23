@@ -12,7 +12,6 @@ use seat_model::model_seat as seat;
 use seat_service::{Query, Mutation};
 use config_database::db;
 use serde::{Deserialize, Serialize};
-use serde_json::json;
 use tracing::info;
 // 순차 시퀀스는 gateway(OpenResty)에서 Redis INCR 후 X-Fcfs-Seq 헤더로 전달됨
 use sea_orm::{TransactionTrait, ConnectionTrait}; // transaction & execute
@@ -63,7 +62,9 @@ fn not_found() -> StatusError {
 /// 시스템에 등록된 모든 좌석의 기본 정보를 반환합니다.
 /// 개인정보 보호를 위해 예약자 정보는 포함하지 않습니다.
 #[endpoint(
-    tags("seats")
+    tags("seats"),
+    summary = "좌석 목록 조회",
+    description = "시스템에 등록된 모든 좌석의 기본 정보를 반환합니다."
 )]
 pub async fn list_seats() -> Result<Json<Vec<PublicSeatInfo>>, StatusError> { 
     let seats = Query::list_seats(db()).await
@@ -79,7 +80,12 @@ pub async fn list_seats() -> Result<Json<Vec<PublicSeatInfo>>, StatusError> {
 /// 지정된 ID의 좌석에 대한 상세 정보를 반환합니다.
 /// 예약자 정보를 포함한 전체 좌석 데이터를 제공합니다.
 #[endpoint(
-    tags("seats")
+    tags("seats"),
+    summary = "좌석 상세 정보 조회",
+    description = "지정된 ID의 좌석에 대한 상세 정보를 반환합니다.",
+    parameters(
+        ("id" = i32, Path, description = "조회할 좌석의 고유 ID")
+    )
 )]
 pub async fn get_seat(req: &mut Request) -> Result<Json<seat::Model>, StatusError> {
 	let id: i32 = req
@@ -100,7 +106,10 @@ pub async fn get_seat(req: &mut Request) -> Result<Json<seat::Model>, StatusErro
 /// 관리자용 기능으로 좌석의 상태를 직접 변경합니다.
 /// 일반적인 예약 프로세스를 거치지 않고 강제로 상태를 설정합니다.
 #[endpoint(
-    tags("seats")
+    tags("seats"),
+    summary = "좌석 상태 직접 변경",
+    description = "사용자가 자신의 좌석 상태를 직접 변경할 수 있습니다.",
+    request_body = SeatUpdatePayload
 )]
 pub async fn update_seat_status(req: &mut Request) -> Result<Json<seat::Model>, StatusError> {
 	let id: i32 = req
@@ -114,58 +123,6 @@ pub async fn update_seat_status(req: &mut Request) -> Result<Json<seat::Model>, 
     Ok(Json(updated_seat))
 }
 
-/// 좌석 상태 토글
-/// 
-/// 좌석의 현재 상태를 반대로 전환합니다.
-/// available → reserved 또는 reserved → available로 상태를 변경합니다.
-#[endpoint(
-    tags("seats")
-)]
-pub async fn toggle_seat(req: &mut Request) -> Result<Json<serde_json::Value>, StatusError> {
-	let id: i32 = req
-		.param::<String>("id")
-		.and_then(|s| s.parse::<i32>().ok())
-		.ok_or_else(|| StatusError::bad_request())?;
-	
-    // First get the current seat
-    let current_seat = Query::find_seat(db(), id).await
-        .map_err(|_| StatusError::internal_server_error())?
-        .ok_or_else(|| not_found())?;
-    
-    // Toggle the status
-    let updated_seat = Mutation::set_seat_status(db(), id, !current_seat.status).await
-        .map_err(|_| StatusError::internal_server_error())?;
-    
-    Ok(Json(json!({"id": updated_seat.id, "status": updated_seat.status})))
-}
-
-/// 일반 좌석 예약 (단순 버전)
-/// 
-/// 기본적인 좌석 예약 기능을 제공합니다.
-/// FCFS 보장 없이 단순히 예약 처리만 수행합니다.
-#[endpoint(
-    tags("seats")
-)]
-pub async fn reserve_seat(req: &mut Request) -> Result<Json<seat::Model>, StatusError> {
-	let id: i32 = req
-		.param::<String>("id")
-		.and_then(|s| s.parse::<i32>().ok())
-		.ok_or_else(|| StatusError::bad_request())?;
-    let payload: SeatReservationPayload = req.parse_json().await.map_err(|_| StatusError::bad_request())?;
-    info!(user_name=%payload.user_name, "parsed reservation payload");
-	
-    // Reserve the seat using the mutation service
-    let updated_seat = Mutation::reserve_seat(db(), id, payload.user_name, payload.phone).await
-        .map_err(|e| match e {
-            sea_orm::DbErr::Custom(msg) if msg.contains("already reserved") => {
-                StatusError::conflict().brief("Seat already reserved")
-            },
-            sea_orm::DbErr::RecordNotFound(_) => not_found(),
-            _ => StatusError::internal_server_error()
-        })?;
-    
-    Ok(Json(updated_seat))
-}
 
 #[derive(Serialize, ToSchema)]
 #[salvo(schema(rename_all = "camelCase"))]
@@ -407,28 +364,3 @@ async fn count_available() -> Result<i64, sea_orm::DbErr> {
     Ok(rows.first().map(|r| r.cnt).unwrap_or(0))
 }
 
-// -----------------------------
-// Tests
-// -----------------------------
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use serde_json::json;
-
-    #[test]
-    fn seat_reservation_payload_deserialize_snake_case_ok() {
-        let v = json!({"user_name":"Alice","phone":"010"});
-        let s: SeatReservationPayload = serde_json::from_value(v).expect("snake_case should deserialize");
-        assert_eq!(s.user_name, "Alice");
-        assert_eq!(s.phone.as_deref(), Some("010"));
-    }
-
-    #[test]
-    fn seat_reservation_payload_deserialize_camel_case_rejected() {
-        let v = json!({"userName":"Alice"});
-        let err = serde_json::from_value::<SeatReservationPayload>(v).err().expect("camelCase must fail now");
-        // Error message should mention missing field user_name
-        let msg = err.to_string();
-        assert!(msg.contains("user_name"), "unexpected error msg: {msg}");
-    }
-}
