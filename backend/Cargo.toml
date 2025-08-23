@@ -8,7 +8,7 @@ members = [
 	"seat/model",
 	"seat/service",
 	"seat/controller"
-]
+, "test"]
 resolver = "2"
 
 [workspace.package]
@@ -37,7 +37,6 @@ sea-orm = { version = "1.1", features = ["macros", "runtime-tokio-rustls", "sqlx
 redis = { version = "0.32.5", features = ["aio", "tokio-comp"] }
 once_cell = "1.21"
 anyhow = "1"
-reqwest = { version = "0.12", features = ["json", "rustls-tls"] }
 
 [package]
 name = "tickettock"
@@ -58,16 +57,12 @@ tokio.workspace = true
 salvo.workspace = true
 tracing-subscriber.workspace = true
 tracing.workspace = true
-serde.workspace = true
-tera.workspace = true
 dotenvy.workspace = true
 sea-orm.workspace = true
 redis.workspace = true
-once_cell.workspace = true
-anyhow.workspace = true
-reqwest.workspace = true
-config-api = { path = "config/api" }
+config_api = { package = "config-api", path = "config/api" }
 config-database = { path = "config/database" }
 config_redis = { path = "config/redis" }
 migration = { path = "config/migration" }
 seat_model = { path = "seat/model" }
+test = { path = "test" }

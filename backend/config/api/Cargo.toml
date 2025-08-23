@@ -10,7 +10,6 @@ path = "src/lib.rs"
 
 [dependencies]
 once_cell.workspace = true
-serde.workspace = true
 salvo.workspace = true
 
 seat-controller = { path = "../../seat/controller" }

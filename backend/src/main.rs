@@ -83,7 +83,8 @@ async fn main() {
         panic!("Sample data initialization failed: {}", e);
     }
 
-    let port = std::env::var("PORT").unwrap_or_else(|_| "5800".to_string());
+    // let port = std::env::var("PORT").unwrap_or_else(|_| "5800".to_string());
+    let port = 5900;
     let bind_addr = format!("0.0.0.0:{}", port);
     let acceptor = TcpListener::new(bind_addr).bind().await;
     let router = config_api::build_router(redis_ping);
