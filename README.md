@@ -1,4 +1,4 @@
-# 공연 좌석 예매 시스템 풀스택 구현
+# 24시간 해커톤 공연 좌석 예매 시스템 풀스택 구현
 
 ## 프로젝트 개요
 본 프로젝트는 공연 좌석 예매 시스템을 구현하여 사용자가 좌석을 예약하고 관리할 수 있는 웹 애플리케이션입니다. 프론트엔드와 백엔드가 분리된 구조로, 프론트엔드는 React와 Vite를 사용하여 개발하였으며, 백엔드는 Spring Boot와 JPA를 사용하여 RESTful API를 제공합니다. 데이터베이스는 mysql을 사용하였으며, Docker Compose를 통해 개발 환경을 통합하여 배포 및 테스트를 용이하게 하였습니다.
@@ -24,7 +24,7 @@
 <img width="2602" height="1310" alt="image" src="https://github.com/user-attachments/assets/70c086e4-b731-4333-80c4-dc685967b7c6" />
 
 ## erd
-<img width="361" height="696" alt="image" src="https://github.com/user-attachments/assets/7de05127-3e75-4064-8e09-de60f6d5fcd8" />
+<img width="518" height="744" alt="image" src="https://github.com/user-attachments/assets/d5d59c27-4e20-4381-9bb0-08f0498f9ae2" />
 <br><br>
 
 ## 구현한 요구사항 체크리스트
